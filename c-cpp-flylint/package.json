@@ -1,352 +1,352 @@
 {
-  "name": "c-cpp-flylint",
-  "displayName": "C/C++ Advanced Lint",
-  "description": "An advanced, modern, static analysis extension for C/C++ that supports a number of back-end analyzer programs.",
-  "author": {
-    "name": "Joseph Benden",
-    "email": "joe@benden.us",
-    "url": "http://benden.us/"
-  },
-  "publisher": "jbenden",
-  "version": "0.0.1",
-  "license": "SEE LICENSE IN LICENSE",
-  "icon": "C-Cpp-FlyLint_icon.svg",
-  "galleryBanner": {
-    "color": "#303f9f",
-    "theme": "dark"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jbenden/vscode-c-cpp-flylint.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jbenden/vscode-c-cpp-flylint/issues",
-    "email": "joe@benden.us"
-  },
-  "homepage": "https://github.com/jbenden/vscode-c-cpp-flylint/blob/master/README.md",
-  "engines": {
-    "vscode": "^1.13.0"
-  },
-  "categories": [
-    "Languages",
-    "Linters"
-  ],
-  "keywords": [
-    "c",
-    "c++",
-    "cppcheck",
-    "flexelint",
-    "lint",
-    "linter"
-  ],
-  "activationEvents": [
-    "onLanguage:c",
-    "onLanguage:cpp"
-  ],
-  "main": "./out/extension",
-  "contributes": {
-    "configuration": {
-      "type": "object",
-      "title": "C/C++ Lint configuration",
-      "properties": {
-        "c-cpp-flylint.enable": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable or disable all linting"
-        },
-        "c-cpp-flylint.run": {
-          "type": "string",
-          "enum": [
-            "onSave",
-            "onType"
-          ],
-          "default": "onSave",
-          "description": "Run the linter upon typing (onType), when possible, or on save (onSave)."
-        },
-
-        "c-cpp-flylint.cppcheck.enable": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable or disable the CppCheck linter"
-        },
-        "c-cpp-flylint.cppcheck.executable": {
-          "type": "string",
-          "description": "This option allows you to override the executable called when using CppCheck",
-          "default": "cppcheck"
-        },
-        "c-cpp-flylint.cppcheck.configFile": {
-          "type": "string",
-          "description": "A .clang_complete file to use/fallback to if no config file is found in the current project",
-          "default": ".clang_complete"
-        },
-        "c-cpp-flylint.cppcheck.includePaths": {
-          "type": "array",
-          "default": [],
-          "description": "Paths to search for include files. They may be relative or absolute."
-        },
-        "c-cpp-flylint.cppcheck.platform": {
-          "type": "string",
-          "enum": [
-            "unix32",
-            "unix64",
-            "win32A",
-            "win32W",
-            "win64",
-            "native"
-          ],
-          "default": "native",
-          "description": "The platform used for types and sizes."
-        },
-        "c-cpp-flylint.cppcheck.standard": {
-          "type": "array",
-          "default": [
-            "c11",
-            "c++11"
-          ],
-          "description": "The language standards to check against. Can be one or more of: posix, c89, c99, c11, c++03, c++11."
-        },
-        "c-cpp-flylint.cppcheck.defines": {
-          "type": "array",
-          "default": [],
-          "description": "Preprocessor symbols to define."
-        },
-        "c-cpp-flylint.cppcheck.undefines": {
-          "type": "array",
-          "default": [],
-          "description": "Preprocessor symbols to undefine."
-        },
-        "c-cpp-flylint.cppcheck.suppressions": {
-          "type": "array",
-          "default": [],
-          "description": "Warnings to suppress. Refer to the CppCheck documentation for what to supply here."
-        },
-        "c-cpp-flylint.cppcheck.verbose": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether to enable verbose output from CppCheck."
-        },
-        "c-cpp-flylint.cppcheck.language": {
-            "type": "string",
-            "default": "c++",
-            "enum": [ "c", "c++" ],
-            "description": "Force CppCheck to check all files as the given language."
-        },
-        "c-cpp-flylint.cppcheck.inconclusive": {
-            "type": "boolean",
-            "default": false,
-            "description": "Allow reporting even though analysis is inconclusive. May lead to false positives."
-        },
-        "c-cpp-flylint.cppcheck.force": {
-          "type": "boolean",
-          "default": false,
-          "description": "Controls whether CppCheck enumerates all possible configurations."
-        },
-        "c-cpp-flylint.cppcheck.severityLevels": {
-          "type": "object",
-          "description": "Maps the severity levels of CppCheck to VSCode severity levels (Error, Warning, Information, Hint). Setting to 'None' will not show the severity type at all.",
-          "default": {
-            "error": "Error",
-            "warning": "Warning",
-            "style": "Information",
-            "performance": "Warning",
-            "portability": "Warning",
-            "information": "Information"
-          },
-          "properties": {
-            "error": {
-              "description": "Used when major issues are found.",
-              "type": "string",
-              "default": "Error",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "warning": {
-              "description": "Suggestions about defensive programming to prevent potential issues.",
-              "type": "string",
-              "default": "Warning",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "style": {
-              "description": "Stylistic issues related to code cleanup such as unused functions, redundant code, constness, etc.",
-              "type": "string",
-              "default": "Information",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "performance": {
-              "description": "Suggestions for making the code faster. These suggestions only and may not increase execution speed.",
-              "type": "string",
-              "default": "Warning",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "portability": {
-              "description": "Warnings about 64-bit and compiler portability.",
-              "type": "string",
-              "default": "Warning",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "information": {
-              "description": "Minor issues that do not fit into other categories.",
-              "type": "string",
-              "default": "Information",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
+    "name": "c-cpp-flylint",
+    "displayName": "C/C++ Advanced Lint",
+    "description": "An advanced, modern, static analysis extension for C/C++ that supports a number of back-end analyzer programs.",
+    "author": {
+        "name": "Joseph Benden",
+        "email": "joe@benden.us",
+        "url": "http://benden.us/"
+    },
+    "publisher": "jbenden",
+    "version": "0.0.2",
+    "license": "SEE LICENSE IN LICENSE",
+    "icon": "C-Cpp-FlyLint_icon.svg",
+    "galleryBanner": {
+        "color": "#303f9f",
+        "theme": "dark"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jbenden/vscode-c-cpp-flylint.git"
+    },
+    "bugs": {
+        "url": "https://github.com/jbenden/vscode-c-cpp-flylint/issues",
+        "email": "joe@benden.us"
+    },
+    "homepage": "https://github.com/jbenden/vscode-c-cpp-flylint/blob/master/README.md",
+    "engines": {
+        "vscode": "^1.13.0"
+    },
+    "categories": [
+        "Languages",
+        "Linters"
+    ],
+    "keywords": [
+        "c",
+        "c++",
+        "cppcheck",
+        "flexelint",
+        "lint",
+        "linter"
+    ],
+    "activationEvents": [
+        "onLanguage:c",
+        "onLanguage:cpp"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "configuration": {
+            "type": "object",
+            "title": "C/C++ Lint configuration",
+            "properties": {
+                "c-cpp-flylint.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable or disable all linting"
+                },
+                "c-cpp-flylint.run": {
+                    "type": "string",
+                    "enum": [
+                        "onSave",
+                        "onType"
+                    ],
+                    "default": "onSave",
+                    "description": "Run the linter upon typing (onType), when possible, or on save (onSave)."
+                },
+                "c-cpp-flylint.cppcheck.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable or disable the CppCheck linter"
+                },
+                "c-cpp-flylint.cppcheck.executable": {
+                    "type": "string",
+                    "description": "This option allows you to override the executable called when using CppCheck",
+                    "default": "cppcheck"
+                },
+                "c-cpp-flylint.cppcheck.configFile": {
+                    "type": "string",
+                    "description": "A .clang_complete file to use/fallback to if no config file is found in the current project",
+                    "default": ".clang_complete"
+                },
+                "c-cpp-flylint.cppcheck.includePaths": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Paths to search for include files. They may be relative or absolute."
+                },
+                "c-cpp-flylint.cppcheck.platform": {
+                    "type": "string",
+                    "enum": [
+                        "unix32",
+                        "unix64",
+                        "win32A",
+                        "win32W",
+                        "win64",
+                        "native"
+                    ],
+                    "default": "native",
+                    "description": "The platform used for types and sizes."
+                },
+                "c-cpp-flylint.cppcheck.standard": {
+                    "type": "array",
+                    "default": [
+                        "c11",
+                        "c++11"
+                    ],
+                    "description": "The language standards to check against. Can be one or more of: posix, c89, c99, c11, c++03, c++11."
+                },
+                "c-cpp-flylint.cppcheck.defines": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Preprocessor symbols to define."
+                },
+                "c-cpp-flylint.cppcheck.undefines": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Preprocessor symbols to undefine."
+                },
+                "c-cpp-flylint.cppcheck.suppressions": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Warnings to suppress. Refer to the CppCheck documentation for what to supply here."
+                },
+                "c-cpp-flylint.cppcheck.verbose": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether to enable verbose output from CppCheck."
+                },
+                "c-cpp-flylint.cppcheck.language": {
+                    "type": "string",
+                    "default": "c++",
+                    "enum": [
+                        "c",
+                        "c++"
+                    ],
+                    "description": "Force CppCheck to check all files as the given language."
+                },
+                "c-cpp-flylint.cppcheck.inconclusive": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Allow reporting even though analysis is inconclusive. May lead to false positives."
+                },
+                "c-cpp-flylint.cppcheck.force": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Controls whether CppCheck enumerates all possible configurations."
+                },
+                "c-cpp-flylint.cppcheck.severityLevels": {
+                    "type": "object",
+                    "description": "Maps the severity levels of CppCheck to VSCode severity levels (Error, Warning, Information, Hint). Setting to 'None' will not show the severity type at all.",
+                    "default": {
+                        "error": "Error",
+                        "warning": "Warning",
+                        "style": "Information",
+                        "performance": "Warning",
+                        "portability": "Warning",
+                        "information": "Information"
+                    },
+                    "properties": {
+                        "error": {
+                            "description": "Used when major issues are found.",
+                            "type": "string",
+                            "default": "Error",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "warning": {
+                            "description": "Suggestions about defensive programming to prevent potential issues.",
+                            "type": "string",
+                            "default": "Warning",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "style": {
+                            "description": "Stylistic issues related to code cleanup such as unused functions, redundant code, constness, etc.",
+                            "type": "string",
+                            "default": "Information",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "performance": {
+                            "description": "Suggestions for making the code faster. These suggestions only and may not increase execution speed.",
+                            "type": "string",
+                            "default": "Warning",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "portability": {
+                            "description": "Warnings about 64-bit and compiler portability.",
+                            "type": "string",
+                            "default": "Warning",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "information": {
+                            "description": "Minor issues that do not fit into other categories.",
+                            "type": "string",
+                            "default": "Information",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        }
+                    }
+                },
+                "c-cpp-flylint.flexelint.enable": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable or disable the Flexelint linter"
+                },
+                "c-cpp-flylint.flexelint.executable": {
+                    "type": "string",
+                    "description": "This option allows you to override the executable called when using Flexelint",
+                    "default": "flexelint"
+                },
+                "c-cpp-flylint.flexelint.configFile": {
+                    "type": "string",
+                    "description": "A .flexelint.rc file to use/fallback to if no config file is found in the current project",
+                    "default": ".flexelint.lnt"
+                },
+                "c-cpp-flylint.flexelint.headerArgs": {
+                    "type": "array",
+                    "description": "A list of arguments passed to Flexelint when scanning header source files",
+                    "default": [
+                        "-e749",
+                        "-e750",
+                        "-e751",
+                        "-e752",
+                        "-e753",
+                        "-e754",
+                        "-e1526",
+                        "-e1714"
+                    ]
+                },
+                "c-cpp-flylint.flexelint.severityLevels": {
+                    "type": "object",
+                    "description": "Maps the severity levels of Flexelint to VSCode severity levels (Error, Warning, Information, Hint). Setting to 'None' will not show the severity type at all.",
+                    "default": {
+                        "Error": "Error",
+                        "Warning": "Warning",
+                        "Info": "Information",
+                        "Note": "Hint"
+                    },
+                    "properties": {
+                        "Error": {
+                            "description": "Used when major issues are found.",
+                            "type": "string",
+                            "default": "Error",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "Warning": {
+                            "description": "Suggestions about defensive programming to prevent potential issues.",
+                            "type": "string",
+                            "default": "Warning",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "Info": {
+                            "description": "Suggestions for producing better code.",
+                            "type": "string",
+                            "default": "Information",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        },
+                        "Note": {
+                            "description": "Suggestions for producing better code.",
+                            "type": "string",
+                            "default": "Warning",
+                            "enum": [
+                                "Error",
+                                "Warning",
+                                "Hint",
+                                "Information",
+                                "None"
+                            ]
+                        }
+                    }
+                }
             }
-          }
-        },
-
-        "c-cpp-flylint.flexelint.enable": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable or disable the Flexelint linter"
-        },
-        "c-cpp-flylint.flexelint.executable": {
-          "type": "string",
-          "description": "This option allows you to override the executable called when using Flexelint",
-          "default": "flexelint"
-        },
-        "c-cpp-flylint.flexelint.configFile": {
-          "type": "string",
-          "description": "A .flexelint.rc file to use/fallback to if no config file is found in the current project",
-          "default": ".flexelint.lnt"
-        },
-        "c-cpp-flylint.flexelint.headerArgs": {
-          "type": "array",
-          "description": "A list of arguments passed to Flexelint when scanning header source files",
-          "default": [
-            "-e749",
-            "-e750",
-            "-e751",
-            "-e752",
-            "-e753",
-            "-e754",
-            "-e1526",
-            "-e1714"
-          ]
-        },
-        "c-cpp-flylint.flexelint.severityLevels": {
-          "type": "object",
-          "description": "Maps the severity levels of Flexelint to VSCode severity levels (Error, Warning, Information, Hint). Setting to 'None' will not show the severity type at all.",
-          "default": {
-            "Error": "Error",
-            "Warning": "Warning",
-            "Info": "Information",
-            "Note": "Hint"
-          },
-          "properties": {
-            "Error": {
-              "description": "Used when major issues are found.",
-              "type": "string",
-              "default": "Error",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "Warning": {
-              "description": "Suggestions about defensive programming to prevent potential issues.",
-              "type": "string",
-              "default": "Warning",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "Info": {
-              "description": "Suggestions for producing better code.",
-              "type": "string",
-              "default": "Information",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "Note": {
-              "description": "Suggestions for producing better code.",
-              "type": "string",
-              "default": "Warning",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            }
-          }
         }
-
-      }
+    },
+    "scripts": {
+        "vscode:prepublish": "tsc -p ./",
+        "compile": "tsc -watch -p ./",
+        "test": "node ./node_modules/vscode/bin/test",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "update-vscode": "node ./node_modules/vscode/bin/install"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.0.0",
+        "@types/chai-as-promised": "^0.0.31",
+        "@types/mock-fs": "^3.6.30",
+        "@types/node": "^7.0.12",
+        "chai": "^4.0.2",
+        "chai-as-promised": "^7.0.0",
+        "mocha": "^3.4.2",
+        "mocha-typescript": "^1.1.4",
+        "mock-fs": "^4.4.1",
+        "typescript": "2.2.2",
+        "vscode": "^1.1.0"
+    },
+    "dependencies": {
+        "lodash": "^4.17.4",
+        "slash": "^1.0.0",
+        "var-expansion": "^0.1.0",
+        "vscode-languageclient": "^3.2.0",
+        "vscode-uri": "^1.0.1",
+        "which": "^1.2.14"
     }
-  },
-  "scripts": {
-    "vscode:prepublish": "tsc -p ./",
-    "compile": "tsc -watch -p ./",
-    "test": "node ./node_modules/vscode/bin/test",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "update-vscode": "node ./node_modules/vscode/bin/install"
-  },
-  "devDependencies": {
-    "@types/chai": "^4.0.0",
-    "@types/chai-as-promised": "^0.0.31",
-    "@types/mock-fs": "^3.6.30",
-    "@types/node": "^7.0.12",
-    "chai": "^4.0.2",
-    "chai-as-promised": "^7.0.0",
-    "mocha": "^3.4.2",
-    "mocha-typescript": "^1.1.4",
-    "mock-fs": "^4.4.1",
-    "typescript": "2.2.2",
-    "vscode": "^1.1.0"
-  },
-  "dependencies": {
-    "lodash": "^4.17.4",
-    "slash": "^1.0.0",
-    "var-expansion": "^0.1.0",
-    "vscode-languageclient": "^3.2.0",
-    "vscode-uri": "^1.0.1",
-    "which": "^1.2.14"
-  }
 }
