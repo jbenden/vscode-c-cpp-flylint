@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   of the extension.
 
 ### Changed
+- Fixed duplicate analyzers being ran after configuration change.
+- Redefined how the `c-cpp-flylint.run` configuration option functions.
 
 ## [0.0.1] - 2017-06-18
 - Initial release.
