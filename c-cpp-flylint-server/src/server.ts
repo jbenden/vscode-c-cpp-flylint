@@ -174,8 +174,15 @@ function makeDiagnostic(documentLines: string[], msg): Diagnostic {
     }
 
     let l: string = documentLines[line];
-    let startColumn = column == 0 ? l.match(/\S/)!.index : column;
+    let startColumn = column;
     let endColumn = column == 0 ? l.length : column + 1;
+
+    if (column === 0) {
+        let lineMatches = l.match(/\S/)
+        if (lineMatches !== null) {
+            startColumn = lineMatches.index;
+        }
+    }
 
     return {
         severity: severity,
