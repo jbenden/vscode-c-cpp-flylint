@@ -50,11 +50,11 @@
     "commands": [
       {
         "command": "c-cpp-flylint.analyzeActiveDocument",
-        "title": "Analyze the active document"
+        "title": "C/C++ Flylint: Analyze the active document"
       },
       {
         "command": "c-cpp-flylint.analyzeWorkspace",
-        "title": "Analyze all documents opened in the workspace"
+        "title": "C/C++ Flylint: Analyze all documents opened in the workspace"
       }
     ],
 
@@ -394,13 +394,13 @@
     "mocha": "^3.4.2",
     "mocha-typescript": "^1.1.4",
     "mock-fs": "^4.4.1",
-    "typescript": "2.2.2",
-    "vscode": "^1.1.0"
+    "typescript": "2.2.2"
   },
   "dependencies": {
     "lodash": "^4.17.4",
     "slash": "^1.0.0",
     "var-expansion": "^0.1.0",
+    "vscode": "^1.1.0",
     "vscode-languageclient": "^3.2.0",
     "vscode-uri": "^1.0.1",
     "which": "^1.2.14"

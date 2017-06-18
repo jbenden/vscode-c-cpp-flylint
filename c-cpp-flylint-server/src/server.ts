@@ -50,7 +50,13 @@ connection.onInitialize((params): InitializeResult => {
 
     let result: InitializeResult = {
         capabilities: {
-            textDocumentSync: documents.syncKind
+            textDocumentSync: documents.syncKind,
+            executeCommandProvider: {
+                commands: [
+                    "c-cpp-flylint.analyzeActiveDocument",
+                    "c-cpp-flylint.analyzeWorkspace"
+                ]
+            }
         }
     };
 
@@ -77,16 +83,27 @@ documents.onDidClose((event) => {
 });
 
 function validateTextDocument(textDocument: TextDocument): void {
-    let fileUri: Uri = Uri.parse(textDocument.uri);
-    let filePath: string = fileUri.fsPath;
+    const tracker: ErrorMessageTracker = new ErrorMessageTracker();
+    const fileUri: Uri = Uri.parse(textDocument.uri);
+    const filePath: string = fileUri.fsPath;
 
     if (fileUri.scheme !== 'file') {
         // lint can only lint files on disk.
+        tracker.add(`c-cpp-flylint: A problem was encountered; the document is not locally present on disk.`);
+
+        // Send any exceptions encountered during processing to VSCode.
+        tracker.sendErrors(connection);
+
         return;
     }
 
     if (linters === undefined || linters === null) {
         // cannot perform lint without active configuration!
+        tracker.add(`c-cpp-flylint: A problem was encountered; the global list of analyzers is null or undefined.`);
+
+        // Send any exceptions encountered during processing to VSCode.
+        tracker.sendErrors(connection);
+
         return;
     }
 
@@ -111,12 +128,17 @@ function validateTextDocument(textDocument: TextDocument): void {
                 }
             }
         } catch(e) {
-            console.log(e);
+            tracker.add(getErrorMessage(e, textDocument));
         }
     });
 
+    console.log('Completed lint scans...');
+
     // Send the computed diagnostics to VSCode.
     connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
+
+    // Send any exceptions encountered during processing to VSCode.
+    tracker.sendErrors(connection);
 }
 
 function validateAllTextDocuments(textDocuments: TextDocument[]): void {
@@ -228,14 +250,32 @@ connection.onDidChangeWatchedFiles(() => {
 });
 
 connection.onExecuteCommand((params: ExecuteCommandParams) => {
+    const tracker = new ErrorMessageTracker();
+
     if (params.command === 'c-cpp-flylint.analyzeActiveDocument') {
         (connection.sendRequest('activeTextDocument') as Thenable<TextDocument>)
             .then((activeDocument) => {
-                validateTextDocument(activeDocument);
+                if (activeDocument !== undefined && activeDocument !== null) {
+                    let fileUri: Uri = <Uri>(<any>activeDocument.uri);
+
+                    for (const document of documents.all()) {
+                        try {
+                            const documentUri = Uri.parse(document.uri);
+
+                            if (fileUri.fsPath === documentUri.fsPath) {
+                                validateTextDocument(document);
+                            }
+                        } catch (err) {
+                            tracker.add(getErrorMessage(err, document));
+                        }
+                    }
+                }
             });
     } else if (params.command === 'c-cpp-flylint.analyzeWorkspace') {
         validateAllTextDocuments(documents.all());
     }
+
+    tracker.sendErrors(connection);
 })
 
 // Listen on the connection.

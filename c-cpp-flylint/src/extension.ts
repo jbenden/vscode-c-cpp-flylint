@@ -1,4 +1,4 @@
-import {ExtensionContext, window, workspace} from "vscode";
+import {commands, ExtensionContext, window, workspace} from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -44,9 +44,12 @@ export function activate(context: ExtensionContext) {
     // Create the language client and start it.
     const client = new LanguageClient("C/C++ Flylint", serverOptions, clientOptions);
 
-    client.onRequest('activeTextDocument', () => {
-        return window.activeTextEditor!.document;
-    });
+    client.onReady()
+        .then(() => {
+            client.onRequest('activeTextDocument', () => {
+                return window.activeTextEditor!.document;
+            });
+        });
 
     context.subscriptions.push(new SettingMonitor(client, "c-cpp-flylint.enable").start());
 }
