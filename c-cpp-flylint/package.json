@@ -330,7 +330,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.0.0",
-    "@types/chai-as-promised": "0.0.31",
+    "@types/chai-as-promised": "^0.0.31",
     "@types/mock-fs": "^3.6.30",
     "@types/node": "^7.0.12",
     "chai": "^4.0.2",
