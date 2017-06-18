@@ -77,8 +77,8 @@ documents.onDidClose((event) => {
 });
 
 function validateTextDocument(textDocument: TextDocument): void {
-    let fileUri = Uri.parse(textDocument.uri);
-    let filePath = fileUri.fsPath;
+    let fileUri: Uri = Uri.parse(textDocument.uri);
+    let filePath: string = fileUri.fsPath;
 
     if (fileUri.scheme !== 'file') {
         // lint can only lint files on disk.
