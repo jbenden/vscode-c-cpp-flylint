@@ -14,7 +14,8 @@ import {
     TextDocument,
     TextDocuments,
 } from 'vscode-languageserver';
-import Uri from "vscode-uri";
+import { ExecuteCommandParams } from 'vscode-languageserver/lib/protocol';
+import Uri from 'vscode-uri';
 import * as fs from "fs";
 import * as path from "path";
 import * as _ from "lodash";
@@ -218,6 +219,17 @@ connection.onDidChangeWatchedFiles(() => {
 
     validateAllTextDocuments(documents.all());
 });
+
+connection.onExecuteCommand((params: ExecuteCommandParams) => {
+    if (params.command === 'c-cpp-flylint.analyzeActiveDocument') {
+        (connection.sendRequest('activeTextDocument') as Thenable<TextDocument>)
+            .then((activeDocument) => {
+                validateTextDocument(activeDocument);
+            });
+    } else if (params.command === 'c-cpp-flylint.analyzeWorkspace') {
+        validateAllTextDocuments(documents.all());
+    }
+})
 
 // Listen on the connection.
 connection.listen();

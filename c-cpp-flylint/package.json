@@ -40,11 +40,24 @@
     "linter"
   ],
   "activationEvents": [
+    "onCommand:c-cpp-flylint.analyzeActiveDocument",
+    "onCommand:c-cpp-flylint.analyzeWorkspace",
     "onLanguage:c",
     "onLanguage:cpp"
   ],
   "main": "./out/extension",
   "contributes": {
+    "commands":[
+      {
+        "command": "c-cpp-flylint.analyzeActiveDocument",
+        "title": "Analyze the active document"
+      },
+      {
+        "command": "c-cpp-flylint.analyzeWorkspace",
+        "title": "Analyze all documents opened in the workspace"
+      }
+    ],
+
     "configuration": {
       "type": "object",
       "title": "C/C++ Lint configuration",

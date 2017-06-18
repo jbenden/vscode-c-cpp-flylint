@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Added a command to force the analysis of the current document.
+- Added a command to force the analysis of all opened documents within the
+  workspace.
 - A change log to quickly view an overview of the changes made to each version
   of the extension.
 
