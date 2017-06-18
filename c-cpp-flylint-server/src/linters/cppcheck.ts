@@ -10,6 +10,7 @@ import { Linter } from './linter';
 export class CppCheck extends Linter {
     constructor(settings: Settings, workspaceRoot: string) {
         super('CppCheck', settings, workspaceRoot, false);
+        this.cascadeCommonSettings('cppcheck');
 
         this.executable = settings['c-cpp-flylint'].cppcheck.executable;
         this.configFile = settings['c-cpp-flylint'].cppcheck.configFile;
@@ -102,7 +103,7 @@ export class CppCheck extends Linter {
     }
 
     private getIncludeParams() {
-        let paths = this.settings['c-cpp-flylint'].cppcheck.includePaths;
+        let paths = this.includePaths;
         let params: string[] = [];
 
         if (paths) {
@@ -135,7 +136,7 @@ export class CppCheck extends Linter {
     }
 
     private getStandardParams() {
-        let standard = this.settings['c-cpp-flylint'].cppcheck.standard;
+        let standard = this.standard;
         let params: string[] = [];
 
         if (standard) {
@@ -154,7 +155,7 @@ export class CppCheck extends Linter {
     }
 
     private getDefineParams() {
-        let define = this.settings['c-cpp-flylint'].cppcheck.defines;
+        let define = this.defines;
         let params: string[] = [];
 
         if (define) {
@@ -167,7 +168,7 @@ export class CppCheck extends Linter {
     }
 
     private getUndefineParams() {
-        let undefine = this.settings['c-cpp-flylint'].cppcheck.undefines;
+        let undefine = this.undefines;
         let params: string[] = [];
 
         if (undefine) {
@@ -193,7 +194,7 @@ export class CppCheck extends Linter {
     }
 
     private getLanguageParam() {
-        let language = this.settings['c-cpp-flylint'].cppcheck.language;
+        let language = this.language;
         let params: string[] = [];
 
         if (this.isValidLanguage(language)) {

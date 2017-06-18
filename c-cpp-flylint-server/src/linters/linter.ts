@@ -1,6 +1,7 @@
 import * as which from 'which';
 import * as fs from "fs";
 import * as path from "path";
+import * as _ from "lodash";
 import { spawnSync } from 'child_process';
 import { Settings } from "../settings";
 import { isString } from 'util';
@@ -23,6 +24,11 @@ export class Linter {
     protected executable: string;
     protected configFile: string;
     protected requireConfig: boolean;
+    protected language: string;
+    protected standard: string[];
+    protected defines: string[];
+    protected undefines: string[];
+    protected includePaths: string[];
 
     protected constructor(name: string, settings: Settings, workspaceRoot: string, requireConfig: boolean) {
         this.name = name;
@@ -30,6 +36,35 @@ export class Linter {
         this.workspaceRoot = workspaceRoot;
         this.requireConfig = requireConfig;
         this.enabled = true;
+        this.language = settings['c-cpp-flylint'].language;
+        this.standard = settings['c-cpp-flylint'].standard;
+        this.defines = settings['c-cpp-flylint'].defines;
+        this.undefines = settings['c-cpp-flylint'].undefines;
+        this.includePaths = settings['c-cpp-flylint'].includePaths;
+    }
+
+    protected cascadeCommonSettings(key: string) {
+        let checkKey = (item: string): boolean => {
+            return this.settings['c-cpp-flylint'][key].hasOwnProperty(item) &&
+                   this.settings['c-cpp-flylint'][key].hasOwnProperty(item) !== null;
+        }
+
+        let maybe = (orig, maybeKey) => {
+            if (checkKey(maybeKey)) {
+                if (_.isArray(orig)) {
+                    return this.settings['c-cpp-flylint'][key][maybeKey];
+                } else if (typeof orig === "string" || orig instanceof String) {
+                    return this.settings['c-cpp-flylint'][key][maybeKey];
+                }
+            }
+
+            return orig;
+        }
+        this.language = maybe(this.language, 'language');
+        this.standard = maybe(this.standard, 'standard');
+        this.defines = maybe(this.defines, 'defines');
+        this.undefines = maybe(this.undefines, 'undefines');
+        this.includePaths = maybe(this.includePaths, 'includePaths');
     }
 
     protected setExecutable(fileName: string) {

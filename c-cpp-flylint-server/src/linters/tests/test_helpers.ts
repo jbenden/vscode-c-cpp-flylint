@@ -8,6 +8,14 @@ export const defaultConfig = {
     'c-cpp-flylint': {
         enable: true,
         run: "onSave",
+
+        // common options, which may be overridden per syntax analyzer
+        standard: ["c99"],
+        includePaths: [],
+        defines: [],
+        undefines: [],
+        language: "c",
+
         flexelint: {
             enable: false,
             // executable: "C:\\Source\\flexelint\\src\\flexelint.exe",
@@ -38,12 +46,12 @@ export const defaultConfig = {
             force: false,
             inconclusive: false,
             platform: "native",
-            standard: ["c99"],
-            includePaths: [],
-            defines: [],
-            undefines: [],
+            standard: null,
+            includePaths: null,
+            defines: null,
+            undefines: null,
             suppressions: [],
-            language: "c",
+            language: null,
             severityLevels: {
                 "error": "Error",
                 "warning": "Warning",

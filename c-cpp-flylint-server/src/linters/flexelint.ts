@@ -9,6 +9,7 @@ import { headerExts, Linter } from './linter';
 export class Flexelint extends Linter {
     constructor(settings: Settings, workspaceRoot: string) {
         super('Flexelint', settings, workspaceRoot, true);
+        this.cascadeCommonSettings('flexelint');
 
         this.executable = settings['c-cpp-flylint'].flexelint.executable;
         this.configFile = settings['c-cpp-flylint'].flexelint.configFile;

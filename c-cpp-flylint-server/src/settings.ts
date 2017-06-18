@@ -21,6 +21,14 @@ export interface Settings {
     'c-cpp-flylint': {
         enable: boolean;
         run: "onSave" | "onType";
+
+        // common options, which may be overridden per syntax analyzer
+        standard: string[];
+        includePaths: string[];
+        defines: string[];
+        undefines: string[];
+        language: "c" | "c++";
+
         flexelint: {
             enable: boolean;
             executable: string;
@@ -37,12 +45,12 @@ export interface Settings {
             force: boolean;
             inconclusive: boolean;
             platform: "unix32" | "unix64" | "win32A" | "win32W" | "win64" | "native";
-            standard: string[];
-            includePaths: string[];
-            defines: string[];
-            undefines: string[];
+            standard: string[] | null;
+            includePaths: string[] | null;
+            defines: string[] | null;
+            undefines: string[] | null;
             suppressions: string[];
-            language: "c" | "c++";
+            language: "c" | "c++" | null;
             severityLevels: CppCheckSeverityMaps;
         }
     };
