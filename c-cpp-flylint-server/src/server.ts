@@ -205,6 +205,7 @@ function getErrorMessage(err, document: TextDocument): string {
 connection.onDidChangeConfiguration(async (params) => {
     settings = params.settings;
 
+    linters = []  // clear array
     linters.push(await (new CppCheck(settings, workspaceRoot).initialize()) as CppCheck);
     linters.push(await (new Flexelint(settings, workspaceRoot).initialize()) as Flexelint);
 
