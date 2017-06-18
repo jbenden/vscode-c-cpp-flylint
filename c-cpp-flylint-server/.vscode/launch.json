@@ -1,0 +1,16 @@
+{
+    "version": "0.1.0",
+    // List of configurations. Add new configurations or edit existing ones.
+    "configurations": [
+        {
+            "name": "Attach",
+            "type": "node",
+            "request": "attach",
+            "port": 6004,
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceRoot}/../c-cpp-flylint/server"
+            ]
+        }
+    ]
+}

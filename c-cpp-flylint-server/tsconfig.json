@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "lib": [
+            "es6"
+        ],
+        "module": "commonjs",
+        "sourceMap": true,
+        "outDir": "../c-cpp-flylint/server",
+        "newLine": "LF",
+        "noUnusedLocals": false,
+        "noUnusedParameters": true,
+        "strictNullChecks": true,
+        "experimentalDecorators": true
+    },
+    "include": [
+        "src/server.ts",
+        "src/linters/**/*.ts",
+        "typings.d.ts"
+    ]
+}

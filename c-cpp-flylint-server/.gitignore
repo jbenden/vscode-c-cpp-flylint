@@ -1,0 +1,8 @@
+##
+# IMPORTANT: Do not use this file to ignore IDE-specific project configuration files. Ignore them locally instead.
+# (see http://stackoverflow.com/questions/1753070/git-ignore-files-only-locally)
+##
+
+/node_modules/
+yarn.lock
+.yarnclean

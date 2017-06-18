@@ -1,0 +1,11 @@
+##
+# IMPORTANT: Do not use this file to ignore IDE-specific project configuration files. Ignore them locally instead.
+# (see http://stackoverflow.com/questions/1753070/git-ignore-files-only-locally)
+##
+
+/.vscode-test/
+/node_modules/
+/out/
+/server/
+yarn.lock
+*.vsix
