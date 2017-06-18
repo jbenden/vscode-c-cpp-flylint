@@ -65,7 +65,7 @@ documents.onDidChangeContent((event) => {
 });
 
 documents.onDidSave((event) => {
-    if (settings['c-cpp-flylint'].run === "onSave") {
+    if (settings['c-cpp-flylint'].run === "onSave" && settings['c-cpp-flylint'].run === "onType") {
         validateTextDocument(event.document);
     }
 });
