@@ -214,7 +214,7 @@ connection.onDidChangeConfiguration(async (params) => {
 });
 
 connection.onDidChangeWatchedFiles(() => {
-    console.log('FS change notification occurred; relinting all opened documents.')
+    console.log('FS change notification occurred; re-linting all opened documents.')
 
     validateAllTextDocuments(documents.all());
 });
