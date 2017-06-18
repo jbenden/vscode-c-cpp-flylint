@@ -3,6 +3,9 @@
 ![Version](https://vsmarketplacebadge.apphb.com/version-short/jbenden.c-cpp-flylint.svg)
 ![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jbenden.c-cpp-flylint.svg)
 ![Rating](https://vsmarketplacebadge.apphb.com/rating-short/jbenden.c-cpp-flylint.svg)
+[![Build Status](https://travis-ci.org/jbenden/vscode-c-cpp-flylint.svg?branch=master)](https://travis-ci.org/jbenden/vscode-c-cpp-flylint)
+[![Code Climate](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint/badges/gpa.svg)](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint)
+[![Dependency Status](https://gemnasium.com/badges/github.com/jbenden/vscode-c-cpp-flylint.svg)](https://gemnasium.com/github.com/jbenden/vscode-c-cpp-flylint)
 
 A [Visual Studio Code](https://code.visualstudio.com/) extension
 supporting a number of static code analyzers for C and C++ code.
