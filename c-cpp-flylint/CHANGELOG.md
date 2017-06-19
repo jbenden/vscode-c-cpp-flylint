@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   workspace.
 - A change log to quickly view an overview of the changes made to each version
   of the extension.
+- Added flag to enable verbose debug logging. This was previously the default
+  mode of operation.
 
 ### Changed
 - Fixed duplicate analyzers being ran after configuration change.

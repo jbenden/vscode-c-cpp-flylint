@@ -190,7 +190,9 @@ export class Linter {
     protected runLinter(params: string[], workspaceDir: string) {
         let cmd = params.shift() || this.executable;
 
-        console.log('executing: ', cmd, params);
+        if (this.settings['c-cpp-flylint'].debug) {
+            console.log('executing: ', cmd, params);
+        }
 
         return spawnSync(cmd, params, { 'cwd': workspaceDir });
     }
@@ -203,8 +205,10 @@ export class Linter {
             let stdout = result.stdout !== null ? result.stdout.toString('utf-8').replace(/\r/g, "").split("\n") : [];
             let stderr = result.stderr !== null ? result.stderr.toString('utf-8').replace(/\r/g, "").split("\n") : [];
 
-            console.log(stdout);
-            console.log(stderr);
+            if (this.settings['c-cpp-flylint'].debug) {
+                console.log(stdout);
+                console.log(stderr);
+            }
 
             if (result.status != 0) {
                 console.log(`${this.name} exited with status code ${result.status}`);

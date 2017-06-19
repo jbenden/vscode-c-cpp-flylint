@@ -20,6 +20,7 @@ export interface FlexelintSeverityMaps {
 export interface Settings {
     'c-cpp-flylint': {
         enable: boolean;
+        debug: boolean;
         run: "onSave" | "onType";
 
         // common options, which may be overridden per syntax analyzer

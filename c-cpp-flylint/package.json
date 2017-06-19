@@ -67,6 +67,11 @@
           "default": true,
           "description": "Enable or disable all linting"
         },
+        "c-cpp-flylint.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable verbose debug logging"
+        },
         "c-cpp-flylint.run": {
           "type": "string",
           "enum": [

@@ -7,6 +7,7 @@ export const isWindows = process.platform === 'win32' ||
 export const defaultConfig = {
     'c-cpp-flylint': {
         enable: true,
+        debug: false,
         run: "onSave",
 
         // common options, which may be overridden per syntax analyzer
