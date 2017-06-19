@@ -212,7 +212,7 @@ export class Linter {
 
             return this.parseLines(stdout.concat(stderr));
         } catch(e) {
-            console.log(`An exception occurred in ${this.name}: ${e}`);
+            console.log(`An exception occurred in ${this.name} while parsing output for file ${fileName} stacktrace: ${e.stack}`);
 
             return [];
         }
