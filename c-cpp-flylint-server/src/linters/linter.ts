@@ -117,6 +117,10 @@ export class Linter {
                 if (err) {
                     this.disable();
 
+                    if (this.settings['c-cpp-flylint'].debug) {
+                        console.log(`The executable was not found for ${this.name}; looked for ${this.executable}`);
+                    }
+
                     reject(Error(`The executable was not found for ${this.name}, disabling linter`));
                 }
                 else resolve(result);
