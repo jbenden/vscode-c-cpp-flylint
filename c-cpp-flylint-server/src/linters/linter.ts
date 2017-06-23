@@ -46,7 +46,8 @@ export class Linter {
     protected cascadeCommonSettings(key: string) {
         let checkKey = (item: string): boolean => {
             return this.settings['c-cpp-flylint'][key].hasOwnProperty(item) &&
-                   this.settings['c-cpp-flylint'][key].hasOwnProperty(item) !== null;
+                   this.settings['c-cpp-flylint'][key].hasOwnProperty(item) !== null &&
+                   this.settings['c-cpp-flylint'][key][item] !== null;
         }
 
         let maybe = (orig, maybeKey) => {

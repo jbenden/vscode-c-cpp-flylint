@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - Display an informational message when a given analyzer is unable to
   activate due to missing binary or configuration file.
+- Fixed a bug where the cascade of settings did not function as expected.
 - Improve generic error message: added a note to check the console
   output.
 - Erroneously misunderstood how the `which` NPM module functioned. Non-
