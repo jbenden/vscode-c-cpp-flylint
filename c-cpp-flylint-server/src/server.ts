@@ -77,6 +77,10 @@ documents.onDidSave((event) => {
     }
 });
 
+documents.onDidOpen((event) => {
+    validateTextDocument(event.document);
+});
+
 // A text document was closed. Clear the diagnostics.
 documents.onDidClose((event) => {
     connection.sendDiagnostics({uri: event.document.uri, diagnostics: []});

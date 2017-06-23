@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Erroneously misunderstood how the `which` NPM module functioned. Non-
   Windows users may have experienced a bug in the analyzer executable
   detection logic. This has been resolved.
+- Ensures newly opened C/C++ source code files are scanned.
 
 ## [0.1.0] - 2017-06-19
 ### Added
