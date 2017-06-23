@@ -21,13 +21,25 @@ export class CppCheck extends Linter {
         let enableParams = this.settings['c-cpp-flylint'].cppcheck.unusedFunctions
                             ? [ '--enable=warning,style,performance,portability,information,unusedFunction' ]
                             : [ '--enable=warning,style,performance,portability,information' ];
-        let includeParams = this.getIncludeParams();
-        let standardParams = this.getStandardParams();
-        let defineParams = this.getDefineParams();
-        let undefineParams = this.getUndefineParams();
+        let includeParams = this.getIncludePathParams();
         let suppressionParams = this.getSuppressionParams();
         let languageParam = this.getLanguageParam();
         let platformParams = this.getPlatformParams();
+        let standardParams = this.expandedArgsFor(
+            '--std=',
+            true,
+            this.standard,
+            ['c11', 'c++11']);
+        let defineParams = this.expandedArgsFor(
+            '-D',
+            true,
+            this.defines,
+            null);
+        let undefineParams = this.expandedArgsFor(
+            '-U',
+            true,
+            this.undefines,
+            null);
 
         let args = [ this.executable ]
             .concat(enableParams)
@@ -97,30 +109,6 @@ export class CppCheck extends Linter {
         return _.includes(allowedPlatforms, platform);
     }
 
-    private isValidLanguage(language: string): boolean {
-        const allowLanguages = [ 'c', 'c++' ];
-        return _.includes(allowLanguages, language);
-    }
-
-    private getIncludeParams() {
-        let paths = this.includePaths;
-        let params: string[] = [];
-
-        if (paths) {
-            _.each(paths, (element: string) => {
-                let value = this.expandVariables(element);
-                if (value.error) {
-                    console.log(`Error expanding include path '${element}': ${value.error.message}`);
-                } else {
-                    params.push(`-I`);
-                    params.push(`${value.result}`);
-                }
-            });
-        }
-
-        return params;
-    }
-
     private getPlatformParams() {
         let platform = this.settings['c-cpp-flylint'].cppcheck.platform;
 
@@ -133,51 +121,6 @@ export class CppCheck extends Linter {
         }
 
         return '--platform=native';
-    }
-
-    private getStandardParams() {
-        let standard = this.standard;
-        let params: string[] = [];
-
-        if (standard) {
-            _.each(standard, (element: string) => {
-                if (this.isValidStandard(element)) {
-                    params.push(`--std=${element}`);
-                }
-            });
-        }
-        else {
-            params.push('--std=c++11');
-            params.push('--std=c11');
-        }
-
-        return params;
-    }
-
-    private getDefineParams() {
-        let define = this.defines;
-        let params: string[] = [];
-
-        if (define) {
-            _.each(define, (element: string) => {
-                params.push(`-D${element}`);
-            });
-        }
-
-        return params;
-    }
-
-    private getUndefineParams() {
-        let undefine = this.undefines;
-        let params: string[] = [];
-
-        if (undefine) {
-            _.each(undefine, (element: string) => {
-                params.push(`-U${element}`);
-            });
-        }
-
-        return params;
     }
 
     private getSuppressionParams() {

@@ -267,4 +267,64 @@ export class Linter {
         line;
         return {};
     }
+
+    protected isValidLanguage(language: string): boolean {
+        const allowLanguages = [ 'c', 'c++' ];
+        return _.includes(allowLanguages, language);
+    }
+
+    protected getIncludePathParams() {
+        let paths = this.includePaths;
+        let params: string[] = [];
+
+        if (paths) {
+            _.each(paths, (element: string) => {
+                let value = this.expandVariables(element);
+                if (value.error) {
+                    console.log(`Error expanding include path '${element}': ${value.error.message}`);
+                } else {
+                    params.push(`-I`);
+                    params.push(`${value.result}`);
+                }
+            });
+        }
+
+        return params;
+    }
+
+    protected expandedArgsFor(key: string, joined: boolean, values: string[] | null, defaults: string[] | null) {
+        let params: string[] = [];
+
+        if (values) {
+            _.each(values, (element: string) => {
+                let value = this.expandVariables(element);
+                if (value.error) {
+                    console.log(`Error expanding '${element}': ${value.error.message}`);
+                } else {
+                    if (joined) {
+                        params.push(`${key}${value.result}`);
+                    } else {
+                        params.push(key);
+                        params.push(`${value.result}`);
+                    }
+                }
+            });
+        } else if (defaults) {
+            _.each(defaults, (element: string) => {
+                let value = this.expandVariables(element);
+                if (value.error) {
+                    console.log(`Error expanding '${element}': ${value.error.message}`);
+                } else {
+                    if (joined) {
+                        params.push(`${key}${value.result}`);
+                    } else {
+                        params.push(key);
+                        params.push(`${value.result}`);
+                    }
+                }
+            });
+        }
+
+        return params;
+    }
 }
