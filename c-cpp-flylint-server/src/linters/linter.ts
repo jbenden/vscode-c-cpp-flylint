@@ -112,7 +112,7 @@ export class Linter {
 
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
-            which(this.executable, { path: process.cwd() }, (err, result) => {
+            which(this.executable, (err, result) => {
                 if (err) {
                     this.disable();
 

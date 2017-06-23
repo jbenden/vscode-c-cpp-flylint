@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   activate due to missing binary or configuration file.
 - Improve generic error message: added a note to check the console
   output.
+- Erroneously misunderstood how the `which` NPM module functioned. Non-
+  Windows users may have experienced a bug in the analyzer executable
+  detection logic. This has been resolved.
 
 ## [0.1.0] - 2017-06-19
 ### Added
