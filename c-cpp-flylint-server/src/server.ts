@@ -241,6 +241,12 @@ connection.onDidChangeConfiguration(async (params) => {
     linters.push(await (new CppCheck(settings, workspaceRoot).initialize()) as CppCheck);
     linters.push(await (new Flexelint(settings, workspaceRoot).initialize()) as Flexelint);
 
+    _.forEach(linters, (linter) => {
+        if (!linter.isEnabled()) {
+            connection.window.showWarningMessage(`Unable to activate ${linter.Name()} analyzer.`);
+        }
+    });
+
     // Revalidate any open text documents.
     validateAllTextDocuments(documents.all());
 });

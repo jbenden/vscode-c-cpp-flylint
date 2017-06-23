@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Changed
+- Display an informational message when a given analyzer is unable to
+  activate due to missing binary or configuration file.
 - Improve generic error message: added a note to check the console
   output.
 

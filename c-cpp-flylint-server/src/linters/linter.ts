@@ -75,6 +75,14 @@ export class Linter {
         this.configFile = fileName;
     }
 
+    public Name(): string {
+        return this.name;
+    }
+
+    public isEnabled(): boolean {
+        return this.enabled === true;
+    }
+
     public enable() {
         this.enabled = true;
     }
