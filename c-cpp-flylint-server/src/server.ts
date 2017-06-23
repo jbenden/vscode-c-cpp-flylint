@@ -226,7 +226,7 @@ function getErrorMessage(err, document: TextDocument): string {
     }
 
     const fsPathUri = Uri.parse(document.uri);
-    const message = `vscode-c-cpp-flylint: '${errorMessage}' while validating: ${fsPathUri.fsPath} stacktrace: ${err.stack}`;
+    const message = `vscode-c-cpp-flylint: '${errorMessage}' while validating: ${fsPathUri.fsPath}. Please analyze the 'C/C++ FlyLint' Output console. Stacktrace: ${err.stack}`;
 
     return message;
 }

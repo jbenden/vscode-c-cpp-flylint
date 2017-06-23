@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 ### Changed
+- Improve generic error message: added a note to check the console
+  output.
 
 ## [0.1.0] - 2017-06-19
 ### Added
