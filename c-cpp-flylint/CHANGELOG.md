@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 ### Added
+- Clang static code analyzer has been added.
 
 ### Changed
 - Display an informational message when a given analyzer is unable to

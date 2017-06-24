@@ -61,6 +61,36 @@ export const defaultConfig = {
                 "portability": "Warning",
                 "information": "Information"
             }
+        },
+        clang: {
+            enable: false,
+            executable: (isWindows ? "clang.exe" : "clang"),
+            configFile: ".clang_complete",
+            severityLevels: {
+                "error": "Error",
+                "fatal": "Error",
+                "warning": "Warning",
+                "note": "Information"
+            },
+
+            // common options, which may be overridden per syntax analyzer
+            standard: null,
+            includePaths: null,
+            defines: null,
+            undefines: null,
+            language: null,
+
+            // special options
+            extraArgs: null,
+            warnings: ['all', 'extra', 'everything'],
+            pedantic: false,
+            pedanticErrors: false,
+            msExtensions: false,
+            noExceptions: true,
+            noRtti: true,
+            blocks: true,
+            includes: null,
+            standardLibs: null
         }
     }
 };
@@ -99,6 +129,18 @@ export function before() {
 
         // fake binary for non-Windows users
         'cppcheck': mock.file({
+            content: '#!/usr/bin/env bash\n\nexit 0\n',
+            mode: 0o755
+        }),
+
+        // fake EXE for Windows users
+        'clang.exe': mock.file({
+            content: 'I MISS DOS...',
+            mode: 0o755
+        }),
+
+        // fake binary for non-Windows users
+        'clang': mock.file({
             content: '#!/usr/bin/env bash\n\nexit 0\n',
             mode: 0o755
         })

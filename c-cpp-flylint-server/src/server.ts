@@ -23,6 +23,7 @@ import { Settings } from "./settings";
 import { Linter } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
+import { Clang } from './linters/clang';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -242,6 +243,7 @@ connection.onDidChangeConfiguration(async (params) => {
     console.log('Configuration changed. Re-configuring extension.');
 
     linters = []  // clear array
+    linters.push(await (new Clang(settings, workspaceRoot).initialize()) as Clang);
     linters.push(await (new CppCheck(settings, workspaceRoot).initialize()) as CppCheck);
     linters.push(await (new Flexelint(settings, workspaceRoot).initialize()) as Flexelint);
 

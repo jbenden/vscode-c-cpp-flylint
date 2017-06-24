@@ -20,6 +20,7 @@ supporting a number of static code analyzers for C and C++ code.
 
 ## Supported Static Analyzers
 
+* [Clang](https://clang.llvm.org/)
 * [CppCheck](http://cppcheck.sourceforge.net/)
 * [Flexelint](http://www.gimpel.com/html/flex.htm) or
   [PC-lint](http://www.gimpel.com/html/pcl.htm)
@@ -48,6 +49,10 @@ configuration option.
 
 ### Debian & Ubuntu
 
+Clang is available via `apt-get`:
+
+    # sudo apt-get install clang
+
 CppCheck is available via `apt-get`:
 
     # sudo apt-get install cppcheck
@@ -56,6 +61,9 @@ Flexelint is commercial software; however, it may be obtained from
 the URL mentioned elsewhere in this documentation.
 
 ### macOS
+
+For macOS users, Clang is already included when Xcode and its' CLI
+tools are installed.
 
 For macOS users, CppCheck can most easily be installed through
 [Homebrew](https://brew.sh/).

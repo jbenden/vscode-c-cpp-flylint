@@ -115,6 +115,188 @@
           "description": "Paths to search for include files. They may be relative or absolute. Cascades to all analyzers unless overridden in one or more analyzers."
         },
 
+        "c-cpp-flylint.clang.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable the Clang linter"
+        },
+        "c-cpp-flylint.clang.executable": {
+          "type": "string",
+          "description": "This option allows you to override the executable called when using Clang",
+          "default": "clang"
+        },
+        "c-cpp-flylint.clang.configFile": {
+          "type": "string",
+          "description": "A .clang_complete file to use/fallback to if no config file is found in the current project",
+          "default": ".clang_complete"
+        },
+        "c-cpp-flylint.clang.includePaths": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "Paths to search for include files. They may be relative or absolute."
+        },
+        "c-cpp-flylint.clang.standard": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "The language standards to check against. For example, one or more of: posix, c89, c99, c11, c++03, c++11, c++14, c++17."
+        },
+        "c-cpp-flylint.clang.defines": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "Preprocessor symbols to define."
+        },
+        "c-cpp-flylint.clang.undefines": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "Preprocessor symbols to undefine."
+        },
+        "c-cpp-flylint.clang.language": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "Force Clang to check all files as the given language."
+        },
+        "c-cpp-flylint.clang.extraArgs": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "Extra verbatim command-line arguments to include on the Clang command-line invocation."
+        },
+        "c-cpp-flylint.clang.warnings": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": [
+            "all",
+            "extra",
+            "everything"
+          ],
+          "description": "Warnings to include in the analysis. Default is everything possible."
+        },
+        "c-cpp-flylint.clang.includes": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "An array of files to directly include with every processed file. Operates via utilizing Clang's -include parameter."
+        },
+        "c-cpp-flylint.clang.standardLibs": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "The standard libraries to utilize. Operates via utilizing Clang's -stdlib parameter. Some macOS and BSD systems need to use a special library for C++11 support."
+        },
+        "c-cpp-flylint.clang.pedantic": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable the -pedantic command-line argument to Clang."
+        },
+        "c-cpp-flylint.clang.pedanticErrors": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable the -pedantic-errors command-line argument to Clang."
+        },
+        "c-cpp-flylint.clang.msExtensions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable the -fms-extensions command-line argument to Clang."
+        },
+        "c-cpp-flylint.clang.noExceptions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable the -fno-exceptions command-line argument to Clang."
+        },
+        "c-cpp-flylint.clang.noRtti": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable the -fno-rtti command-line argument to Clang."
+        },
+        "c-cpp-flylint.clang.blocks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable the -fblocks command-line argument to Clang."
+        },
+        "c-cpp-flylint.clang.severityLevels": {
+          "type": "object",
+          "description": "Maps the severity levels of Clang to VSCode severity levels (Error, Warning, Information, Hint). Setting to 'None' will not show the severity type at all.",
+          "default": {
+            "fatal": "Error",
+            "error": "Error",
+            "warning": "Warning",
+            "note": "Information"
+          },
+          "properties": {
+            "fatal": {
+              "description": "Used when very major issues are found.",
+              "type": "string",
+              "default": "Error",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "error": {
+              "description": "Used when major issues are found.",
+              "type": "string",
+              "default": "Error",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "warning": {
+              "description": "Suggestions about defensive programming to prevent potential issues.",
+              "type": "string",
+              "default": "Warning",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "note": {
+              "description": "Suggestions about (possibly) minor issues.",
+              "type": "string",
+              "default": "Information",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            }
+          }
+        },
+
         "c-cpp-flylint.cppcheck.enable": {
           "type": "boolean",
           "default": true,

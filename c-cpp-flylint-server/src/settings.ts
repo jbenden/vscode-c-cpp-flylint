@@ -16,6 +16,13 @@ export interface FlexelintSeverityMaps {
     Note: SeverityLevel;
 }
 
+export interface ClangSeverityMaps {
+    fatal: SeverityLevel;
+    error: SeverityLevel;
+    warning: SeverityLevel;
+    note: SeverityLevel;
+}
+
 // Settings as defined in VS Code.
 export interface Settings {
     'c-cpp-flylint': {
@@ -53,6 +60,31 @@ export interface Settings {
             suppressions: string[];
             language: "c" | "c++" | null;
             severityLevels: CppCheckSeverityMaps;
+        }
+        clang: {
+            enable: boolean;
+            executable: string;
+            configFile: string;
+            severityLevels: ClangSeverityMaps;
+
+            // common options, which may be overridden per syntax analyzer
+            standard: string[];
+            includePaths: string[];
+            defines: string[];
+            undefines: string[];
+            language: "c" | "c++";
+
+            // special options
+            extraArgs: string[] | null;
+            warnings: string[] | null;
+            pedantic: boolean;
+            pedanticErrors: boolean;
+            msExtensions: boolean;
+            noExceptions: boolean;
+            noRtti: boolean;
+            blocks: boolean;
+            includes: string[] | null;
+            standardLibs: string[] | null;
         }
     };
 }
