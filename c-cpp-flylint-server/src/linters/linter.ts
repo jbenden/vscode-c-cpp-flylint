@@ -114,7 +114,7 @@ export class Linter {
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
             let whichConfig = {};
-            if (process.env.CI && process.env.CI === 'true') {
+            if (process.env.TRAVIS && process.env.TRAVIS === 'true') {
                 whichConfig['path'] = process.cwd();
             }
 
