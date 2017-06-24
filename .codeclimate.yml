@@ -1,0 +1,31 @@
+---
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - ruby
+      - javascript
+      - python
+      - php
+  eslint:
+    enabled: true
+  fixme:
+    enabled: true
+  markdownlint:
+    enabled: true
+  radon:
+    enabled: true
+ratings:
+  paths:
+  - "c-cpp-flylint/src/**/*"
+  - "c-cpp-flylint-server/src/**/*"
+  - "**/package.json"
+  - "**/README.md"
+  - "**/CHANGELOG.md"
+exclude_paths:
+  - "**/node_modules/**/*"
+  - "**/out/**/*"
+  - "**/server/**/*"
+  - "**/.git/**/*"
+
