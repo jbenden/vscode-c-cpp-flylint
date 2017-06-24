@@ -113,7 +113,12 @@ export class Linter {
 
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
-            which(this.executable, (err, result) => {
+            let whichConfig = {};
+            if (process.env.CI && process.env.CI === 'true') {
+                whichConfig['path'] = process.cwd();
+            }
+
+            which(this.executable, whichConfig, (err, result) => {
                 if (err) {
                     this.disable();
 
