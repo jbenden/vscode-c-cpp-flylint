@@ -42,13 +42,13 @@ class ClangTests {
     commandLine() {
         // this method call syntax permits protected/private method calling; due to JavaScript.
         var actual = this.linter['buildCommandLine']("main.cc");
-        actual.should.have.length(16);
+        actual.should.have.length(17);
     }
 
     @test("should build a proper command-line for a C++ header file")
     commandLineWithHeaderFile() {
         var actual = this.linter['buildCommandLine']("main.h");
-        actual.should.have.length(16);
+        actual.should.have.length(17);
     }
 
     @test("should handle parsing an invalid line")
@@ -79,14 +79,14 @@ class ClangTests {
         ];
         let actual = this.linter['parseLines'](test);
 
-        actual.should.have.length(13);
+        actual.should.have.length(14);
 
         let result = actual.pop();
 
         result.should.have.property('fileName', 'rounding.c');
-        result.should.have.property('line', 30);
-        result.should.have.property('column', 52);
+        result.should.have.property('line', 21);
+        // result.should.have.property('column', 20);
         result.should.have.property('severity', 'Information');
-        result['message'].should.match(/^expanded from macro \'EXPECTED_SIZE\'/);
+        result['message'].should.match(/^expanded from macro \'ARRAY_LEN\'/);
     }
 }

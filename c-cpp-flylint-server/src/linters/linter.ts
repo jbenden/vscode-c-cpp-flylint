@@ -256,6 +256,11 @@ export class Linter {
             }
         });
 
+        if (currentParsed !== undefined && currentParsed.hasOwnProperty('fileName')) {
+            // output an entry
+            results.push(currentParsed);
+        }
+
         return results;
     }
 

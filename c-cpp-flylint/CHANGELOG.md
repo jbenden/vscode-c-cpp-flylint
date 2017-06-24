@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   Windows users may have experienced a bug in the analyzer executable
   detection logic. This has been resolved.
 - Ensures newly opened C/C++ source code files are scanned.
+- Corrects an off-by-one error with the parsing of analyzer output.
 
 ## [0.1.0] - 2017-06-19
 ### Added
