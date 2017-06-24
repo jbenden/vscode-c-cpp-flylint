@@ -80,7 +80,8 @@ ever growing number of supported static code analyzers -- all
 configuration options are not documented here.
 
 However, every configuration option is well documented within
-**File** -> **Preferences** -> **Settings** [alternatively, one of the keybindings: `Command+,` or `Ctrl+,`].
+**File** -> **Preferences** -> **Settings** [alternatively, one of the
+keybindings: `Command+,` or `Ctrl+,`].
 
 ## Development Setup
 
