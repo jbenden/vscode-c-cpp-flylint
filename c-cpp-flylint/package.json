@@ -36,6 +36,7 @@
     "c++",
     "cppcheck",
     "flexelint",
+    "clang",
     "lint",
     "linter"
   ],
