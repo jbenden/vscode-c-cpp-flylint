@@ -18,7 +18,7 @@ export const defaultConfig = {
         language: "c",
 
         flexelint: {
-            enable: false,
+            enable: true,
             // executable: "C:\\Source\\flexelint\\src\\flexelint.exe",
             executable: (isWindows ? "flexelint.exe" : "flexelint"),
             configFile: "tsconfig.json",
@@ -39,7 +39,7 @@ export const defaultConfig = {
             }
         },
         cppcheck: {
-            enable: false,
+            enable: true,
             executable: (isWindows ? "cppcheck.exe" : "cppcheck"),
             configFile: ".clang_complete",
             unusedFunctions: false,
@@ -63,7 +63,7 @@ export const defaultConfig = {
             }
         },
         clang: {
-            enable: false,
+            enable: true,
             executable: (isWindows ? "clang.exe" : "clang"),
             configFile: ".clang_complete",
             severityLevels: {
