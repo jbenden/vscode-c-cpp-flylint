@@ -103,6 +103,10 @@ export class Linter {
     }
 
     private maybeEnable() {
+        if (!this.isEnabled()) {
+            return Promise.resolve("");
+        }
+
         return this.maybeExecutablePresent()
             .then((val) => {
                 this.executable = val;
