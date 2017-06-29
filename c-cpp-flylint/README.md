@@ -1,8 +1,8 @@
 # vscode-c-cpp-flylint for VS Code
 
-![Version](https://vsmarketplacebadge.apphb.com/version-short/jbenden.c-cpp-flylint.svg)
-![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jbenden.c-cpp-flylint.svg)
-![Rating](https://vsmarketplacebadge.apphb.com/rating-short/jbenden.c-cpp-flylint.svg)
+[![Version](https://vsmarketplacebadge.apphb.com/version-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
+[![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
+[![Rating](https://vsmarketplacebadge.apphb.com/rating-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
 [![Build Status](https://travis-ci.org/jbenden/vscode-c-cpp-flylint.svg?branch=master)](https://travis-ci.org/jbenden/vscode-c-cpp-flylint)
 [![Code Climate](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint/badges/gpa.svg)](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint)
 [![Dependency Status](https://gemnasium.com/badges/github.com/jbenden/vscode-c-cpp-flylint.svg)](https://gemnasium.com/github.com/jbenden/vscode-c-cpp-flylint)
