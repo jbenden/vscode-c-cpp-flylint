@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Added flag for determining if analyzers were originally enabled.
+
 ### Changed
+
+- Resolve disabled analyzers reporting errors at start-up. Resolves #1
 
 ## [0.2.0] - 2017-06-24
 
