@@ -14,7 +14,7 @@ export class CppCheck extends Linter {
 
         this.executable = settings['c-cpp-flylint'].cppcheck.executable;
         this.configFile = settings['c-cpp-flylint'].cppcheck.configFile;
-        this.enabled = settings['c-cpp-flylint'].cppcheck.enable;
+        this.active = this.enabled = settings['c-cpp-flylint'].cppcheck.enable;
     }
 
     protected buildCommandLine(fileName: string): string[] {

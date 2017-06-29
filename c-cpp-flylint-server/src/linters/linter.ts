@@ -21,6 +21,7 @@ export class Linter {
     protected settings: Settings;
     protected workspaceRoot: string;
     protected enabled: boolean;
+    protected active: boolean;
     protected executable: string;
     protected configFile: string;
     protected requireConfig: boolean;
@@ -36,6 +37,7 @@ export class Linter {
         this.workspaceRoot = workspaceRoot;
         this.requireConfig = requireConfig;
         this.enabled = true;
+        this.active = true;
         this.language = settings['c-cpp-flylint'].language;
         this.standard = settings['c-cpp-flylint'].standard;
         this.defines = settings['c-cpp-flylint'].defines;
@@ -82,6 +84,10 @@ export class Linter {
 
     public isEnabled(): boolean {
         return this.enabled === true;
+    }
+
+    public isActive(): boolean {
+        return this.active === true;
     }
 
     public enable() {

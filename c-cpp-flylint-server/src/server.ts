@@ -248,7 +248,7 @@ connection.onDidChangeConfiguration(async (params) => {
     linters.push(await (new Flexelint(settings, workspaceRoot).initialize()) as Flexelint);
 
     _.forEach(linters, (linter) => {
-        if (!linter.isEnabled()) {
+        if (linter.isActive() && !linter.isEnabled()) {
             connection.window.showWarningMessage(`Unable to activate ${linter.Name()} analyzer.`);
         }
     });

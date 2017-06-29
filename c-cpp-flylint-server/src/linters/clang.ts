@@ -14,7 +14,7 @@ export class Clang extends Linter {
 
         this.executable = settings['c-cpp-flylint'].clang.executable;
         this.configFile = settings['c-cpp-flylint'].clang.configFile;
-        this.enabled = settings['c-cpp-flylint'].clang.enable;
+        this.active = this.enabled = settings['c-cpp-flylint'].clang.enable;
     }
 
     protected buildCommandLine(fileName: string): string[] {

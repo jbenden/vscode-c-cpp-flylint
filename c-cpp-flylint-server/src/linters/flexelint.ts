@@ -13,7 +13,7 @@ export class Flexelint extends Linter {
 
         this.executable = settings['c-cpp-flylint'].flexelint.executable;
         this.configFile = settings['c-cpp-flylint'].flexelint.configFile;
-        this.enabled = settings['c-cpp-flylint'].flexelint.enable;
+        this.active = this.enabled = settings['c-cpp-flylint'].flexelint.enable;
     }
 
     protected buildCommandLine(fileName: string): string[] {
