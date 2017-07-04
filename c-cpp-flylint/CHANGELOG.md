@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Always analyze file upon save. Fixes #2
+
 ## [0.2.1] - 2017-06-29
 
 ### Added
