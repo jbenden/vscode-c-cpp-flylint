@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Fixed crash when opening a single file not under an opened
+  workspace or when no file URI to a disk-based file exists.
+  Fixes #3
+
 ## [0.2.2] - 2017-07-04
 
 ### Added

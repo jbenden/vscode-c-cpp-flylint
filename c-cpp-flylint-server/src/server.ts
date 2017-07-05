@@ -92,6 +92,18 @@ function validateTextDocument(textDocument: TextDocument): void {
     const fileUri: Uri = Uri.parse(textDocument.uri);
     const filePath: string = fileUri.fsPath;
 
+    if (workspaceRoot === undefined ||
+        workspaceRoot === null ||
+        filePath === undefined ||
+        filePath === null)
+    {
+        // lint can only successfully happen in a workspace, not per-file basis
+
+        console.log("Will not analyze a lone file; must open a folder workspace.");
+
+        return;
+    }
+
     if (fileUri.scheme !== 'file') {
         // lint can only lint files on disk.
         tracker.add(`c-cpp-flylint: A problem was encountered; the document is not locally present on disk.`);
