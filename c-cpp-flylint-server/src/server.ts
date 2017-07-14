@@ -106,10 +106,7 @@ function validateTextDocument(textDocument: TextDocument): void {
 
     if (fileUri.scheme !== 'file') {
         // lint can only lint files on disk.
-        tracker.add(`c-cpp-flylint: A problem was encountered; the document is not locally present on disk.`);
-
-        // Send any exceptions encountered during processing to VSCode.
-        tracker.sendErrors(connection);
+        console.log(`Skipping scan of non-local content at ${fileUri.toString()}`);
 
         return;
     }
