@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Do not throw error messages with non-local files. Fixes #5.
+- Switch to cross-spawn NPM module to work-around numerous issues
+  with Node.js's child_process.spawn functions on Windows.
+  Fixes #9.
 
 ## [0.2.3] - 2017-07-05
 

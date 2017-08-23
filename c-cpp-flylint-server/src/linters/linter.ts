@@ -2,9 +2,9 @@ import * as which from 'which';
 import * as fs from "fs";
 import * as path from "path";
 import * as _ from "lodash";
-import { spawnSync } from 'child_process';
 import { Settings } from "../settings";
 import { isString } from 'util';
+import { spawn } from 'cross-spawn';
 
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 const slash = require('slash'); // no types available
@@ -222,7 +222,7 @@ export class Linter {
             console.log('executing: ', cmd, params);
         }
 
-        return spawnSync(cmd, params, { 'cwd': workspaceDir });
+        return spawn.sync(cmd, params, { 'cwd': workspaceDir });
     }
 
     public lint(fileName: string, directory: null | string): {}[] {
