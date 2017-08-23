@@ -83,7 +83,8 @@ export class Clang extends Linter {
             .concat(defineParams)
             .concat(undefineParams)
             .concat(includePathParams)
-            .concat(languageParam);
+            .concat(languageParam)
+            .concat(this.settings['c-cpp-flylint'].clang.extraArgs || []);
 
         args.push(fileName);
 

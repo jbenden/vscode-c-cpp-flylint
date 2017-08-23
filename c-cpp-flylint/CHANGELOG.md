@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Handle Clang's `extraArgs` parameter. Fixes #7.
+
 ### Added
 
 ## [0.2.4] - 2017-08-23
