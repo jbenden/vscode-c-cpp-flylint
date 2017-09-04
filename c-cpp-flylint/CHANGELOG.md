@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Ensure document line access is within range and safely recalculate the
+  start and end columns. Fixes #10.
+
 ### Added
 
 ## [0.2.5] - 2017-08-23

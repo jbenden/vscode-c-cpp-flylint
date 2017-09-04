@@ -172,13 +172,10 @@ function validateAllTextDocuments(textDocuments: TextDocument[]): void {
 function makeDiagnostic(documentLines: string[], msg): Diagnostic {
     let severity = DiagnosticSeverity[msg.severity];
 
-    // 0 <= n
-    let line;
-    if (msg.line) {
-        line = msg.line;
-    } else {
-        line = 0;
-    }
+    let line = _.chain(msg.line)
+                .defaultTo(0)
+                .clamp(0, documentLines.length)
+                .value();
 
     // 0 <= n
     let column;
@@ -209,15 +206,20 @@ function makeDiagnostic(documentLines: string[], msg): Diagnostic {
         source = 'c-cpp-flylint';
     }
 
-    let l: string = documentLines[line];
     let startColumn = column;
-    let endColumn = column == 0 ? l.length : column + 1;
+    let endColumn = column + 1;
 
-    if (column === 0) {
+    if (column == 0 && documentLines.length > 0) {
+        let l: string = _.nth(documentLines, line);
+
+        // Find the line's starting column, sans-white-space
         let lineMatches = l.match(/\S/)
         if (lineMatches !== null) {
             startColumn = lineMatches.index;
         }
+
+        // Set the line's ending column to the full length of line
+        endColumn = l.length;
     }
 
     return {
