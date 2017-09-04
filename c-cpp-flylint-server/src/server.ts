@@ -174,7 +174,7 @@ function makeDiagnostic(documentLines: string[], msg): Diagnostic {
 
     let line = _.chain(msg.line)
                 .defaultTo(0)
-                .clamp(0, documentLines.length)
+                .clamp(0, documentLines.length - 1)
                 .value();
 
     // 0 <= n
