@@ -72,7 +72,7 @@ export class Flexelint extends Linter {
             return {
                 fileName: regexArray[1],
                 line: parseInt(regexArray[2]) - 1,
-                column: parseInt(regexArray[3]) || 0,
+                column: 0,
                 severity: this.getSeverityCode(regexArray[4]),
                 code: regexArray[5],
                 message: regexArray[6],
