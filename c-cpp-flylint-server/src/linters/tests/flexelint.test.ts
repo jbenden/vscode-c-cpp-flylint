@@ -131,7 +131,7 @@ class FlexelintTests {
 
         result.should.have.property('fileName', 'C:\\msys64\\usr\\lib\\gcc\\x86_64-pc-msys\\6.3.0\\include\\c++\\stdlib.h');
         result.should.have.property('line', 59);
-        result.should.have.property('column', 14);
+        result.should.have.property('column', 0);
         result.should.have.property('severity', 'Error');
         result.should.have.property('code', "1087");
         result['message'].should.match(/^Previous declaration of \'div/);
