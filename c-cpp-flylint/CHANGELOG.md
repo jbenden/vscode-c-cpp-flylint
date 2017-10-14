@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Fixed nested Clang analyzer diagnostics.
+
 ### Added
 
 ## [0.2.7] - 2017-09-04
