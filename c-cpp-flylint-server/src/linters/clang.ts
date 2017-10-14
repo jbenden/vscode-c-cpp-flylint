@@ -8,13 +8,26 @@ import { isString } from 'util';
 import { Linter } from './linter';
 
 export class Clang extends Linter {
+    private fileName : String[];
+    private lineNumber : Number[];
+    private messages : String[];
+
     constructor(settings: Settings, workspaceRoot: string) {
         super('Clang', settings, workspaceRoot, false);
         this.cascadeCommonSettings('clang');
 
+        // reset; we used all values
+        this.resetParser();
+
         this.executable = settings['c-cpp-flylint'].clang.executable;
         this.configFile = settings['c-cpp-flylint'].clang.configFile;
         this.active = this.enabled = settings['c-cpp-flylint'].clang.enable;
+    }
+
+    protected resetParser() {
+        this.fileName = new Array<String>(0);
+        this.lineNumber = new Array<Number>(0);
+        this.messages = new Array<String>(0);
     }
 
     protected buildCommandLine(fileName: string): string[] {
@@ -95,23 +108,47 @@ export class Clang extends Linter {
         let regex = /^(.+?):([0-9]+):([0-9]+):\s(fatal error|error|warning|note):\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
-        let excludeRegex = /^(In file included from .*|)$/;
+        let excludeRegex = /^$/;
 
         if (excludeRegex.exec(line) != null) {
             // skip this line, so return that fact....
             return {};
         }
 
+        let inFileArray: RegExpExecArray | null;
+        let inFileRegex = /^In file included from (.+?):([0-9]+):/;
+
+        if ((inFileArray = inFileRegex.exec(line)) != null) {
+            this.fileName.push(inFileArray[1]);
+            this.lineNumber.push(parseInt(inFileArray[2]) - 1);
+            this.messages.push(line);
+            return {};
+        }
+
         if ((regexArray = regex.exec(line)) != null) {
-            return {
-                fileName: regexArray[1],
-                line: parseInt(regexArray[2]) - 1,
+            this.fileName.push(regexArray[1]);
+            this.lineNumber.push(parseInt(regexArray[2]) - 1);
+            if (this.messages.length == 0) {
+                this.messages.push(regexArray[5]);
+            } else {
+                this.messages.push(line);
+            }
+
+            let result = {
+                fileName: this.fileName.shift(),
+                line: this.lineNumber.shift(),
                 column: 0, // FIXME: protocol does not take start+end columns
                 severity: this.getSeverityCode(regexArray[4]),
                 code: 0,
-                message: regexArray[5],
+                message: this.messages.join("\n"),
                 source: 'Clang',
             };
+
+            // reset; we used all values
+            this.resetParser();
+
+            // return the resulting diagnostic
+            return result;
         } else {
             throw Error('Line could not be parsed: ' + line);
         }
