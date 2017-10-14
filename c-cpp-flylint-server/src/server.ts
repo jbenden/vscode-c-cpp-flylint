@@ -14,7 +14,7 @@ import {
     TextDocument,
     TextDocuments,
 } from 'vscode-languageserver';
-import { ExecuteCommandParams } from 'vscode-languageserver/lib/protocol';
+import { ExecuteCommandParams } from 'vscode-languageserver-protocol/lib/protocol';
 import Uri from 'vscode-uri';
 import * as fs from "fs";
 import * as path from "path";
