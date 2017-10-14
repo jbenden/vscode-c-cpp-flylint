@@ -133,7 +133,9 @@ export class Clang extends Linter {
         if ((inFileArray = inFileRegex.exec(line)) != null) {
             this.fileName.push(inFileArray[1] == this.tmpFileName ? this.actualFileName : inFileArray[1]);
             this.lineNumber.push(parseInt(inFileArray[2]) - 1);
-            this.messages.push(line);
+            this.messages.push(line.replace(
+                new RegExp(this.tmpFileName.toString()),
+                this.actualFileName.toString()));
             return {};
         }
 
