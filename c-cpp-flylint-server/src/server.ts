@@ -18,6 +18,7 @@ import { ExecuteCommandParams } from 'vscode-languageserver/lib/protocol';
 import Uri from 'vscode-uri';
 import * as fs from "fs";
 import * as path from "path";
+import * as tmp from "tmp";
 import * as _ from "lodash";
 import { Settings } from "./settings";
 import { Linter } from "./linters/linter";
@@ -121,6 +122,9 @@ function validateTextDocument(textDocument: TextDocument): void {
         return;
     }
 
+    var tmpDocument = tmp.fileSync();
+    fs.writeSync(tmpDocument.fd, textDocument.getText());
+
     const documentLines: string[] = textDocument.getText().replace(/\r/g, '').split('\n');
 
     const diagnostics: Diagnostic[] = [];
@@ -134,7 +138,7 @@ function validateTextDocument(textDocument: TextDocument): void {
 
     lintersCopy.forEach(linter => {
         try {
-            const result = linter.lint(filePath as string, workspaceRoot);
+            const result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
             for (const msg of result) {
                 if (relativePath === msg['fileName'] || (path.isAbsolute(msg['fileName']) && filePath === msg['fileName'])) {
@@ -145,6 +149,8 @@ function validateTextDocument(textDocument: TextDocument): void {
             tracker.add(getErrorMessage(e, textDocument));
         }
     });
+
+    tmpDocument.removeCallback();
 
     console.log('Completed lint scans...');
 

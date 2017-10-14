@@ -58,7 +58,6 @@
         "title": "C/C++ Flylint: Analyze all documents opened in the workspace"
       }
     ],
-
     "configuration": {
       "type": "object",
       "title": "C/C++ Lint configuration",
@@ -82,7 +81,6 @@
           "default": "onSave",
           "description": "Run the linter upon typing (onType), when possible, or on save (onSave)."
         },
-
         "c-cpp-flylint.language": {
           "type": "string",
           "default": "c++",
@@ -115,7 +113,6 @@
           "default": [],
           "description": "Paths to search for include files. They may be relative or absolute. Cascades to all analyzers unless overridden in one or more analyzers."
         },
-
         "c-cpp-flylint.clang.enable": {
           "type": "boolean",
           "default": true,
@@ -297,7 +294,6 @@
             }
           }
         },
-
         "c-cpp-flylint.cppcheck.enable": {
           "type": "boolean",
           "default": true,
@@ -472,7 +468,6 @@
             }
           }
         },
-
         "c-cpp-flylint.flexelint.enable": {
           "type": "boolean",
           "default": true,
@@ -588,6 +583,7 @@
     "cross-spawn": "^5.1.0",
     "lodash": "^4.17.4",
     "slash": "^1.0.0",
+    "tmp": "^0.0.33",
     "var-expansion": "^0.1.0",
     "vscode": "^1.1.0",
     "vscode-languageclient": "^3.2.0",

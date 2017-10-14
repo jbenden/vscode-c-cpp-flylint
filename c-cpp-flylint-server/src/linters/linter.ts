@@ -211,8 +211,8 @@ export class Linter {
         }
     }
 
-    protected buildCommandLine(fileName: string): string[] {
-        return [this.executable, fileName];
+    protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
+        return [this.executable, fileName, tmpFileName];
     }
 
     protected runLinter(params: string[], workspaceDir: string) {
@@ -225,11 +225,11 @@ export class Linter {
         return spawn.sync(cmd, params, { 'cwd': workspaceDir });
     }
 
-    public lint(fileName: string, directory: null | string): {}[] {
+    public lint(fileName: string, directory: null | string, tmpFileName: string): {}[] {
         if (!this.enabled) { return []; }
 
         try {
-            let result = this.runLinter(this.buildCommandLine(fileName), directory || this.workspaceRoot);
+            let result = this.runLinter(this.buildCommandLine(fileName, tmpFileName), directory || this.workspaceRoot);
             let stdout = result.stdout !== null ? result.stdout.toString('utf-8').replace(/\r/g, "").split("\n") : [];
             let stderr = result.stderr !== null ? result.stderr.toString('utf-8').replace(/\r/g, "").split("\n") : [];
 

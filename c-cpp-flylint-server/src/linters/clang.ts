@@ -11,6 +11,8 @@ export class Clang extends Linter {
     private fileName : String[];
     private lineNumber : Number[];
     private messages : String[];
+    private actualFileName : String;
+    private tmpFileName : String;
 
     constructor(settings: Settings, workspaceRoot: string) {
         super('Clang', settings, workspaceRoot, false);
@@ -28,12 +30,19 @@ export class Clang extends Linter {
         this.fileName = new Array<String>(0);
         this.lineNumber = new Array<Number>(0);
         this.messages = new Array<String>(0);
+        this.actualFileName = "";
+        this.tmpFileName = "";
     }
 
-    protected buildCommandLine(fileName: string): string[] {
+    protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
         let includePathParams = this.getIncludePathParams();
         let languageParam = this.getLanguageParam();
-        let iquoteParams = []; // TODO: add this part for dynamic on-fly lints
+        let iquoteParams = this.expandedArgsFor(
+            '-iquote',
+            false,
+            [path.dirname(fileName)].concat(this.includePaths),
+            null
+        )
         let pedanticParams = this.getPedanticParams();
         let msExtensions = this.settings['c-cpp-flylint'].clang.msExtensions ?
                                 [ '-fms-extensions' ] : [];
@@ -99,7 +108,10 @@ export class Clang extends Linter {
             .concat(languageParam)
             .concat(this.settings['c-cpp-flylint'].clang.extraArgs || []);
 
-        args.push(fileName);
+        args.push(tmpFileName);
+
+        this.actualFileName = fileName;
+        this.tmpFileName = tmpFileName;
 
         return args;
     }
@@ -119,7 +131,7 @@ export class Clang extends Linter {
         let inFileRegex = /^In file included from (.+?):([0-9]+):/;
 
         if ((inFileArray = inFileRegex.exec(line)) != null) {
-            this.fileName.push(inFileArray[1]);
+            this.fileName.push(inFileArray[1] == this.tmpFileName ? this.actualFileName : inFileArray[1]);
             this.lineNumber.push(parseInt(inFileArray[2]) - 1);
             this.messages.push(line);
             return {};
@@ -140,7 +152,7 @@ export class Clang extends Linter {
                 column: 0, // FIXME: protocol does not take start+end columns
                 severity: this.getSeverityCode(regexArray[4]),
                 code: 0,
-                message: this.messages.join("\n"),
+                message: this.messages.join("\n\n"),
                 source: 'Clang',
             };
 

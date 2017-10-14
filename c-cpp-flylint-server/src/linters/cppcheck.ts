@@ -17,7 +17,9 @@ export class CppCheck extends Linter {
         this.active = this.enabled = settings['c-cpp-flylint'].cppcheck.enable;
     }
 
-    protected buildCommandLine(fileName: string): string[] {
+    protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
+        tmpFileName;
+
         let enableParams = this.settings['c-cpp-flylint'].cppcheck.unusedFunctions
                             ? [ '--enable=warning,style,performance,portability,information,unusedFunction' ]
                             : [ '--enable=warning,style,performance,portability,information' ];

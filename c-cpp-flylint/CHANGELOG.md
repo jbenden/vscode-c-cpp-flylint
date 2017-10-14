@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Fixed onType Clang analyzer mode.
+
 ## [0.2.7] - 2017-09-04
 
 ### Changed
