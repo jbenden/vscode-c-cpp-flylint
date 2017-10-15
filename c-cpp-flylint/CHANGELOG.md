@@ -5,9 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.4.0] - 2017-10-15
 
 ### Changed
+
+- Reworked all analyzers to report problems potentially spanning multiple
+  source code files.
+- Ensure all analyzer reports are merged and sent to the editor, to keep
+  VS Code from dropping an analyzer's analysis.
+- Clang: use actual source code file, when "onSave".
+- Updated all NPM dependencies to their latest versions.
 
 ### Added
 
