@@ -37,12 +37,19 @@ export class Clang extends Linter {
     protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
         let includePathParams = this.getIncludePathParams();
         let languageParam = this.getLanguageParam();
-        let iquoteParams = this.expandedArgsFor(
-            '-iquote',
-            false,
-            [path.dirname(fileName)].concat(this.includePaths),
-            null
-        )
+        let iquoteParams : string[];
+
+        if (this.settings['c-cpp-flylint'].run == "onType") {
+            iquoteParams = this.expandedArgsFor(
+                '-iquote',
+                false,
+                [path.dirname(fileName)].concat(this.includePaths),
+                null
+            )
+        } else {
+            iquoteParams = [];
+        }
+
         let pedanticParams = this.getPedanticParams();
         let msExtensions = this.settings['c-cpp-flylint'].clang.msExtensions ?
                                 [ '-fms-extensions' ] : [];
@@ -108,7 +115,11 @@ export class Clang extends Linter {
             .concat(languageParam)
             .concat(this.settings['c-cpp-flylint'].clang.extraArgs || []);
 
-        args.push(tmpFileName);
+        if (this.settings['c-cpp-flylint'].run == "onType") {
+            args.push(tmpFileName);
+        } else {
+            args.push(fileName);
+        }
 
         this.actualFileName = fileName;
         this.tmpFileName = tmpFileName;
