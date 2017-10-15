@@ -83,11 +83,6 @@ documents.onDidOpen((event) => {
     validateTextDocument(event.document);
 });
 
-// A text document was closed. Clear the diagnostics.
-documents.onDidClose((event) => {
-    connection.sendDiagnostics({uri: event.document.uri, diagnostics: []});
-});
-
 function validateTextDocument(textDocument: TextDocument): void {
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
     const fileUri: Uri = Uri.parse(textDocument.uri);
