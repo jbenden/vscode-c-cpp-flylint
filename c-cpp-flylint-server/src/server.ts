@@ -125,12 +125,6 @@ function validateTextDocument(textDocument: TextDocument): void {
     var tmpDocument = tmp.fileSync();
     fs.writeSync(tmpDocument.fd, textDocument.getText());
 
-    const documentLines: string[] = textDocument.getText().replace(/\r/g, '').split('\n');
-
-    const diagnostics: Diagnostic[] = [];
-
-    const relativePath = path.relative(workspaceRoot, filePath);
-
     // deep-copy current items, so mid-stream configuration change doesn't spoil the party
     const lintersCopy : Linter[] = _.cloneDeep(linters);
 
@@ -140,10 +134,19 @@ function validateTextDocument(textDocument: TextDocument): void {
         try {
             const result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
-            for (const msg of result) {
-                if (relativePath === msg['fileName'] || (path.isAbsolute(msg['fileName']) && filePath === msg['fileName'])) {
-                    diagnostics.push(makeDiagnostic(documentLines, msg));
+            while(result.length !== 0) {
+                const diagnostics = [];
+                var curFile = '';
+                var i = result.length
+                while(i--) {
+                    var msg = result[i];
+                    if(curFile === '') curFile = msg.fileName;
+                    if(curFile !== msg.fileName) continue;
+
+                    diagnostics.push(makeDiagnostic(msg));
+                    result.splice(i, 1);
                 }
+                connection.sendDiagnostics({ uri: ('file://' + curFile), diagnostics });
             }
         } catch(e) {
             tracker.add(getErrorMessage(e, textDocument));
@@ -153,9 +156,6 @@ function validateTextDocument(textDocument: TextDocument): void {
     tmpDocument.removeCallback();
 
     console.log('Completed lint scans...');
-
-    // Send the computed diagnostics to VSCode.
-    connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
 
     // Send any exceptions encountered during processing to VSCode.
     tracker.sendErrors(connection);
@@ -175,13 +175,10 @@ function validateAllTextDocuments(textDocuments: TextDocument[]): void {
     tracker.sendErrors(connection);
 }
 
-function makeDiagnostic(documentLines: string[], msg): Diagnostic {
+function makeDiagnostic(msg): Diagnostic {
     let severity = DiagnosticSeverity[msg.severity];
 
-    let line = _.chain(msg.line)
-                .defaultTo(0)
-                .clamp(0, documentLines.length - 1)
-                .value();
+    let line =  msg.line;
 
     // 0 <= n
     let column;
@@ -214,19 +211,6 @@ function makeDiagnostic(documentLines: string[], msg): Diagnostic {
 
     let startColumn = column;
     let endColumn = column + 1;
-
-    if (column == 0 && documentLines.length > 0) {
-        let l: string = _.nth(documentLines, line);
-
-        // Find the line's starting column, sans-white-space
-        let lineMatches = l.match(/\S/)
-        if (lineMatches !== null) {
-            startColumn = lineMatches.index;
-        }
-
-        // Set the line's ending column to the full length of line
-        endColumn = l.length;
-    }
 
     return {
         severity: severity,
