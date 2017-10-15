@@ -27,9 +27,6 @@ export class Clang extends Linter {
     }
 
     protected resetParser() {
-        this.fileName = new Array<String>(0);
-        this.lineNumber = new Array<Number>(0);
-        this.messages = new Array<String>(0);
         this.actualFileName = "";
         this.tmpFileName = "";
     }
@@ -131,49 +128,36 @@ export class Clang extends Linter {
         let regex = /^(.+?):([0-9]+):([0-9]+):\s(fatal error|error|warning|note):\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
-        let excludeRegex = /^$/;
-
-        if (excludeRegex.exec(line) != null) {
+        if (line === '') {
             // skip this line, so return that fact....
             return {};
         }
 
         let inFileArray: RegExpExecArray | null;
-        let inFileRegex = /^In file included from (.+?):([0-9]+):/;
+        let inFileRegex = /^In file included from (.+?):([0-9]+):$/;
 
         if ((inFileArray = inFileRegex.exec(line)) != null) {
-            this.fileName.push(inFileArray[1] == this.tmpFileName ? this.actualFileName : inFileArray[1]);
-            this.lineNumber.push(parseInt(inFileArray[2]) - 1);
-            this.messages.push(line.replace(
-                new RegExp(this.tmpFileName.toString()),
-                this.actualFileName.toString()));
-            return {};
+            return {
+                fileName: (inFileArray[1] === this.tmpFileName ? this.actualFileName : inFileArray[1]),
+                line: parseInt(inFileArray[2]) - 1,
+                column: 0,
+                severity: 'Warning',
+                code: 0,
+                message: 'Issues in file included from here',
+                source: 'Clang'
+            };
         }
 
         if ((regexArray = regex.exec(line)) != null) {
-            this.fileName.push(regexArray[1]);
-            this.lineNumber.push(parseInt(regexArray[2]) - 1);
-            if (this.messages.length == 0) {
-                this.messages.push(regexArray[5]);
-            } else {
-                this.messages.push(line);
-            }
-
-            let result = {
-                fileName: this.fileName.shift(),
-                line: this.lineNumber.shift(),
-                column: 0, // FIXME: protocol does not take start+end columns
+            return {
+                fileName: (regexArray[1] === this.tmpFileName ? this.actualFileName : regexArray[1]),
+                line: parseInt(regexArray[2]) - 1,
+                column: parseInt(regexArray[3]) - 1,
                 severity: this.getSeverityCode(regexArray[4]),
                 code: 0,
-                message: this.messages.join("\n\n"),
+                message: regexArray[5],
                 source: 'Clang',
             };
-
-            // reset; we used all values
-            this.resetParser();
-
-            // return the resulting diagnostic
-            return result;
         } else {
             throw Error('Line could not be parsed: ' + line);
         }

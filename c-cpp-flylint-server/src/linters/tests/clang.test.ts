@@ -79,7 +79,7 @@ class ClangTests {
         ];
         let actual = this.linter['parseLines'](test);
 
-        actual.should.have.length(14);
+        actual.should.have.length(17);
 
         let result = actual.pop();
 

@@ -127,7 +127,7 @@ function validateTextDocument(textDocument: TextDocument): void {
 
     const documentLines: string[] = textDocument.getText().replace(/\r/g, '').split('\n');
 
-    const diagnostics: Diagnostic[] = [];
+    const allDiagnostics: Map<String, Diagnostic[]> = new Map<String, Diagnostic[]>();
 
     const relativePath = path.relative(workspaceRoot, filePath);
 
@@ -140,9 +140,42 @@ function validateTextDocument(textDocument: TextDocument): void {
         try {
             const result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
-            for (const msg of result) {
-                if (relativePath === msg['fileName'] || (path.isAbsolute(msg['fileName']) && filePath === msg['fileName'])) {
-                    diagnostics.push(makeDiagnostic(documentLines, msg));
+            while (result.length > 0) {
+                let diagnostics: Diagnostic[] = [];
+                let currentFile: string = '';
+                let i = result.length;
+
+                while (i-- >= 0) {
+                    var msg : {} = result[i];
+
+                    if (msg === null || msg === undefined || !msg.hasOwnProperty('line')) {
+                        result.splice(i, 1);
+                        continue;
+                    }
+
+                    if (currentFile === '' && msg.hasOwnProperty('fileName')) {
+                        currentFile = msg['fileName'];
+                    }
+
+                    if (!msg.hasOwnProperty('fileName') || currentFile !== msg['fileName']) {
+                        continue;
+                    }
+
+                    if (relativePath === msg['fileName'] || (path.isAbsolute(msg['fileName']) && filePath === msg['fileName'])) {
+                        diagnostics.push(makeDiagnostic(documentLines, msg));
+                    } else {
+                        diagnostics.push(makeDiagnostic(null, msg));
+                    }
+
+                    result.splice(i, 1);
+                }
+
+                diagnostics = _.uniqBy(diagnostics, function (e) { return e.line + ":::" + e.message; } );
+
+                if (allDiagnostics.hasOwnProperty(currentFile)) {
+                    allDiagnostics[currentFile] = _.union(allDiagnostics[currentFile], diagnostics);
+                } else {
+                    allDiagnostics[currentFile] = diagnostics;
                 }
             }
         } catch(e) {
@@ -152,10 +185,11 @@ function validateTextDocument(textDocument: TextDocument): void {
 
     tmpDocument.removeCallback();
 
-    console.log('Completed lint scans...');
+    _.each(allDiagnostics, (diagnostics, currentFile) => {
+        connection.sendDiagnostics({uri: 'file://' + currentFile, diagnostics});
+    });
 
-    // Send the computed diagnostics to VSCode.
-    connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
+    console.log('Completed lint scans...');
 
     // Send any exceptions encountered during processing to VSCode.
     tracker.sendErrors(connection);
@@ -175,13 +209,18 @@ function validateAllTextDocuments(textDocuments: TextDocument[]): void {
     tracker.sendErrors(connection);
 }
 
-function makeDiagnostic(documentLines: string[], msg): Diagnostic {
+function makeDiagnostic(documentLines: string[] | null, msg): Diagnostic {
     let severity = DiagnosticSeverity[msg.severity];
 
-    let line = _.chain(msg.line)
+    let line;
+    if (documentLines !== null) {
+        line = _.chain(msg.line)
                 .defaultTo(0)
                 .clamp(0, documentLines.length - 1)
                 .value();
+    } else {
+        line = msg.line;
+    }
 
     // 0 <= n
     let column;
@@ -215,7 +254,7 @@ function makeDiagnostic(documentLines: string[], msg): Diagnostic {
     let startColumn = column;
     let endColumn = column + 1;
 
-    if (column == 0 && documentLines.length > 0) {
+    if (documentLines !== null && column == 0 && documentLines.length > 0) {
         let l: string = _.nth(documentLines, line);
 
         // Find the line's starting column, sans-white-space
