@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.3] - 2017-10-16
+
+### Changed
+
+- All of the linters will now perform an analysis according to their
+  supported capabilities and the current `c-cpp-flylint.run` setting.
+  This change reduces the total number of linter executions, when the
+  setting is `onType` and multiple analyzers are enabled; as only
+  Clang supports `onType` currently.
+
 ## [0.4.2] - 2017-10-16
 
 ### Changed
