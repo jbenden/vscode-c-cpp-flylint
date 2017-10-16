@@ -16,6 +16,11 @@ export interface IExpansionResult {
 
 export const headerExts = ['.h', '.H', '.hh', '.hpp', '.h++', '.hxx'];
 
+export enum Lint {
+    ON_SAVE = 1,
+    ON_TYPE = 2
+};
+
 export class Linter {
     protected name: string;
     protected settings: Settings;
@@ -96,6 +101,10 @@ export class Linter {
 
     public disable() {
         this.enabled = false;
+    }
+
+    public lintOn() {
+        return Lint.ON_SAVE;
     }
 
     public initialize() {

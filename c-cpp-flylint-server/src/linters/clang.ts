@@ -5,7 +5,7 @@ import { spawnSync } from 'child_process';
 import * as _ from "lodash";
 import { Settings } from "../settings";
 import { isString } from 'util';
-import { Linter } from './linter';
+import { Linter, Lint } from './linter';
 
 export class Clang extends Linter {
     private fileName : String[];
@@ -24,6 +24,10 @@ export class Clang extends Linter {
         this.executable = settings['c-cpp-flylint'].clang.executable;
         this.configFile = settings['c-cpp-flylint'].clang.configFile;
         this.active = this.enabled = settings['c-cpp-flylint'].clang.enable;
+    }
+
+    public lintOn() {
+        return Lint.ON_SAVE | Lint.ON_TYPE;
     }
 
     protected resetParser() {

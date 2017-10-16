@@ -21,7 +21,7 @@ import * as path from "path";
 import * as tmp from "tmp";
 import * as _ from "lodash";
 import { Settings } from "./settings";
-import { Linter } from "./linters/linter";
+import { Linter, Lint } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
 import { Clang } from './linters/clang';
@@ -69,21 +69,21 @@ connection.onInitialize((params): InitializeResult => {
 // This event is emitted when the text document is first opened or when its content has changed.
 documents.onDidChangeContent((event) => {
     if (settings['c-cpp-flylint'].run === "onType") {
-        validateTextDocument(event.document);
+        validateTextDocument(event.document, Lint.ON_TYPE);
     }
 });
 
 documents.onDidSave((event) => {
     if (settings['c-cpp-flylint'].run === "onSave" || settings['c-cpp-flylint'].run === "onType") {
-        validateTextDocument(event.document);
+        validateTextDocument(event.document, Lint.ON_SAVE);
     }
 });
 
 documents.onDidOpen((event) => {
-    validateTextDocument(event.document);
+    validateTextDocument(event.document, Lint.ON_SAVE);
 });
 
-function validateTextDocument(textDocument: TextDocument): void {
+function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
     const fileUri: Uri = Uri.parse(textDocument.uri);
     const filePath: string = fileUri.fsPath;
@@ -132,49 +132,53 @@ function validateTextDocument(textDocument: TextDocument): void {
     console.log('Performing lint scans...');
 
     lintersCopy.forEach(linter => {
-        try {
-            const result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
+        if ((linter.lintOn() & lintOn) != 0) {
+            try {
+                const result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
-            while (result.length > 0) {
-                let diagnostics: Diagnostic[] = [];
-                let currentFile: string = '';
-                let i = result.length;
+                while (result.length > 0) {
+                    let diagnostics: Diagnostic[] = [];
+                    let currentFile: string = '';
+                    let i = result.length;
 
-                while (i-- >= 0) {
-                    var msg : {} = result[i];
+                    while (i-- >= 0) {
+                        var msg : {} = result[i];
 
-                    if (msg === null || msg === undefined || !msg.hasOwnProperty('line')) {
+                        if (msg === null || msg === undefined || !msg.hasOwnProperty('line')) {
+                            result.splice(i, 1);
+                            continue;
+                        }
+
+                        if (currentFile === '' && msg.hasOwnProperty('fileName')) {
+                            currentFile = msg['fileName'];
+                        }
+
+                        if (!msg.hasOwnProperty('fileName') || currentFile !== msg['fileName']) {
+                            continue;
+                        }
+
+                        if (relativePath === msg['fileName'] || (path.isAbsolute(msg['fileName']) && filePath === msg['fileName'])) {
+                            diagnostics.push(makeDiagnostic(documentLines, msg));
+                        } else {
+                            diagnostics.push(makeDiagnostic(null, msg));
+                        }
+
                         result.splice(i, 1);
-                        continue;
                     }
 
-                    if (currentFile === '' && msg.hasOwnProperty('fileName')) {
-                        currentFile = msg['fileName'];
-                    }
+                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.line + ":::" + e.message; } );
 
-                    if (!msg.hasOwnProperty('fileName') || currentFile !== msg['fileName']) {
-                        continue;
-                    }
-
-                    if (relativePath === msg['fileName'] || (path.isAbsolute(msg['fileName']) && filePath === msg['fileName'])) {
-                        diagnostics.push(makeDiagnostic(documentLines, msg));
+                    if (allDiagnostics.hasOwnProperty(currentFile)) {
+                        allDiagnostics[currentFile] = _.union(allDiagnostics[currentFile], diagnostics);
                     } else {
-                        diagnostics.push(makeDiagnostic(null, msg));
+                        allDiagnostics[currentFile] = diagnostics;
                     }
-
-                    result.splice(i, 1);
                 }
-
-                diagnostics = _.uniqBy(diagnostics, function (e) { return e.line + ":::" + e.message; } );
-
-                if (allDiagnostics.hasOwnProperty(currentFile)) {
-                    allDiagnostics[currentFile] = _.union(allDiagnostics[currentFile], diagnostics);
-                } else {
-                    allDiagnostics[currentFile] = diagnostics;
-                }
+            } catch(e) {
+                tracker.add(getErrorMessage(e, textDocument));
             }
-        } catch(e) {
-            tracker.add(getErrorMessage(e, textDocument));
+        } else {
+            console.log(`Skipping ${linter.Name()} linter because lintOn ${linter.lintOn()} is not in ${lintOn}.`);
         }
     });
 
@@ -200,7 +204,7 @@ function validateAllTextDocuments(textDocuments: TextDocument[]): void {
 
     for (const document of textDocuments) {
         try {
-            validateTextDocument(document);
+            validateTextDocument(document, Lint.ON_SAVE);
         } catch (err) {
             tracker.add(getErrorMessage(err, document));
         }
@@ -333,7 +337,7 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                             const documentUri = Uri.parse(document.uri);
 
                             if (fileUri.fsPath === documentUri.fsPath) {
-                                validateTextDocument(document);
+                                validateTextDocument(document, Lint.ON_SAVE);
                             }
                         } catch (err) {
                             tracker.add(getErrorMessage(err, document));
