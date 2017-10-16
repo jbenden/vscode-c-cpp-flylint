@@ -184,6 +184,11 @@ function validateTextDocument(textDocument: TextDocument): void {
         connection.sendDiagnostics({uri: 'file://' + currentFile, diagnostics});
     });
 
+    // Remove all previous problem reports, when no further exist
+    if (!allDiagnostics.hasOwnProperty(relativePath) && !allDiagnostics.hasOwnProperty(filePath)) {
+        connection.sendDiagnostics({uri: 'file://' + filePath, diagnostics: []});
+    }
+
     console.log('Completed lint scans...');
 
     // Send any exceptions encountered during processing to VSCode.
