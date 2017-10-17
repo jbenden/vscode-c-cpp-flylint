@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.0] - 2017-10-17
+
+### Changed
+
+- Minor change to the way command executions are shown, to enable easier
+  copy and paste to a terminal for debugging analyses.
+
+### Added
+
+- Now supports reading include paths and defines from a workspace
+  `c_cpp_properties.json` file. These settings cascade to all analyzers,
+  and are only set when no manual configuration of these two settings
+  have taken place.
+
 ## [0.4.3] - 2017-10-16
 
 ### Changed
