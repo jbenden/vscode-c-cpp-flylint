@@ -228,7 +228,7 @@ export class Linter {
         let cmd = params.shift() || this.executable;
 
         if (this.settings['c-cpp-flylint'].debug) {
-            console.log('executing: ', cmd, params);
+            console.log('executing: ', cmd, params.join(' '));
         }
 
         return spawn.sync(cmd, params, { 'cwd': workspaceDir });
