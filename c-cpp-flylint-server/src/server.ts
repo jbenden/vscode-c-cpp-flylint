@@ -20,7 +20,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 import * as _ from "lodash";
-import { Settings } from "./settings";
+import { Settings, IConfiguration, IConfigurations, propertiesPlatform } from "./settings";
 import { Linter, Lint } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
@@ -296,31 +296,67 @@ function getErrorMessage(err, document: TextDocument): string {
     return message;
 }
 
-// The settings have changed. Sent on server activation as well.
-connection.onDidChangeConfiguration(async (params) => {
-    settings = params.settings;
+async function reconfigureExtension() {
+    if (settings === null || settings === undefined) { return; }
 
-    console.log('Configuration changed. Re-configuring extension.');
+    let currentSettings = _.cloneDeep(settings);
+    try {
+        // Process VS Code `c_cpp_properties.json` file
+        const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
+        if (fs.existsSync(cCppPropertiesPath)) {
+            const cCppProperties : IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
+
+            const platformConfig = cCppProperties.configurations.find(el => el.name == propertiesPlatform());
+            if (platformConfig !== undefined) {
+                // Found a configuration set; populate the currentSettings
+                if (currentSettings['c-cpp-flylint'].includePaths.length === 0) {
+                    currentSettings['c-cpp-flylint'].includePaths = platformConfig.includePath;
+                }
+
+                if (currentSettings['c-cpp-flylint'].defines.length === 0) {
+                    currentSettings['c-cpp-flylint'].defines = platformConfig.defines;
+                }
+            }
+        }
+    } catch(err) {
+        console.log("Could not find or parse the workspace c_cpp_properties.json file; continuing...");
+    }
 
     linters = []  // clear array
-    linters.push(await (new Clang(settings, workspaceRoot).initialize()) as Clang);
-    linters.push(await (new CppCheck(settings, workspaceRoot).initialize()) as CppCheck);
-    linters.push(await (new Flexelint(settings, workspaceRoot).initialize()) as Flexelint);
+    linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang);
+    linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck);
+    linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint);
 
     _.forEach(linters, (linter) => {
         if (linter.isActive() && !linter.isEnabled()) {
             connection.window.showWarningMessage(`Unable to activate ${linter.Name()} analyzer.`);
         }
     });
+}
+
+// The current settings have changed. Sent on server activation as well.
+connection.onDidChangeConfiguration(async (params) => {
+    settings = params.settings;
+
+    console.log('Configuration changed. Re-configuring extension.');
+    await reconfigureExtension();
 
     // Revalidate any open text documents.
     validateAllTextDocuments(documents.all());
 });
 
-connection.onDidChangeWatchedFiles(() => {
+connection.onDidChangeWatchedFiles((params) => {
     console.log('FS change notification occurred; re-linting all opened documents.')
 
-    validateAllTextDocuments(documents.all());
+    params.changes.forEach(async element => {
+        let configFilePath = Uri.parse(element.uri);
+
+        if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
+            await reconfigureExtension();
+
+            validateAllTextDocuments(documents.all());
+        }
+    });
 });
 
 connection.onExecuteCommand((params: ExecuteCommandParams) => {

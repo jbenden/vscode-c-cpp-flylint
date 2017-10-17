@@ -1,3 +1,26 @@
+import * as os from 'os';
+
+export interface IConfiguration {
+    name: string;
+    includePath: string[];
+    defines: string[];
+}
+
+export interface IConfigurations {
+    configurations: IConfiguration[];
+}
+
+export function propertiesPlatform() {
+    switch (os.platform()) {
+        case 'darwin': return 'Mac';
+        case 'linux': return 'Linux';
+        case 'win32': return 'Win32';
+        default:
+            console.log("Unsupported operating system.");
+            return "null";
+    }
+}
+
 export type SeverityLevel = 'Error' | 'Warning' | 'Information' | 'Hint' | 'None';
 
 export interface CppCheckSeverityMaps {

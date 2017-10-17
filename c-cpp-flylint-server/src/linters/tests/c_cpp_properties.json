@@ -1,0 +1,86 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${workspaceRoot}",
+                "/usr/include",
+                "/usr/local/include"
+            ],
+            "defines": [],
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "intelliSenseMode": "clang-x64",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ]
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceRoot}",
+                "${workspaceRoot}/lib",
+                "${workspaceRoot}/popt",
+                "${workspaceRoot}/zlib",
+                "/usr/lib/gcc/x86_64-linux-gnu/5/include",
+                "/usr/local/include",
+                "/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed",
+                "/usr/include/x86_64-linux-gnu",
+                "/usr/include"
+            ],
+            "defines": [
+                "HAVE_CONFIG_H"
+            ],
+            "browse": {
+                "path": [
+                    "/usr/include",
+                    "/usr/local/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "intelliSenseMode": "clang-x64"
+        },
+        {
+            "name": "Win32",
+            "intelliSenseMode": "clang-x64",
+            "includePath": [
+                "${workspaceRoot}",
+                "C:/msys64/usr/lib/gcc/x86_64-pc-msys/6.3.0/include",
+                "C:/msys64/usr/include",
+                "C:/msys64/usr/include/sys",
+                "C:/msys64/usr/include/w32api"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "_WIN32",
+                "WINVER=0x0600",
+                "_WIN32_WINNT=0x0600",
+                "__MSVCRT_VERSION__=0x0800"
+            ],
+            "browse": {
+                "path": [
+                    "C:/msys64/usr/lib/gcc/x86_64-pc-msys/6.3.0/include",
+                    "C:/msys64/usr/include",
+                    "C:/msys64/usr/include/sys",
+                    "C:/msys64/usr/include/w32api",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 3
+}
