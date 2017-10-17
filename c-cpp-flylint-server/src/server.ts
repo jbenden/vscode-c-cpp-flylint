@@ -129,7 +129,7 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
     // deep-copy current items, so mid-stream configuration change doesn't spoil the party
     const lintersCopy : Linter[] = _.cloneDeep(linters);
 
-    console.log('Performing lint scans...');
+    console.log(`Performing lint scan of ${filePath}...`);
 
     lintersCopy.forEach(linter => {
         if ((linter.lintOn() & lintOn) != 0) {
