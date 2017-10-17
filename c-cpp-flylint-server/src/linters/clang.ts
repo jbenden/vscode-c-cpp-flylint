@@ -35,6 +35,77 @@ export class Clang extends Linter {
         this.tmpFileName = "";
     }
 
+    protected parseCppPropertiesFile(): string[] {
+        try {
+            let args: string[] = [];
+
+            let cppConfigurationJson;
+            let configFilePath = path.join(this.workspaceRoot, ".vscode", "c_cpp_properties.json");
+            let readResults = fs.readFileSync(configFilePath, 'utf8');
+            if (readResults == '') {
+                return args;
+            }
+            cppConfigurationJson = JSON.parse(readResults);
+
+            let nodePlatform = process.platform;
+            let currentPlatform;
+            if (nodePlatform == 'linux') {
+                currentPlatform = "Linux";
+            }
+            else if (nodePlatform == 'darwin') {
+                currentPlatform = "Mac";
+            }
+            else if (nodePlatform == 'win32') {
+                currentPlatform = "Win32";
+            }
+            else {
+                return args;
+            }
+
+            let configurations = cppConfigurationJson.configurations;
+            for (let i = 0; i < configurations.length; i++) {
+                let config = configurations[i];
+                if (config.name == currentPlatform) {
+                    let includePaths = config.includePath;
+                    for (let p = 0; p < includePaths.length; p++) {
+                        let curPath = includePaths[p];
+                        if (curPath !== '') {
+                            let argString = '-I' + curPath;
+                            argString = argString.replace('${workspaceRoot}', this.workspaceRoot);
+                            args.push(argString);
+                        }
+                    }
+                    if (currentPlatform == "Mac") {
+                        let frameworks = config.macFrameworkPath;
+                        for (let f = 0; f < frameworks.length; f++) {
+                            let curFramework = frameworks[f];
+                            if (curFramework !== '') {
+                                let argString = '-F' + curFramework;
+                                argString = argString.replace('${workspaceRoot}', this.workspaceRoot);
+                                args.push(argString);
+                            }
+                        }
+                    }
+                    let defines = config.defines;
+                    for (let d = 0; d < defines.length; d++) {
+                        let curDefine = defines[d];
+                        if (curDefine !== '') {
+                            let argString = '-D' + curDefine;
+                            argString = argString.replace('${workspaceRoot}', this.workspaceRoot);
+                            args.push(argString);
+                        }
+                    }
+                    break;
+                }
+            }
+            return args;
+        }
+        catch (err) {
+            console.log('Failed to parse c_cpp_properties.json: ' + err.message);
+            return [];
+        }
+    }
+
     protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
         let includePathParams = this.getIncludePathParams();
         let languageParam = this.getLanguageParam();
@@ -115,6 +186,11 @@ export class Clang extends Linter {
             .concat(includePathParams)
             .concat(languageParam)
             .concat(this.settings['c-cpp-flylint'].clang.extraArgs || []);
+
+        let cppConfigArgs = this.parseCppPropertiesFile();
+        if (cppConfigArgs.length > 0) {
+            args = args.concat(cppConfigArgs);
+        }
 
         if (this.settings['c-cpp-flylint'].run == "onType") {
             args.push(tmpFileName);
