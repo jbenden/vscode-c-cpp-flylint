@@ -137,6 +137,12 @@ export class Clang extends Linter {
             return {};
         }
 
+        let excludeRegex = /^Q_.*|)$/;
+        if (excludeRegex.exec(line) != null) {
+            // skip this line, so return that fact....
+            return {};
+        }
+
         let inFileArray: RegExpExecArray | null;
         let inFileRegex = /^In file included from (.+?):([0-9]+):$/;
 
