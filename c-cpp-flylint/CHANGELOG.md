@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.2] - 2017-11-11
+
+### Changed
+
+- Clang: skip over all Qt macros which are prefixed with `Q_`.
+  Fixes #22.
+
 ## [0.5.1] - 2017-10-20
 
 ### Changed
