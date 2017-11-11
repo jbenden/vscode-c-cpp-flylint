@@ -137,7 +137,7 @@ export class Clang extends Linter {
             return {};
         }
 
-        let excludeRegex = /^Q_.*|)$/;
+        let excludeRegex = /^Q_.*$/;
         if (excludeRegex.exec(line) != null) {
             // skip this line, so return that fact....
             return {};
