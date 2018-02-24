@@ -185,12 +185,24 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
     tmpDocument.removeCallback();
 
     _.each(allDiagnostics, (diagnostics, currentFile) => {
-        connection.sendDiagnostics({uri: 'file://' + currentFile, diagnostics});
+        var currentFilePath = path.resolve(currentFile).replace(/\\/g, '/');
+        // Windows drive letter must be prefixed with a slash
+        if (currentFilePath[0] !== '/') {
+            currentFilePath = '/' + currentFilePath;
+        }
+
+        connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics});
     });
 
     // Remove all previous problem reports, when no further exist
     if (!allDiagnostics.hasOwnProperty(relativePath) && !allDiagnostics.hasOwnProperty(filePath)) {
-        connection.sendDiagnostics({uri: 'file://' + filePath, diagnostics: []});
+        let currentFilePath =  path.resolve(filePath).replace(/\\/g, '/');
+        // Windows drive letter must be prefixed with a slash
+        if (currentFilePath[0] !== '/') {
+            currentFilePath = '/' + currentFilePath;
+        }
+
+        connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
     }
 
     console.log('Completed lint scans...');
