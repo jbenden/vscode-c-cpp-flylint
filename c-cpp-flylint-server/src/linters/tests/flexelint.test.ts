@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { slow, suite, test, timeout } from 'mocha-typescript';
+import { expect } from 'chai';
 import * as mock from 'mock-fs';
 import * as _ from "lodash";
 import { Flexelint } from '../flexelint';
@@ -88,7 +89,7 @@ class FlexelintTests {
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Warning');
         result.should.have.property('code', "613");
-        result['message'].should.match(/^Possible use of null pointer \'flist\'/);
+        expect(result['message']).to.match(/^Possible use of null pointer \'flist\'/);
     }
 
     @test("should parse a line with a missing column number")
@@ -101,7 +102,7 @@ class FlexelintTests {
         actual.should.have.property('column', 0);
         actual.should.have.property('severity', 'Warning');
         actual.should.have.property('code', "1526");
-        actual['message'].should.match(/^Member function/);
+        expect(actual['message']).to.match(/^Member function/);
     }
 
     @test("should parse a line with complete detail")
@@ -114,7 +115,7 @@ class FlexelintTests {
         actual.should.have.property('column', 0);
         actual.should.have.property('severity', 'Information');
         actual.should.have.property('code', "1714");
-        actual['message'].should.match(/^Member function/);
+        expect(actual['message']).to.match(/^Member function/);
     }
 
     @test("should parse a multi-line message")
@@ -134,7 +135,7 @@ class FlexelintTests {
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Error');
         result.should.have.property('code', "1087");
-        result['message'].should.match(/^Previous declaration of \'div/);
+        expect(result['message']).to.match(/^Previous declaration of \'div/);
     }
 
     @test("should parse the line")
