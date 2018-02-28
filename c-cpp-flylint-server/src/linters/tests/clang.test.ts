@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { slow, suite, test, timeout } from 'mocha-typescript';
+import { expect } from 'chai';
 import * as mock from 'mock-fs';
 import * as _ from "lodash";
 import { Settings } from '../../settings';
@@ -87,6 +88,6 @@ class ClangTests {
         result.should.have.property('line', 21);
         // result.should.have.property('column', 20);
         result.should.have.property('severity', 'Information');
-        result['message'].should.match(/^expanded from macro \'ARRAY_LEN\'/);
+        expect(result['message']).to.match(/^expanded from macro \'ARRAY_LEN\'/);
     }
 }

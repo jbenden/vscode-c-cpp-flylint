@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { slow, suite, test, timeout } from 'mocha-typescript';
+import { expect } from 'chai';
 import * as mock from 'mock-fs';
 import * as _ from "lodash";
 import { Settings } from '../../settings';
@@ -73,6 +74,7 @@ class CppCheckTests {
             `Checking flist.c: getnameinfo...`,
             `Checking flist.c: iconv_t...`,
             `    information missingIncludeSystem: Cppcheck cannot find all the include files (use --check-config for details)`,
+            `    information missingInclude: Cppcheck cannot find all the include files (use --check-config for details)`,
         ];
         let actual = this.linter['parseLines'](test);
 
@@ -85,6 +87,6 @@ class CppCheckTests {
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
         result.should.have.property('code', "unusedStructMember");
-        result['message'].should.match(/^struct member \'Anonymous5::name_space\' is never used\./);
+        expect(result['message']).to.match(/^struct member \'Anonymous5::name_space\' is never used\./);
     }
 }

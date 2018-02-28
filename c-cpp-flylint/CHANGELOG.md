@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Remove all diagnostics before resending them from the server-side
   to VS Code.
+- Fix TypeScript 2.7 "possibly undefined" build error. GH #29.
+- Fix cppcheck "missingInclude" error. GH #29.
+- Fix Windows diagnostics file URI generation. GH #29.
 
 ## [0.5.4] - 2017-11-11
 
