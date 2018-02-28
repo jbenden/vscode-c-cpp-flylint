@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fix TypeScript 2.7 "possibly undefined" build error. GH #29.
 - Fix cppcheck "missingInclude" error. GH #29.
 - Fix Windows diagnostics file URI generation. GH #29.
+- Updated Node module project dependencies.
 
 ## [0.5.4] - 2017-11-11
 
