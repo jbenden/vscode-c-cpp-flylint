@@ -185,6 +185,7 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
     tmpDocument.removeCallback();
 
     _.each(allDiagnostics, (diagnostics, currentFile) => {
+        connection.sendDiagnostics({uri: 'file://' + currentFile, diagnostics: []});
         connection.sendDiagnostics({uri: 'file://' + currentFile, diagnostics});
     });
 
