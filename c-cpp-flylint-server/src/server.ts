@@ -191,6 +191,7 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
             currentFilePath = '/' + currentFilePath;
         }
 
+        connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
         connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics});
     });
 
