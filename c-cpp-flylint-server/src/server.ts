@@ -186,13 +186,17 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
 
     _.each(allDiagnostics, (diagnostics, currentFile) => {
         var currentFilePath = path.resolve(currentFile).replace(/\\/g, '/');
-        // Windows drive letter must be prefixed with a slash
-        if (currentFilePath[0] !== '/') {
-            currentFilePath = '/' + currentFilePath;
-        }
 
-        connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
-        connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics});
+        if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot)))
+        {
+            // Windows drive letter must be prefixed with a slash
+            if (currentFilePath[0] !== '/') {
+                currentFilePath = '/' + currentFilePath;
+            }
+
+            connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
+            connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics});
+        }
     });
 
     // Remove all previous problem reports, when no further exist

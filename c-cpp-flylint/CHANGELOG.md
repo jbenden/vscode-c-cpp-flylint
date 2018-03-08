@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - CppCheck will now honor any inline suppressions within the user's
   source code.
+- Only report diagnostics on files belonging to the workspace root.
 
 ## [0.5.4] - 2017-11-11
 
