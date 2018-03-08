@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fix Windows diagnostics file URI generation. GH #29.
 - Updated Node module project dependencies.
 
+## [0.5.5] - Unreleased
+
+## Changed
+
+- CppCheck will now honor any inline suppressions within the user's
+  source code.
+
 ## [0.5.4] - 2017-11-11
 
 ### Changed

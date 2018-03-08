@@ -43,13 +43,13 @@ class CppCheckTests {
     commandLine() {
         // this method call syntax permits protected/private method calling; due to JavaScript.
         var actual = this.linter['buildCommandLine']("main.cc", "main.cc");
-        actual.should.have.length(7);
+        actual.should.have.length(8);
     }
 
     @test("should build a proper command-line for a C++ header file")
     commandLineWithHeaderFile() {
         var actual = this.linter['buildCommandLine']("main.h", "main.h");
-        actual.should.have.length(7);
+        actual.should.have.length(8);
     }
 
     @test("should handle parsing an invalid line")

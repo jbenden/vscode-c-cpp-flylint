@@ -44,6 +44,7 @@ export class CppCheck extends Linter {
             null);
 
         let args = [ this.executable ]
+            .concat(['--inline-suppr'])
             .concat(enableParams)
             .concat(includeParams)
             .concat(standardParams)
