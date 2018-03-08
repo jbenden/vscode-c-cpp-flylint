@@ -105,6 +105,14 @@ keybindings: `Command+,` or `Ctrl+,`].
 * run F5 to build and debug the whole (client with the
   server) extension.
 
+## Project details
+
+Both the source code and issue tracker are hosted at
+[GitHub](https://github.com/jbenden/vscode-c-cpp-flylint/).
+
+For support purposes, please visit the above URL and select
+from the Issue and/or Pull Request areas.
+
 ## License
 
 Copyright (C) 2017 [Joseph Benden](mailto:joe@benden.us).
