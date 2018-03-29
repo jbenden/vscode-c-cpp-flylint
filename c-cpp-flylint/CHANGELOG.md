@@ -5,11 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.5.7] - 2018-03-29
 
 ### Changed
 
 - CppCheck: Add `avr8` platform support.
+
+## [0.5.6] - 2018-03-08
+
+### Changed
+
+- CppCheck will now honor any inline suppressions within the user's
+  source code.
+- Only report diagnostics on files belonging to the workspace root.
+- Added GitHub issues URL to README file.
 
 ## [0.5.5] - 2018-02-28
 
@@ -21,15 +30,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fix cppcheck "missingInclude" error. GH #29.
 - Fix Windows diagnostics file URI generation. GH #29.
 - Updated Node module project dependencies.
-
-## [0.5.6] - 2018-03-08
-
-## Changed
-
-- CppCheck will now honor any inline suppressions within the user's
-  source code.
-- Only report diagnostics on files belonging to the workspace root.
-- Added GitHub issues URL to README file.
 
 ## [0.5.4] - 2017-11-11
 
