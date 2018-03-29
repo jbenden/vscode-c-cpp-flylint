@@ -108,7 +108,7 @@ export class CppCheck extends Linter {
     }
 
     private isValidPlatform(platform: string): boolean {
-        const allowedPlatforms = [ 'unix32', 'unix64', 'win32A', 'win32W', 'win64', 'native' ];
+        const allowedPlatforms = [ 'avr8', 'unix32', 'unix64', 'win32A', 'win32W', 'win64', 'native' ];
         return _.includes(allowedPlatforms, platform);
     }
 

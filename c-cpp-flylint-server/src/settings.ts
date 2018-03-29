@@ -75,7 +75,7 @@ export interface Settings {
             verbose: boolean;
             force: boolean;
             inconclusive: boolean;
-            platform: "unix32" | "unix64" | "win32A" | "win32W" | "win64" | "native";
+            platform: "avr8" | "unix32" | "unix64" | "win32A" | "win32W" | "win64" | "native";
             standard: string[] | null;
             includePaths: string[] | null;
             defines: string[] | null;

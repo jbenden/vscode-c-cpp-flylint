@@ -320,6 +320,7 @@
         "c-cpp-flylint.cppcheck.platform": {
           "type": "string",
           "enum": [
+            "avr8",
             "unix32",
             "unix64",
             "win32A",
