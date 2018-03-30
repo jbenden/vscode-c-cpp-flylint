@@ -189,13 +189,36 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
 
         if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot)))
         {
-            // Windows drive letter must be prefixed with a slash
-            if (currentFilePath[0] !== '/') {
-                currentFilePath = '/' + currentFilePath;
-            }
+            var acceptFile : boolean = true;
 
-            connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
-            connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics});
+            // see if we are to accept the diagnostics upon this file.
+            _.each(settings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath) => {
+                var normalizedExcludedPath = path.normalize(excludedPath);
+
+                if (!path.isAbsolute(normalizedExcludedPath))
+                {
+                    // prepend the workspace path and renormalize the path.
+                    normalizedExcludedPath = path.normalize(path.join(workspaceRoot, normalizedExcludedPath));
+                }
+
+                // does the document match our excluded path?
+                if (path.normalize(currentFilePath).startsWith(normalizedExcludedPath))
+                {
+                    // it did; so do not accept diagnostics from this file.
+                    acceptFile = false;
+                }
+            });
+
+            if (acceptFile)
+            {
+                // Windows drive letter must be prefixed with a slash
+                if (currentFilePath[0] !== '/') {
+                    currentFilePath = '/' + currentFilePath;
+                }
+
+                connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
+                connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics});
+            }
         }
     });
 

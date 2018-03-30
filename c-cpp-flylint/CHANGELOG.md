@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Added the ability to exclude certain paths within your workspace
+  from any analysis diagnostics. Fixes #33
+
 ## [0.5.7] - 2018-03-29
 
 ### Changed

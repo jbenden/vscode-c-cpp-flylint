@@ -53,6 +53,8 @@ export interface Settings {
         debug: boolean;
         run: "onSave" | "onType";
 
+        excludeFromWorkspacePaths: string[];
+
         // common options, which may be overridden per syntax analyzer
         standard: string[];
         includePaths: string[];
