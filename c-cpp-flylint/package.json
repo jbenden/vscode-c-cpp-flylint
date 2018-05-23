@@ -586,7 +586,7 @@
     "typescript": "^2.5.3"
   },
   "dependencies": {
-    "cross-spawn": "^6.0.0",
+    "cross-spawn": "^6.0.5",
     "lodash": "^4.17.4",
     "slash": "^1.0.0",
     "tmp": "^0.0.33",

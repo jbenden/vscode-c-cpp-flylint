@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [UNRELEASED]
+
+### Changed
+
+- Upgraded the dependency `cross-spawn` to better support shell
+  escapes on Windows.
+
 ## [0.6.0] - 2018-03-30
 
 ### Added
