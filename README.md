@@ -84,23 +84,19 @@ keybindings: `Command+,` or `Ctrl+,`].
 
 ## Development Setup
 
-* run `npm install` or `yarn install` inside the `c-cpp-flylint`
-  and `c-cpp-flylint-server` folders.
-* open multiple VS Code instances, with one rooted inside folder
-  `c-cpp-flylint` and another rooted inside folder
-  `c-cpp-flylint-server`.
+* run `npm install` inside the project root
 
 ### Developing the Server
 
-* open VS Code rooted inside the folder `c-cpp-flylint-server`.
-* run `npm run test` to execute the unit-tests for all linters.
+* open VS Code rooted inside the project root.
+* run `cd server && npm run test && cd ..` to execute the unit-tests for all linters.
 * run `npm run compile` or `npm run watch` to build the server
-  and it will compile it into the `c-cpp-flylint` folder.
+  and it will compile it into the `client/out` folder.
 * to debug press F5 which attaches a debugger to the server.
 
 ### Developing the Extension/Client
 
-* open VS Code rooted inside the folder `c-cpp-flylint`.
+* open VS Code rooted inside the project root.
 * run F5 to build and debug the whole (client with the
   server) extension.
 
