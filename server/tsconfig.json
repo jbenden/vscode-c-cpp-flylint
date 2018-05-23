@@ -6,7 +6,7 @@
         ],
         "module": "commonjs",
         "sourceMap": true,
-        "outDir": "../c-cpp-flylint/server",
+        "outDir": "../out/server",
         "newLine": "LF",
         "noUnusedLocals": false,
         "noUnusedParameters": true,

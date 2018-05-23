@@ -6,7 +6,7 @@
         ],
         "module": "commonjs",
         "sourceMap": true,
-        "outDir": "out",
+        "outDir": "../out",
         "newLine": "LF",
         "noUnusedLocals": false,
         "noUnusedParameters": true,

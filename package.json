@@ -567,8 +567,8 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "tsc -p ./",
-    "compile": "tsc -p ./",
+    "vscode:prepublish": "cd client && tsc -p ./",
+    "compile": "cd client && tsc -p ./",
     "test": "node ./node_modules/vscode/bin/test",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "update-vscode": "node ./node_modules/vscode/bin/install"
