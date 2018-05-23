@@ -46,7 +46,8 @@
     "compile:client": "tsc -p client/tsconfig.json",
     "watch:client": "tsc -w -p client/tsconfig.json",
     "compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
-    "watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json"
+    "watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json",
+    "test": "cd server && npm test && cd .."
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",
