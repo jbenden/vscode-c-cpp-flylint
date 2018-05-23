@@ -8,8 +8,8 @@
     "url": "http://benden.us/"
   },
   "publisher": "jbenden",
-  "version": "0.6.1",
-  "license": "SEE LICENSE IN LICENSE",
+  "version": "1.0.0",
+  "license": "MIT",
   "icon": "https://raw.githubusercontent.com/jbenden/vscode-c-cpp-flylint/master/client/C-Cpp-FlyLint_icon.png",
   "galleryBanner": {
     "color": "#303f9f",
