@@ -17,8 +17,8 @@ before_install:
     fi
 
 install:
-  - cd c-cpp-flylint-server && npm install && npm run compile && cd ..
-  - cd c-cpp-flylint && npm install && npm run vscode:prepublish && cd ..
+  - npm install
+  - npm compile
 
 script:
   - cd c-cpp-flylint-server && npm run test
