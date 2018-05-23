@@ -16,7 +16,7 @@ class CcppPropertiesTests {
 
     @test("should find the fixture file")
     findsFixtureFile() {
-        var propertiesData : IConfigurations = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../c-cpp-flylint-server/src/linters/tests/c_cpp_properties.json'), 'utf8'));
+        var propertiesData : IConfigurations = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../server/src/linters/tests/c_cpp_properties.json'), 'utf8'));
 
         const config = propertiesData.configurations.find(el => el.name == propertiesPlatform());
 

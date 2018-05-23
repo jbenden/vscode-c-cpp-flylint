@@ -6,16 +6,16 @@
         ],
         "module": "commonjs",
         "sourceMap": true,
-        "outDir": "../c-cpp-flylint/server",
+        "outDir": "out",
         "newLine": "LF",
         "noUnusedLocals": false,
         "noUnusedParameters": true,
         "strictNullChecks": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     },
-    "include": [
-        "src/server.ts",
-        "src/linters/**/*.ts",
-        "typings.d.ts"
+    "exclude": [
+        "node_modules",
+        "server"
     ]
 }

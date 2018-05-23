@@ -5,6 +5,7 @@ import * as _ from "lodash";
 import { Settings } from "../settings";
 import { isString } from 'util';
 import { spawn } from 'cross-spawn';
+import { isWindows } from './tests/test_helpers';
 
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 const slash = require('slash'); // no types available
@@ -133,7 +134,7 @@ export class Linter {
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
             let whichConfig = {};
-            if (process.env.TRAVIS && process.env.TRAVIS === 'true') {
+            if (!isWindows) {
                 whichConfig['path'] = process.cwd();
             }
 
