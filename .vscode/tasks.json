@@ -74,6 +74,25 @@
 			"problemMatcher": [
 				"$tsc-watch"
 			]
-		}
+        },
+        {
+            "label": "test",
+            "type": "npm",
+            "script": "test",
+			"dependsOn": [
+                "compile:server",
+                "compile:client"
+			],
+			"group":{
+                "kind": "test",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            }
+        }
 	]
 }

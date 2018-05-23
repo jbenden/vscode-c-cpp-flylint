@@ -21,6 +21,23 @@
 			"sourceMaps": true,
 			"outFiles": [ "${workspaceRoot}/client/server/**/*.js" ],
 			"preLaunchTask": "watch:server"
-		}
+		},
+        {
+            "name": "Launch Mocha Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "${workspaceRoot}/server/node_modules/mocha/bin/_mocha",
+            "args": [
+                "-u", "tdd",
+                "--no-timeouts",
+                "--colors",
+                "${workspaceRoot}/client/server/linters/tests"
+            ],
+            "internalConsoleOptions": "openOnSessionStart",
+            "stopOnEntry": false,
+            "sourceMaps": true,
+			"outFiles": [ "${workspaceRoot}/client/server/**/*.js" ],
+            "preLaunchTask": "compile"
+        }
 	]
 }
