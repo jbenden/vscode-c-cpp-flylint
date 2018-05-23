@@ -21,4 +21,4 @@ install:
   - npm compile
 
 script:
-  - cd c-cpp-flylint-server && npm run test
+  - cd server && npm run test
