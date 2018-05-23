@@ -46,7 +46,7 @@
     "onLanguage:c",
     "onLanguage:cpp"
   ],
-  "main": "./out/src/extension",
+  "main": "./out/extension",
   "contributes": {
     "commands": [
       {
