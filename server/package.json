@@ -40,7 +40,7 @@
     "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
     "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -w -p .",
 
-    "test": "tsc -p . && mocha ../c-cpp-flylint/server/linters/tests/*.test.js",
-    "test-watch": "mocha-typescript-watch -p . ../c-cpp-flylint/server/linters/tests/*.test.js"
+    "test": "mocha ../client/server/linters/tests/*.test.js",
+    "test-watch": "mocha-typescript-watch -p . ../client/server/linters/tests/*.test.js"
   }
 }
