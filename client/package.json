@@ -567,7 +567,6 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
     "watch": "tsc -w -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
