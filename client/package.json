@@ -46,7 +46,7 @@
     "onLanguage:c",
     "onLanguage:cpp"
   ],
-  "main": "./out/extension",
+  "main": "./out/src/extension",
   "contributes": {
     "commands": [
       {
@@ -567,9 +567,9 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "cd client && tsc -p ./",
-    "compile": "cd client && tsc -p ./",
-    "test": "node ./node_modules/vscode/bin/test",
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -p ./",
+    "watch": "tsc -w -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install",
     "update-vscode": "node ./node_modules/vscode/bin/install"
   },

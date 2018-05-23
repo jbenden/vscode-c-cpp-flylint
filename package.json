@@ -1,0 +1,63 @@
+{
+  "name": "c-cpp-flylint",
+  "displayName": "C/C++ Advanced Lint",
+  "description": "An advanced, modern, static analysis extension for C/C++ that supports a number of back-end analyzer programs.",
+  "author": {
+    "name": "Joseph Benden",
+    "email": "joe@benden.us",
+    "url": "http://benden.us/"
+  },
+  "publisher": "jbenden",
+  "version": "0.6.1",
+  "license": "SEE LICENSE IN LICENSE",
+  "icon": "C-Cpp-FlyLint_icon.png",
+  "galleryBanner": {
+    "color": "#303f9f",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbenden/vscode-c-cpp-flylint.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jbenden/vscode-c-cpp-flylint/issues",
+    "email": "joe@benden.us"
+  },
+  "homepage": "https://github.com/jbenden/vscode-c-cpp-flylint/blob/master/README.md",
+  "engines": {
+    "vscode": "^1.23.0"
+  },
+  "categories": [
+    "Languages",
+    "Linters"
+  ],
+  "keywords": [
+    "c",
+    "c++",
+    "cppcheck",
+    "flexelint",
+    "clang",
+    "lint",
+    "linter"
+  ],
+  "scripts": {
+    "postinstall": "cd server && npm install && cd ../client && npm install && cd ..",
+    "compile": "tsc -p client/tsconfig.json && cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
+    "compile:client": "tsc -p client/tsconfig.json",
+    "watch:client": "tsc -w -p client/tsconfig.json",
+    "compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
+    "watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/chai-as-promised": "^0.0.31",
+    "@types/mock-fs": "^3.6.30",
+    "@types/node": "^7.0.12",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "mocha": "^5.0.1",
+    "mocha-typescript": "^1.1.11",
+    "mock-fs": "^4.4.2",
+    "typescript": "^2.5.3"
+  }
+}

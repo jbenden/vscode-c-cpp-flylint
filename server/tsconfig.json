@@ -6,7 +6,7 @@
         ],
         "module": "commonjs",
         "sourceMap": true,
-        "outDir": "../out/server",
+        "outDir": "../client/server",
         "newLine": "LF",
         "noUnusedLocals": false,
         "noUnusedParameters": true,

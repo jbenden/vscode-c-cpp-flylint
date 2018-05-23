@@ -36,8 +36,10 @@
     "typescript": "^2.5.3"
   },
   "scripts": {
-    "compile": "installServerIntoExtension ../c-cpp-flylint ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "installServerIntoExtension ../c-cpp-flylint ./package.json ./tsconfig.json && tsc --watch -p .",
+    "installServer": "installServerIntoExtension ../client ./package.json ./tsconfig.json",
+    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
+    "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -w -p .",
+
     "test": "tsc -p . && mocha ../c-cpp-flylint/server/linters/tests/*.test.js",
     "test-watch": "mocha-typescript-watch -p . ../c-cpp-flylint/server/linters/tests/*.test.js"
   }

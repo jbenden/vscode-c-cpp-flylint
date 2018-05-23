@@ -6,7 +6,7 @@
         ],
         "module": "commonjs",
         "sourceMap": true,
-        "outDir": "../out",
+        "outDir": "out",
         "newLine": "LF",
         "noUnusedLocals": false,
         "noUnusedParameters": true,
@@ -14,7 +14,8 @@
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
     },
-    "include": [
-        "src/extension.ts"
+    "exclude": [
+        "node_modules",
+        "server"
     ]
 }
