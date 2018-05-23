@@ -18,7 +18,7 @@ before_install:
 
 install:
   - npm install
-  - npm c
+  - npm run compile
 
 script:
   - cd server && npm run test
