@@ -10,7 +10,7 @@
   "publisher": "jbenden",
   "version": "1.0.0",
   "license": "MIT",
-  "icon": "https://raw.githubusercontent.com/jbenden/vscode-c-cpp-flylint/master/client/C-Cpp-FlyLint_icon.png",
+  "icon": "C-Cpp-FlyLint_icon.png",
   "galleryBanner": {
     "color": "#303f9f",
     "theme": "dark"
