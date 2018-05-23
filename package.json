@@ -51,15 +51,15 @@
     "vscode:prepublish": "npm run compile"
   },
   "devDependencies": {
-    "@types/chai": "^4.0.4",
+    "@types/chai": "^4.1.3",
     "@types/chai-as-promised": "^0.0.31",
     "@types/mock-fs": "^3.6.30",
     "@types/node": "^7.0.12",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^5.0.1",
-    "mocha-typescript": "^1.1.11",
-    "mock-fs": "^4.4.2",
-    "typescript": "^2.5.3"
+    "mocha": "^5.2.0",
+    "mocha-typescript": "^1.1.14",
+    "mock-fs": "^4.5.0",
+    "typescript": "^2.8.3"
   }
 }
