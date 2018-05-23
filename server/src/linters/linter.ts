@@ -134,7 +134,7 @@ export class Linter {
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
             let whichConfig = {};
-            if (!isWindows) {
+            if (process.env.TRAVIS || process.env.LOADED_MOCHA_OPTS) {
                 whichConfig['path'] = process.cwd();
             }
 
