@@ -114,6 +114,6 @@ from the Issue and/or Pull Request areas.
 
 ## License
 
-Copyright (C) 2017 [Joseph Benden](mailto:joe@benden.us).
+Copyright (C) 2017-2018 [Joseph Benden](mailto:joe@benden.us).
 
 Licensed under the [MIT License](https://opensource.org/licenses/MIT).
