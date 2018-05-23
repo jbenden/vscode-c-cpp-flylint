@@ -36,7 +36,7 @@ class CppCheckTests {
         this.linter['setExecutable']('nonexistent');
 
         var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.rejectedWith(false, 'The executable was not found for CppCheck, disabling linter');
+        return result.should.eventually.be.rejectedWith('', 'The executable was not found for CppCheck, disabling linter');
     }
 
     @test("should build a proper command-line for a C++ source file")

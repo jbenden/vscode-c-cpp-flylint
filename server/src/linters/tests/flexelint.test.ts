@@ -36,7 +36,7 @@ class FlexelintTests {
         this.linter['setExecutable']('nonexistent');
 
         var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.rejectedWith(false, 'The executable was not found for Flexelint, disabling linter');
+        return result.should.eventually.be.rejectedWith('', 'The executable was not found for Flexelint, disabling linter');
     }
 
     @test("should disable itself when no configuration file is found")
@@ -44,7 +44,7 @@ class FlexelintTests {
         this.linter['setConfigFile']('nonexistent');
 
         var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.rejectedWith(false, 'could not locate configuration file for Flexelint, disabling linter');
+        return result.should.eventually.be.rejectedWith('', 'could not locate configuration file for Flexelint, disabling linter');
     }
 
     @test("should build a proper command-line for a C++ source file")
