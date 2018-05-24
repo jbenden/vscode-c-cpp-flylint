@@ -22,7 +22,7 @@ script:
   - npm test
 
 before_deploy:
-  - cd client && vsce package
+  - if [ $TRAVIS_OS_NAME == "linux" ]; then cd client && echo y | vsce package; fi
 
 deploy:
   provider: releases
