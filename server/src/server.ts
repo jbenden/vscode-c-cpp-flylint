@@ -204,11 +204,9 @@ documents.onDidClose(e => {
 })
 
 function onChangedContent(event) {
-    getDocumentSettings(event.document.uri).then(settings => {
-        if (settings['c-cpp-flylint'].run === "onType") {
-            validateTextDocument(event.document, Lint.ON_TYPE);
-        }
-    });
+    if (didStart) {
+        validateTextDocument(event.document, Lint.ON_TYPE);
+    }
 }
 
 documents.onDidChangeContent(_.debounce(onChangedContent, 250));
@@ -216,17 +214,13 @@ documents.onDidChangeContent(_.debounce(onChangedContent, 250));
 documents.onDidSave(async (event) => {
     let settings = await getDocumentSettings(event.document.uri);
 
-    if (settings['c-cpp-flylint'].run === "onSave") {
-        validateTextDocument(event.document, Lint.ON_SAVE);
-    }
+    validateTextDocument(event.document, Lint.ON_SAVE);
 });
 
 documents.onDidOpen(async (event) => {
     let settings = await getDocumentSettings(event.document.uri);
 
-    if (settings['c-cpp-flylint'].run === "onSave") {
-        validateTextDocument(event.document, Lint.ON_SAVE);
-    }
+    validateTextDocument(event.document, Lint.ON_SAVE);
 
     didStart = true;
 });
@@ -286,8 +280,16 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
 
     console.log(`Performing lint scan of ${filePath}...`);
 
+    let lintOnMask = 0;
+    if (settings['c-cpp-flylint'].run === "onSave") {
+        lintOnMask = 1;
+        // only run 1
+    } else if (settings['c-cpp-flylint'].run === "onType") {
+        lintOnMask = 3;
+    }
+
     lintersCopy.forEach(linter => {
-        if ((linter.lintOn() & lintOn) != 0) {
+        if ((<number>linter.lintOn() & <number>lintOn) & <number>lintOnMask) {
             try {
                 const result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
