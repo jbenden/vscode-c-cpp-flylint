@@ -26,6 +26,6 @@ ratings:
 exclude_paths:
   - "**/node_modules/**/*"
   - "**/out/**/*"
-  - "**/server/**/*"
+  - "client/server/**/*"
   - "**/.git/**/*"
 
