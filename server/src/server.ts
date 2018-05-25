@@ -14,13 +14,13 @@ import {
     TextDocument,
     TextDocuments,
 } from 'vscode-languageserver';
-import { ExecuteCommandParams } from 'vscode-languageserver-protocol/lib/protocol';
+import { ExecuteCommandParams, DidChangeConfigurationNotification, WorkspaceFolder } from 'vscode-languageserver-protocol/lib/protocol';
 import Uri from 'vscode-uri';
 import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 import * as _ from "lodash";
-import { Settings, IConfiguration, IConfigurations, propertiesPlatform } from "./settings";
+import { Settings, IConfiguration, IConfigurations, propertiesPlatform } from './settings';
 import { Linter, Lint } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
@@ -32,23 +32,27 @@ const connection: IConnection = createConnection(new IPCMessageReader(process), 
 // Create a simple text document manager. The text document manager supports full document sync only.
 const documents: TextDocuments = new TextDocuments();
 
-// Make the text document manager listen on the connection for open, change, and close text document events.
-documents.listen(connection);
+// Does the LS client support the configuration abilities?
+let hasConfigurationCapability = false;
 
-let settings: Settings;
-let linters: Linter[] = [];
+// Does the LS client support multiple workspace folders?
+let hasWorkspaceFolderCapability = false;
+
+let defaultSettings: Settings;
+let globalSettings: Settings;
+
+// A mapping between an opened document and its' workspace settings.
+let documentSettings: Map<string, Thenable<Settings>> = new Map();
+
+// A mapping between an opened document and its' configured analyzers.
+let documentLinters: Map<string, Thenable<Linter[]>> = new Map();
 
 // After the server has started the client sends an initialize request.
-// The server receives in the passed params the rootPath of the workspace plus the client capabilities.
-let workspaceRoot: string;
 connection.onInitialize((params): InitializeResult => {
-    let workspaceUri = Uri.parse(params.rootUri!);
+    let capabilities = params.capabilities;
 
-    if (workspaceUri.scheme !== 'file') {
-        console.log('Workspace root URI is not of the file scheme.');
-    } else {
-        workspaceRoot = workspaceUri.fsPath;
-    }
+    hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
+    hasWorkspaceFolderCapability = !!(capabilities.workspace && !!capabilities.workspace.workspaceFolders);
 
     let result: InitializeResult = {
         capabilities: {
@@ -65,28 +69,169 @@ connection.onInitialize((params): InitializeResult => {
     return result;
 });
 
+connection.onInitialized(() => {
+    if (hasConfigurationCapability) {
+        connection.client.register(DidChangeConfigurationNotification.type, undefined);
+    }
+});
+
+let didStart = false;
+
+connection.onDidChangeConfiguration(change => {
+    if (hasConfigurationCapability) {
+        documentLinters.clear();
+        documentSettings.clear();
+    } else {
+        globalSettings = <Settings>(change.settings['c-cpp-flylint'] || defaultSettings);
+    }
+
+    // Revalidate all open text documents
+    if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE));
+});
+
+async function getWorkspaceRoot(resource: string): Promise<string> {
+    const resourceUri: Uri = Uri.parse(resource);
+    const resourceFsPath: string = resourceUri.fsPath;
+
+    let folders: WorkspaceFolder[] | null = await connection.workspace.getWorkspaceFolders();
+    let result: string = "";
+
+    if (folders !== null)
+    {
+        // sort folders by length, decending.
+        folders = folders.sort((a: WorkspaceFolder, b: WorkspaceFolder): number => {
+            return a.uri == b.uri ? 0 : (a.uri.length <= b.uri.length ? 1 : -1);
+        });
+
+        // look for a matching workspace folder root.
+        folders.forEach(f => {
+            const folderUri: Uri = Uri.parse(f.uri);
+            const folderFsPath: string = folderUri.fsPath;
+
+            // does the resource path start with this folder path?
+            if (path.normalize(resourceFsPath).startsWith(path.normalize(folderFsPath)))
+            {
+                // found the project root for this file.
+                result = path.normalize(folderFsPath);
+            }
+        });
+    } else {
+        // No matching workspace folder, so return the folder the file lives in.
+        result = path.dirname(path.normalize(resourceFsPath));
+    }
+
+    return result;
+}
+
+function getDocumentSettings(resource: string): Thenable<Settings> {
+    if (!hasConfigurationCapability) {
+        return Promise.resolve(globalSettings);
+    }
+    let result = documentSettings.get(resource);
+    if (!result) {
+        result = connection.workspace.getConfiguration({ scopeUri: resource });
+        documentSettings.set(resource, result);
+    }
+    return result;
+}
+
+async function reconfigureExtension(settings: Settings, workspaceRoot: string): Promise<Linter[]> {
+    let currentSettings = _.cloneDeep(settings);
+    try {
+        // Process VS Code `c_cpp_properties.json` file
+        const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
+        if (fs.existsSync(cCppPropertiesPath)) {
+            const cCppProperties : IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
+
+            const platformConfig = cCppProperties.configurations.find(el => el.name == propertiesPlatform());
+            if (platformConfig !== undefined) {
+                // Found a configuration set; populate the currentSettings
+                if (currentSettings['c-cpp-flylint'].includePaths.length === 0) {
+                    currentSettings['c-cpp-flylint'].includePaths = platformConfig.includePath;
+                }
+
+                if (currentSettings['c-cpp-flylint'].defines.length === 0) {
+                    currentSettings['c-cpp-flylint'].defines = platformConfig.defines;
+                }
+            }
+        }
+    } catch(err) {
+        console.log("Could not find or parse the workspace c_cpp_properties.json file; continuing...");
+    }
+
+    let linters: Linter[] = []  // clear array
+
+    if (currentSettings['c-cpp-flylint'].clang.enable)
+        linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang);
+    if (currentSettings['c-cpp-flylint'].cppcheck.enable)
+        linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck);
+    if (currentSettings['c-cpp-flylint'].flexelint.enable)
+        linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint);
+
+    _.forEach(linters, (linter) => {
+        if (linter.isActive() && !linter.isEnabled()) {
+            connection.window.showWarningMessage(`Unable to activate ${linter.Name()} analyzer.`);
+        }
+    });
+
+    return linters;
+}
+
+async function getDocumentLinters(resource: string): Promise<Linter[]> {
+    const settings: Settings = await getDocumentSettings(resource);
+    const fileUri: Uri = Uri.parse(resource);
+    const filePath: string = fileUri.fsPath;
+
+    let result = documentLinters.get(resource);
+    if (!result) {
+        const workspaceRoot: string = await getWorkspaceRoot(resource);
+
+        result = Promise.resolve(await reconfigureExtension(settings, workspaceRoot));
+        documentLinters.set(resource, result);
+    }
+
+    return result!;
+}
+
+// Only keep analyzers and settings for opened documents.
+documents.onDidClose(e => {
+    documentLinters.delete(e.document.uri);
+    documentSettings.delete(e.document.uri);
+})
+
 // The content of a text document has changed.
 // This event is emitted when the text document is first opened or when its content has changed.
-documents.onDidChangeContent((event) => {
+documents.onDidChangeContent(async (event) => {
+    let settings = await getDocumentSettings(event.document.uri);
+
     if (settings['c-cpp-flylint'].run === "onType") {
         validateTextDocument(event.document, Lint.ON_TYPE);
     }
 });
 
-documents.onDidSave((event) => {
-    if (settings['c-cpp-flylint'].run === "onSave" || settings['c-cpp-flylint'].run === "onType") {
+documents.onDidSave(async (event) => {
+    let settings = await getDocumentSettings(event.document.uri);
+
+    if (settings['c-cpp-flylint'].run === "onSave") {
         validateTextDocument(event.document, Lint.ON_SAVE);
     }
 });
 
-documents.onDidOpen((event) => {
-    validateTextDocument(event.document, Lint.ON_SAVE);
+documents.onDidOpen(async (event) => {
+    let settings = await getDocumentSettings(event.document.uri);
+
+    if (settings['c-cpp-flylint'].run === "onSave") {
+        validateTextDocument(event.document, Lint.ON_SAVE);
+    }
+
+    didStart = true;
 });
 
-function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
+async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
     const fileUri: Uri = Uri.parse(textDocument.uri);
     const filePath: string = fileUri.fsPath;
+    const workspaceRoot: string = await getWorkspaceRoot(textDocument.uri);
 
     if (workspaceRoot === undefined ||
         workspaceRoot === null ||
@@ -106,6 +251,12 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
 
         return;
     }
+
+    // get the settings for the current file.
+    let settings = await getDocumentSettings(textDocument.uri);
+
+    // get the linters for the current file.
+    let linters = await getDocumentLinters(textDocument.uri);
 
     if (linters === undefined || linters === null) {
         // cannot perform lint without active configuration!
@@ -187,7 +338,7 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
     _.each(allDiagnostics, (diagnostics, currentFile) => {
         var currentFilePath = path.resolve(currentFile).replace(/\\/g, '/');
 
-        if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot)))
+        if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!)))
         {
             var acceptFile : boolean = true;
 
@@ -198,7 +349,7 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
                 if (!path.isAbsolute(normalizedExcludedPath))
                 {
                     // prepend the workspace path and renormalize the path.
-                    normalizedExcludedPath = path.normalize(path.join(workspaceRoot, normalizedExcludedPath));
+                    normalizedExcludedPath = path.normalize(path.join(workspaceRoot!, normalizedExcludedPath));
                 }
 
                 // does the document match our excluded path?
@@ -236,20 +387,6 @@ function validateTextDocument(textDocument: TextDocument, lintOn: Lint): void {
     console.log('Completed lint scans...');
 
     // Send any exceptions encountered during processing to VSCode.
-    tracker.sendErrors(connection);
-}
-
-function validateAllTextDocuments(textDocuments: TextDocument[]): void {
-    const tracker = new ErrorMessageTracker();
-
-    for (const document of textDocuments) {
-        try {
-            validateTextDocument(document, Lint.ON_SAVE);
-        } catch (err) {
-            tracker.add(getErrorMessage(err, document));
-        }
-    }
-
     tracker.sendErrors(connection);
 }
 
@@ -336,55 +473,6 @@ function getErrorMessage(err, document: TextDocument): string {
     return message;
 }
 
-async function reconfigureExtension() {
-    if (settings === null || settings === undefined) { return; }
-
-    let currentSettings = _.cloneDeep(settings);
-    try {
-        // Process VS Code `c_cpp_properties.json` file
-        const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
-        if (fs.existsSync(cCppPropertiesPath)) {
-            const cCppProperties : IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
-
-            const platformConfig = cCppProperties.configurations.find(el => el.name == propertiesPlatform());
-            if (platformConfig !== undefined) {
-                // Found a configuration set; populate the currentSettings
-                if (currentSettings['c-cpp-flylint'].includePaths.length === 0) {
-                    currentSettings['c-cpp-flylint'].includePaths = platformConfig.includePath;
-                }
-
-                if (currentSettings['c-cpp-flylint'].defines.length === 0) {
-                    currentSettings['c-cpp-flylint'].defines = platformConfig.defines;
-                }
-            }
-        }
-    } catch(err) {
-        console.log("Could not find or parse the workspace c_cpp_properties.json file; continuing...");
-    }
-
-    linters = []  // clear array
-    linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang);
-    linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck);
-    linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint);
-
-    _.forEach(linters, (linter) => {
-        if (linter.isActive() && !linter.isEnabled()) {
-            connection.window.showWarningMessage(`Unable to activate ${linter.Name()} analyzer.`);
-        }
-    });
-}
-
-// The current settings have changed. Sent on server activation as well.
-connection.onDidChangeConfiguration(async (params) => {
-    settings = params.settings;
-
-    console.log('Configuration changed. Re-configuring extension.');
-    await reconfigureExtension();
-
-    // Revalidate any open text documents.
-    validateAllTextDocuments(documents.all());
-});
-
 connection.onDidChangeWatchedFiles((params) => {
     console.log('FS change notification occurred; re-linting all opened documents.')
 
@@ -392,9 +480,10 @@ connection.onDidChangeWatchedFiles((params) => {
         let configFilePath = Uri.parse(element.uri);
 
         if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
-            await reconfigureExtension();
+            documentLinters.clear();
+            documentSettings.clear();
 
-            validateAllTextDocuments(documents.all());
+            if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE));
         }
     });
 });
@@ -422,11 +511,14 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                 }
             });
     } else if (params.command === 'c-cpp-flylint.analyzeWorkspace') {
-        validateAllTextDocuments(documents.all());
+        documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE));
     }
 
     tracker.sendErrors(connection);
 })
+
+// Make the text document manager listen on the connection for open, change, and close text document events.
+documents.listen(connection);
 
 // Listen on the connection.
 connection.listen();
