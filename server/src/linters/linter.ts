@@ -6,6 +6,7 @@ import { Settings } from "../settings";
 import { isString } from 'util';
 import { spawn } from 'cross-spawn';
 import { isWindows } from './tests/test_helpers';
+import * as child_process from 'child_process';
 
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 const slash = require('slash'); // no types available
@@ -225,7 +226,7 @@ export class Linter {
         return [this.executable, fileName, tmpFileName];
     }
 
-    protected runLinter(params: string[], workspaceDir: string) {
+    protected runLinter(params: string[], workspaceDir: string): child_process.SpawnSyncReturns<Buffer> {
         let cmd = params.shift() || this.executable;
 
         if (this.settings['c-cpp-flylint'].debug) {
