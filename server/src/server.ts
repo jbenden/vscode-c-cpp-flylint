@@ -199,15 +199,15 @@ documents.onDidClose(e => {
     documentSettings.delete(e.document.uri);
 })
 
-// The content of a text document has changed.
-// This event is emitted when the text document is first opened or when its content has changed.
-documents.onDidChangeContent(async (event) => {
-    let settings = await getDocumentSettings(event.document.uri);
+function onChangedContent(event) {
+    getDocumentSettings(event.document.uri).then(settings => {
+        if (settings['c-cpp-flylint'].run === "onType") {
+            validateTextDocument(event.document, Lint.ON_TYPE);
+        }
+    });
+}
 
-    if (settings['c-cpp-flylint'].run === "onType") {
-        validateTextDocument(event.document, Lint.ON_TYPE);
-    }
-});
+documents.onDidChangeContent(_.debounce(onChangedContent, 250));
 
 documents.onDidSave(async (event) => {
     let settings = await getDocumentSettings(event.document.uri);
