@@ -4,7 +4,7 @@ import * as path from "path";
 import * as _ from "lodash";
 import { Settings } from "../settings";
 import { isString } from 'util';
-import { spawn } from 'cross-spawn';
+import * as cross_spawn from 'cross-spawn';
 import { isWindows } from './tests/test_helpers';
 import * as child_process from 'child_process';
 
@@ -234,7 +234,8 @@ export class Linter {
             console.log('executing: ', cmd, params.join(' '));
         }
 
-        return spawn.sync(cmd, params, { 'cwd': workspaceDir });
+
+        return cross_spawn.sync(cmd, params, { 'cwd': workspaceDir });
     }
 
     public lint(fileName: string, directory: null | string, tmpFileName: string): {}[] {
