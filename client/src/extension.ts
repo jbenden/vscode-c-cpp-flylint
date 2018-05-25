@@ -33,7 +33,7 @@ export function activate(context: ExtensionContext) {
     // Options to control the language client.
     const clientOptions: LanguageClientOptions = {
         // Register the server for C/C++ documents.
-        documentSelector: ["c", "cpp"],
+        documentSelector: [{scheme: 'file', language: 'c'}, {scheme: 'file', language: 'cpp'}],
         synchronize: {
             // Synchronize the setting section "c-cpp-flylint" to the server.
             configurationSection: "c-cpp-flylint",
