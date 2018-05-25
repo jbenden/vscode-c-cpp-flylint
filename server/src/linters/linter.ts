@@ -211,6 +211,7 @@ export class Linter {
 
     protected expandVariables(str: string): IExpansionResult {
         process.env.workspaceRoot = this.workspaceRoot;
+        process.env.workspaceFolder = this.workspaceRoot;
         let { value, error } = substituteVariables(str, { env: process.env });
 
         if (error) {
