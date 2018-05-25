@@ -136,28 +136,7 @@ function getDocumentSettings(resource: string): Thenable<Settings> {
 }
 
 async function reconfigureExtension(settings: Settings, workspaceRoot: string): Promise<Linter[]> {
-    let currentSettings = _.cloneDeep(settings);
-    try {
-        // Process VS Code `c_cpp_properties.json` file
-        const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
-        if (fs.existsSync(cCppPropertiesPath)) {
-            const cCppProperties : IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
-
-            const platformConfig = cCppProperties.configurations.find(el => el.name == propertiesPlatform());
-            if (platformConfig !== undefined) {
-                // Found a configuration set; populate the currentSettings
-                if (currentSettings['c-cpp-flylint'].includePaths.length === 0) {
-                    currentSettings['c-cpp-flylint'].includePaths = platformConfig.includePath;
-                }
-
-                if (currentSettings['c-cpp-flylint'].defines.length === 0) {
-                    currentSettings['c-cpp-flylint'].defines = platformConfig.defines;
-                }
-            }
-        }
-    } catch(err) {
-        console.log("Could not find or parse the workspace c_cpp_properties.json file; continuing...");
-    }
+    let currentSettings = getMergedSettings(settings, workspaceRoot);
 
     let linters: Linter[] = []  // clear array
 
@@ -175,6 +154,31 @@ async function reconfigureExtension(settings: Settings, workspaceRoot: string): 
     });
 
     return linters;
+}
+
+function getMergedSettings(settings: Settings, workspaceRoot: string) {
+    let currentSettings = _.cloneDeep(settings);
+    try {
+        // Process VS Code `c_cpp_properties.json` file
+        const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
+        if (fs.existsSync(cCppPropertiesPath)) {
+            const cCppProperties: IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
+            const platformConfig = cCppProperties.configurations.find(el => el.name == propertiesPlatform());
+            if (platformConfig !== undefined) {
+                // Found a configuration set; populate the currentSettings
+                if (currentSettings['c-cpp-flylint'].includePaths.length === 0) {
+                    currentSettings['c-cpp-flylint'].includePaths = platformConfig.includePath;
+                }
+                if (currentSettings['c-cpp-flylint'].defines.length === 0) {
+                    currentSettings['c-cpp-flylint'].defines = platformConfig.defines;
+                }
+            }
+        }
+    }
+    catch (err) {
+        console.log("Could not find or parse the workspace c_cpp_properties.json file; continuing...");
+    }
+    return currentSettings;
 }
 
 async function getDocumentLinters(resource: string): Promise<Linter[]> {
