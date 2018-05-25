@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.0] - 2018-05-25
+
+### Added
+
+- Multiple folder workspaces, are now supported.
+
+### Changed
+
+- Added debounce delay for incoming document changes to trigger
+  a reanalysis, when "onType" setting is configured. Fixes #39.
+- Fixed incorrect logic in determining when to run an analysis.
+- Fixed issues relating to live configuration changes not
+  instantly being reflected in analysis.
+- Added "workspaceFolder" variable substitution. Fixes #38.
+- Show notification when a parser is unable to parse an analyzer's
+  tooling output.
+
+### Miscellaneous
+
+- Publish VSIX files to project GitHub Releases page, during
+  successful CI runs.
+- Fixed development workflow.
+- Fixed documentation.
+
 ## [1.0.1] - 2018-05-23
 
 ### Changed
