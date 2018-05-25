@@ -30,6 +30,11 @@ export function activate(context: ExtensionContext) {
         }
     };
 
+    // Create the language client and start it.
+    startLSClient(serverOptions, context);
+}
+
+function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) {
     // Options to control the language client.
     const clientOptions: LanguageClientOptions = {
         // Register the server for C/C++ documents.
@@ -41,7 +46,6 @@ export function activate(context: ExtensionContext) {
         }
     };
 
-    // Create the language client and start it.
     const client = new LanguageClient("C/C++ Flylint", serverOptions, clientOptions);
 
     client.onReady()
