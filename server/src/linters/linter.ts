@@ -238,7 +238,6 @@ export class Linter {
     public lint(fileName: string, directory: null | string, tmpFileName: string): {}[] {
         if (!this.enabled) { return []; }
 
-        try {
             let result = this.runLinter(this.buildCommandLine(fileName, tmpFileName), directory || this.workspaceRoot);
             let stdout = result.stdout !== null ? result.stdout.toString('utf-8').replace(/\r/g, "").split("\n") : [];
             let stderr = result.stderr !== null ? result.stderr.toString('utf-8').replace(/\r/g, "").split("\n") : [];
@@ -253,11 +252,6 @@ export class Linter {
             }
 
             return this.parseLines(stdout.concat(stderr));
-        } catch(e) {
-            console.log(`An exception occurred in ${this.name} while parsing output for file ${fileName} stacktrace: ${e.stack}`);
-
-            return [];
-        }
     }
 
     protected parseLines(lines: string[]) {
