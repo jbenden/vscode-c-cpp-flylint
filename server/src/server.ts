@@ -47,6 +47,12 @@ let documentSettings: Map<string, Thenable<Settings>> = new Map();
 // A mapping between an opened document and its' configured analyzers.
 let documentLinters: Map<string, Thenable<Linter[]>> = new Map();
 
+// Clear the entire contents of TextDocument related caches.
+function flushCache() {
+    documentLinters.clear();
+    documentSettings.clear();
+}
+
 // After the server has started the client sends an initialize request.
 connection.onInitialize((params): InitializeResult => {
     let capabilities = params.capabilities;
@@ -79,8 +85,7 @@ let didStart = false;
 
 connection.onDidChangeConfiguration(change => {
     if (hasConfigurationCapability) {
-        documentLinters.clear();
-        documentSettings.clear();
+        flushCache();
     } else {
         globalSettings = <Settings>(change.settings['c-cpp-flylint'] || defaultSettings);
     }
@@ -486,8 +491,7 @@ connection.onDidChangeWatchedFiles((params) => {
         let configFilePath = Uri.parse(element.uri);
 
         if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
-            documentLinters.clear();
-            documentSettings.clear();
+            flushCache();
 
             if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE));
         }
