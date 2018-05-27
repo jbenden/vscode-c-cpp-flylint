@@ -81,6 +81,11 @@
           "default": "onSave",
           "description": "Run the linter upon typing (onType), when possible, or on save (onSave)."
         },
+        "c-cpp-flylint.ignoreParseErrors": {
+          "type": "boolean",
+          "default": true,
+          "description": "Ignore when the extension can't parse a line of the linter."
+        },
         "c-cpp-flylint.excludeFromWorkspacePaths": {
           "type": "array",
           "default": [],
