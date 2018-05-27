@@ -257,6 +257,10 @@ export class Linter {
         return this.parseLines(stdout.concat(stderr));
     }
 
+    protected isQuote(ch: string): boolean {
+        return ch == '\'' || ch == '\"';
+    }
+
     protected parseLines(lines: string[]) {
         var results;
         var currentParsed;
@@ -265,6 +269,14 @@ export class Linter {
         currentParsed = {};
 
         lines.forEach(line => {
+            if (this.isQuote(line.charAt(0))) {
+                line = line.substr(1);
+
+                if (this.isQuote(line.charAt(line.length - 1))) {
+                    line = line.substr(0, line.length - 1);
+                }
+            }
+
             let parsed = this.parseLine(line);
             if (parsed !== {}) {
                 // check for parse error
