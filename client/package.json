@@ -83,7 +83,7 @@
         },
         "c-cpp-flylint.ignoreParseErrors": {
           "type": "boolean",
-          "default": true,
+          "default": false,
           "description": "Ignore when the extension can't parse a line of the linter."
         },
         "c-cpp-flylint.excludeFromWorkspacePaths": {
