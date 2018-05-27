@@ -54,7 +54,8 @@ class CppCheckTests {
 
     @test("should handle parsing an invalid line")
     parsesUnknownLine() {
-        (() => this.linter['parseLine']('should not parse!')).should.throw(Error, 'could not be parsed');
+        let actual = this.linter['parseLine']('should not parse!');
+        actual.should.have.property('parseError');
     }
 
     @test("should skip over excluded patterns")

@@ -81,7 +81,7 @@ export class Flexelint extends Linter {
                 source: 'Flexelint',
             };
         } else {
-            throw Error('Line could not be parsed: ' + line);
+            return { parseError: 'Line could not be parsed: ' + line };
         }
     }
 
