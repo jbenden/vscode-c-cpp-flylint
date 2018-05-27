@@ -52,6 +52,7 @@ export interface Settings {
         enable: boolean;
         debug: boolean;
         run: "onSave" | "onType";
+        ignoreParseErrors: boolean;
 
         excludeFromWorkspacePaths: string[];
 

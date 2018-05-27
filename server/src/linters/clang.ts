@@ -169,7 +169,7 @@ export class Clang extends Linter {
                 source: 'Clang',
             };
         } else {
-            throw Error('Line could not be parsed: ' + line);
+            return { parseError: 'Line could not be parsed: ' + line };
         }
     }
 

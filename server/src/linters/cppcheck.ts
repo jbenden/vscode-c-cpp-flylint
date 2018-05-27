@@ -94,7 +94,7 @@ export class CppCheck extends Linter {
                 source: 'CppCheck',
             };
         } else {
-            throw Error('Line could not be parsed: ' + line);
+            return { parseError: 'Line could not be parsed: ' + line };
         }
     }
 
