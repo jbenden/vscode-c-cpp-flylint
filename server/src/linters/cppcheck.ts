@@ -76,7 +76,7 @@ export class CppCheck extends Linter {
         let regex = /^(.+?)\s\s([0-9]+)\s([0-9]+\s)?\s(style|information|portability|performance|warning|error)\s(.+?):\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
-        let excludeRegex = /^((Checking |Defines: |Includes: |Platform:|\s\s\s\sinformation missingInclude).*|)$/;
+        let excludeRegex = /^((Checking |Defines: |Includes: |Platform:|\s*information missingInclude).*|)$/;
 
         if (excludeRegex.exec(line) != null) {
             // skip this line, so return that fact....
