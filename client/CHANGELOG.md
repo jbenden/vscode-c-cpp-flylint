@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - CppCheck: Fixed parse error thrown for missing includes.
   Fixes #44.
+- Fixed bug related to analyzer output being wrapped
+  in quotes. Fixes #43.
 
 ## [1.1.0] - 2018-05-25
 
