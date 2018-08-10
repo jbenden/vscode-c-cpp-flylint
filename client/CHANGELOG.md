@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] - 2018-08-10
+
+### Changed
+
+- Updated project to Node version 8.
+- Clang: Ignore line containing "incompatible with". Fixes #46.
+
 ## [1.1.1] - 2018-05-28
 
 ### Added
