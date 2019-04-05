@@ -137,7 +137,7 @@ export class Clang extends Linter {
             return {};
         }
 
-        let excludeRegex = /^(Q_.*|warning: .* incompatible with .*)$/;
+        let excludeRegex = /^(Q_.*|warning: .* incompatible with .*|warning: .* input unused)$/;
         if (excludeRegex.exec(line) != null) {
             // skip this line, so return that fact....
             return {};
