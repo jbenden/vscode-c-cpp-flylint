@@ -25,6 +25,8 @@ import { Linter, Lint } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
 import { Clang } from './linters/clang';
+const glob = require('fast-glob');
+const substituteVariables = require('var-expansion').substituteVariables; // no types available
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
 const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
@@ -161,18 +163,33 @@ async function reconfigureExtension(settings: Settings, workspaceRoot: string): 
     return linters;
 }
 
-function getMergedSettings(settings: Settings, workspaceRoot: string) {
-    let currentSettings = _.cloneDeep(settings);
+export function getCppProperties(cCppPropertiesPath: string, currentSettings: Settings, workspaceRoot: string) {
     try {
-        // Process VS Code `c_cpp_properties.json` file
-        const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
         if (fs.existsSync(cCppPropertiesPath)) {
             const cCppProperties: IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
             const platformConfig = cCppProperties.configurations.find(el => el.name == propertiesPlatform());
+
             if (platformConfig !== undefined) {
                 // Found a configuration set; populate the currentSettings
                 if (currentSettings['c-cpp-flylint'].includePaths.length === 0) {
-                    currentSettings['c-cpp-flylint'].includePaths = platformConfig.includePath;
+                    currentSettings['c-cpp-flylint'].includePaths = [];
+                    process.env.workspaceRoot = workspaceRoot;
+                    process.env.workspaceFolder = workspaceRoot;
+
+                    _.forEach(platformConfig.includePath, (path: string) => {
+                        try {
+                            let { value, error } = substituteVariables(path, { env: process.env });
+                            let globbed_path = glob.sync(value, {cwd: workspaceRoot, dot: true, onlyDirectories: true, unique: true, absolute: true});
+
+                            // console.log("Path: " + path + "  VALUE: " + value + "  Globbed is: " + globbed_path.toString());
+
+                            currentSettings['c-cpp-flylint'].includePaths =
+                                currentSettings['c-cpp-flylint'].includePaths.concat(globbed_path);
+                        }
+                        catch (err) {
+                            console.log(err);
+                        }
+                    });
                 }
                 if (currentSettings['c-cpp-flylint'].defines.length === 0) {
                     currentSettings['c-cpp-flylint'].defines = platformConfig.defines;
@@ -183,7 +200,15 @@ function getMergedSettings(settings: Settings, workspaceRoot: string) {
     catch (err) {
         console.log("Could not find or parse the workspace c_cpp_properties.json file; continuing...");
     }
+
     return currentSettings;
+}
+
+function getMergedSettings(settings: Settings, workspaceRoot: string) {
+    let currentSettings = _.cloneDeep(settings);
+    const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
+
+    return getCppProperties(cCppPropertiesPath, currentSettings, workspaceRoot);
 }
 
 async function getDocumentLinters(resource: string): Promise<Linter[]> {

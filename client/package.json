@@ -594,6 +594,7 @@
     "cross-spawn": "^6.0.5",
     "lodash": "^4.17.10",
     "slash": "^2.0.0",
+    "fast-glob": "^2.2.6",
     "tmp": "^0.0.33",
     "var-expansion": "^0.1.0",
     "vscode-languageclient": "^4.1.4",
