@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Ignore `input unused` from Clang. Fixes #54.
+- Add glob support for `c_cpp_properties.json`, when processing the
+  include paths. Fixes #53.
 
 ## [1.2.2] - 2019-03-11
 
