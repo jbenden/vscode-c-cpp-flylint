@@ -10,7 +10,7 @@
   "publisher": "jbenden",
   "version": "1.2.2",
   "license": "MIT",
-  "icon": "C-Cpp-FlyLint_icon.png",
+  "icon": "client/C-Cpp-FlyLint_icon.png",
   "galleryBanner": {
     "color": "#303f9f",
     "theme": "dark"
