@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Separate the LSP Client's display name from the one internally
+  used. Fixes #55.
+
 ## [1.2.3] - 2019-04-05
 
 ### Changed

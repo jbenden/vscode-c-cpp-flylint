@@ -46,7 +46,7 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
         }
     };
 
-    const client = new LanguageClient("C/C++ Flylint", serverOptions, clientOptions);
+    const client = new LanguageClient("c-cpp-flylint", "C/C++ Flylint", serverOptions, clientOptions);
 
     client.onReady()
         .then(() => {
