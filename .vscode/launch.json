@@ -17,7 +17,7 @@
 			"name": "Attach to Server",
 			"type": "node",
 			"request": "attach",
-			"port": 6009,
+			"port": 6011,
 			"sourceMaps": true,
 			"outFiles": [ "${workspaceRoot}/client/server/**/*.js" ],
 			"preLaunchTask": "watch:server"
@@ -39,5 +39,11 @@
 			"outFiles": [ "${workspaceRoot}/client/server/**/*.js" ],
             "preLaunchTask": "compile"
         }
+	],
+	"compounds": [
+		{
+			"name": "Client + Server",
+			"configurations": ["Launch Client", "Attach to Server"]
+		}
 	]
 }
