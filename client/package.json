@@ -370,6 +370,11 @@
           "default": [],
           "description": "Warnings to suppress. Refer to the CppCheck documentation for what to supply here."
         },
+        "c-cpp-flylint.cppcheck.addons": {
+          "type": "array",
+          "default": [],
+          "description": "Addons to use with cppcheck. For example, misra, cert, etc. Refer to the CppCheck documentation for what to supply here."
+        },
         "c-cpp-flylint.cppcheck.verbose": {
           "type": "boolean",
           "default": false,

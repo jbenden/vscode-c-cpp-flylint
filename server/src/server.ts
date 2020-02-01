@@ -353,7 +353,21 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
                         result.splice(i, 1);
                     }
 
+                    const misraDiagnostics:Diagnostic[] = [];
+                    if (settings['c-cpp-flylint'].cppcheck.addons.includes("misra")) {
+                        diagnostics.forEach(diagnostic => {
+                            if (diagnostic.message.includes('misra')) {
+                                misraDiagnostics.push(diagnostic);
+                            }
+                        })
+                    }
                     diagnostics = _.uniqBy(diagnostics, function (e) { return e.line + ":::" + e.message; } );
+
+                    if (settings['c-cpp-flylint'].cppcheck.addons.includes("misra")) {
+                        misraDiagnostics.forEach(misraDiagnostic => {
+                            diagnostics.push(misraDiagnostic)
+                        })
+                    }
 
                     if (allDiagnostics.hasOwnProperty(currentFile)) {
                         allDiagnostics[currentFile] = _.union(allDiagnostics[currentFile], diagnostics);

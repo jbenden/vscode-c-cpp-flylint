@@ -23,6 +23,7 @@ export class CppCheck extends Linter {
         let enableParams = this.settings['c-cpp-flylint'].cppcheck.unusedFunctions
                             ? [ '--enable=warning,style,performance,portability,information,unusedFunction' ]
                             : [ '--enable=warning,style,performance,portability,information' ];
+        let addonParams = this.getAddonParams();
         let includeParams = this.getIncludePathParams();
         let suppressionParams = this.getSuppressionParams();
         let languageParam = this.getLanguageParam();
@@ -46,6 +47,7 @@ export class CppCheck extends Linter {
         let args = [ this.executable ]
             .concat(['--inline-suppr'])
             .concat(enableParams)
+            .concat(addonParams)
             .concat(includeParams)
             .concat(standardParams)
             .concat(defineParams)
@@ -145,6 +147,19 @@ export class CppCheck extends Linter {
 
         if (this.isValidLanguage(language)) {
             params.push(`--language=${language}`);
+        }
+
+        return params;
+    }
+
+    private getAddonParams() {
+        let addons = this.settings['c-cpp-flylint'].cppcheck.addons;
+        let params: string[] = [];
+
+        if (addons) {
+            _.each(addons, (element: string) => {
+                params.push(`--addon=${element}`);
+            });
         }
 
         return params;

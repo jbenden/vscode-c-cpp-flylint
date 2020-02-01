@@ -84,6 +84,7 @@ export interface Settings {
             defines: string[] | null;
             undefines: string[] | null;
             suppressions: string[];
+            addons: string[];
             language: "c" | "c++" | null;
             severityLevels: CppCheckSeverityMaps;
         }
