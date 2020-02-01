@@ -9,13 +9,14 @@ import {
     InitializeParams,
     InitializeResult,
     IPCMessageReader,
+    DidChangeConfigurationNotification,
     IPCMessageWriter,
     ResponseError,
     TextDocument,
     TextDocuments,
 } from 'vscode-languageserver';
-import { ExecuteCommandParams, DidChangeConfigurationNotification, WorkspaceFolder } from 'vscode-languageserver-protocol/lib/protocol';
-import Uri from 'vscode-uri';
+import { ExecuteCommandParams, WorkspaceFolder } from 'vscode-languageserver-protocol/lib/protocol';
+import { URI } from 'vscode-uri';
 import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
@@ -79,7 +80,10 @@ connection.onInitialize((params): InitializeResult => {
 
 connection.onInitialized(() => {
     if (hasConfigurationCapability) {
-        connection.client.register(DidChangeConfigurationNotification.type, undefined);
+        connection.client.register(
+			DidChangeConfigurationNotification.type,
+			undefined
+		);
     }
 });
 
@@ -97,7 +101,7 @@ connection.onDidChangeConfiguration(change => {
 });
 
 async function getWorkspaceRoot(resource: string): Promise<string> {
-    const resourceUri: Uri = Uri.parse(resource);
+    const resourceUri: URI = URI.parse(resource);
     const resourceFsPath: string = resourceUri.fsPath;
 
     let folders: WorkspaceFolder[] | null = await connection.workspace.getWorkspaceFolders();
@@ -112,7 +116,7 @@ async function getWorkspaceRoot(resource: string): Promise<string> {
 
         // look for a matching workspace folder root.
         folders.forEach(f => {
-            const folderUri: Uri = Uri.parse(f.uri);
+            const folderUri: URI = URI.parse(f.uri);
             const folderFsPath: string = folderUri.fsPath;
 
             // does the resource path start with this folder path?
@@ -213,7 +217,7 @@ function getMergedSettings(settings: Settings, workspaceRoot: string) {
 
 async function getDocumentLinters(resource: string): Promise<Linter[]> {
     const settings: Settings = await getDocumentSettings(resource);
-    const fileUri: Uri = Uri.parse(resource);
+    const fileUri: URI = URI.parse(resource);
     const filePath: string = fileUri.fsPath;
 
     let result = documentLinters.get(resource);
@@ -257,7 +261,7 @@ documents.onDidOpen(async (event) => {
 
 async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
-    const fileUri: Uri = Uri.parse(textDocument.uri);
+    const fileUri: URI = URI.parse(textDocument.uri);
     const filePath: string = fileUri.fsPath;
     const workspaceRoot: string = await getWorkspaceRoot(textDocument.uri);
 
@@ -503,7 +507,7 @@ function getErrorMessage(err, document: TextDocument): string {
         errorMessage = (err.message as string);
     }
 
-    const fsPathUri = Uri.parse(document.uri);
+    const fsPathUri = URI.parse(document.uri);
     const message = `vscode-c-cpp-flylint: '${errorMessage}' while validating: ${fsPathUri.fsPath}. Please analyze the 'C/C++ FlyLint' Output console. Stacktrace: ${err.stack}`;
 
     return message;
@@ -513,7 +517,7 @@ connection.onDidChangeWatchedFiles((params) => {
     console.log('FS change notification occurred; re-linting all opened documents.')
 
     params.changes.forEach(async element => {
-        let configFilePath = Uri.parse(element.uri);
+        let configFilePath = URI.parse(element.uri);
 
         if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
             flushCache();
@@ -530,11 +534,11 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
         (connection.sendRequest('activeTextDocument') as Thenable<TextDocument>)
             .then((activeDocument) => {
                 if (activeDocument !== undefined && activeDocument !== null) {
-                    let fileUri: Uri = <Uri>(<any>activeDocument.uri);
+                    let fileUri: URI = <URI>(<any>activeDocument.uri);
 
                     for (const document of documents.all()) {
                         try {
-                            const documentUri = Uri.parse(document.uri);
+                            const documentUri = URI.parse(document.uri);
 
                             if (fileUri.fsPath === documentUri.fsPath) {
                                 validateTextDocument(document, Lint.ON_SAVE);

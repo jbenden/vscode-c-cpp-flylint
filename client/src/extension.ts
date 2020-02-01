@@ -14,7 +14,7 @@ export function activate(context: ExtensionContext) {
 
     // The debug options for the server.
     const debugOptions = {
-        execArgv: ["--nolazy", "--debug=6004"]
+        execArgv: ["--nolazy", "--inspect=6011"]
     };
 
     // If the extension is launched in debug mode the debug server options are used, otherwise the run options are used.
