@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] - 2020-02-01
+
+### Changed
+
+* Upgrade to Node.js 12 and TypeScript 3.7. PR #69.
+
 ## [1.2.4] - 2019-04-12
 
 ### Changed
