@@ -357,7 +357,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
                         result.splice(i, 1);
                     }
 
-                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.code + ":::" + e.message; } );
+                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ":::" + e.code + ":::" + e.message; } );
 
                     if (allDiagnostics.hasOwnProperty(currentFile)) {
                         allDiagnostics[currentFile] = _.union(allDiagnostics[currentFile], diagnostics);
