@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.4.1] - 2020-02-02
+
+### Changed
+
+* Fixed bug where a given source code line containing multiple
+  diagnostics were incorrectly filtered. PR #71.
+
 ## [1.4.0] - 2020-02-01
 
 ### Added
