@@ -105,7 +105,7 @@ export class CppCheck extends Linter {
     }
 
     private isValidStandard(standard: string): boolean {
-        const allowedStandards = [ 'posix', 'c89', 'c99', 'c11', 'c++03', 'c++11' ];
+        const allowedStandards = [ 'posix', 'c89', 'c99', 'c11', 'c17', 'c18', 'c++03', 'c++11', 'c++14', 'c++17', 'c++20' ];
         return _.includes(allowedStandards, standard);
     }
 

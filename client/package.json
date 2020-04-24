@@ -152,7 +152,7 @@
             "null"
           ],
           "default": null,
-          "description": "The language standards to check against. For example, one or more of: posix, c89, c99, c11, c++03, c++11, c++14, c++17."
+          "description": "The language standards to check against. For example, one or more of: posix, c89, c99, c11, c17, c18, c++03, c++11, c++14, c++17, c++20."
         },
         "c-cpp-flylint.clang.defines": {
           "type": [
