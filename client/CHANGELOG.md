@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+* Added `extraArgs` configuration option to the CppCheck linter.
+  Fixes #66, #78.
+
+### Changed
+
+* Upgraded node modules to latest versions.
+* Modernized Travis-CI build script.
+
 ## [1.4.2] - 2020-04-24
 
 ### Changed
