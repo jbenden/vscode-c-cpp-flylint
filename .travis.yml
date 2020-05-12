@@ -1,6 +1,6 @@
-sudo: false
-
 language: node_js
+
+dist: xenial
 
 node_js:
   - '12'
@@ -26,10 +26,10 @@ before_deploy:
 
 deploy:
   provider: releases
-  api_key:
+  token:
     secure: ZtKoRGJUm/nTszVW0wGbXQZhhj7u4POC4o7TbckPy/Wba9cY5HQEhUJmFjB1GnIzJawTZckIoFwATy5d3nXSVd8UakZ+NcatgmvDgT9NpwkimNr0kPJypYTsbWlfS+jerHtaQUU8FwMcLf+O5w4oLaZxmKp9HLVJ+IFAglIn0uskRwtJwTUD7x7gLYRMg7MNuyxuhzW0BOalFhbAl2LSjMSUgvDsnRI+5Io1+cZVK5/A3b9Las3IkHtOgpv8NCQ+NL9LJRD/UNsb76gnznhZgchNLfLH5IfSOGNQT3gfqv05yLFa668hWp6uaVQKUKOiZoYlIxohsiojzuNIYtCZyxgBKcdL3kYdgwhMZ+K8eXRPDiB/jHis9lnk9BwzwEC9sw8cYkKWldNF3Oxb+8QCJo3EpYIcl7G4uGsKjn47LE5Fvsm1ntPGnkYn0jjnrRbHNiDgV17dtMBaGBC0PSGwCMgDuPcLprshbQmIVqVz9KtMOibnccegBrrSY2A3lXdHHNi3ZsJcIwFPd4BYWeio872poP1A/a2G0rJ9Gt8XbGdUzbmcVjbCYykUwy2D6soyRsB3EHEvc1TReTHFHCKmMMhNs+ZCoRCtS7hIg5tXblUncU+73AjSr2d8FI0fcdYqRRhCCbDbR/udVLM/gqMFCe2Vz6qz7X1DVOQEZTw/ufQ=
   file_glob: true
   file: "**/*.vsix"
-  skip_cleanup: true
+  cleanup: false
   on:
     tags: true
