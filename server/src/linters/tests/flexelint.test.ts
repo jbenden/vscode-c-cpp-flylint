@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { slow, suite, test, timeout } from 'mocha-typescript';
+import { slow, suite, test, timeout } from 'mocha';
 import { expect } from 'chai';
 import * as mock from 'mock-fs';
 import * as _ from "lodash";

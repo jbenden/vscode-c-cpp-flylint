@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as assert from 'assert';
-import { slow, suite, test, timeout } from 'mocha-typescript';
+import { slow, suite, test, timeout } from 'mocha';
 import * as mock from 'mock-fs';
 import * as _ from "lodash";
 import { Settings, IConfiguration, IConfigurations, propertiesPlatform } from '../../settings';
