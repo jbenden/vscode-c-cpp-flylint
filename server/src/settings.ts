@@ -87,6 +87,7 @@ export interface Settings {
             addons: string[];
             language: "c" | "c++" | null;
             severityLevels: CppCheckSeverityMaps;
+            extraArgs: string[] | null;
         }
         clang: {
             enable: boolean;

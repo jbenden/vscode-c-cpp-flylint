@@ -314,6 +314,14 @@
           "description": "This option allows you to override the executable called when using CppCheck",
           "default": "cppcheck"
         },
+        "c-cpp-flylint.cppcheck.extraArgs": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "Extra verbatim command-line arguments to include on the cppcheck command-line invocation."
+        },
         "c-cpp-flylint.cppcheck.configFile": {
           "type": "string",
           "description": "A .clang_complete file to use/fallback to if no config file is found in the current project",

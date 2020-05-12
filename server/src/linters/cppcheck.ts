@@ -55,7 +55,8 @@ export class CppCheck extends Linter {
             .concat(suppressionParams)
             .concat(languageParam)
             .concat([platformParams])
-            .concat([`--template="{file}  {line}  {severity} {id}: {message}"`]);
+            .concat([`--template="{file}  {line}  {severity} {id}: {message}"`])
+            .concat(this.settings['c-cpp-flylint'].cppcheck.extraArgs || []);
 
         if (this.settings['c-cpp-flylint'].cppcheck.verbose === true) {
             args.push('--verbose');
