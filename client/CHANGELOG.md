@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.4.4] - 2020-05-13
+
+### Changed
+
+* Fixed cppcheck documentation on supported standards. Fixes #77.
+* Fixed Travis-CI during tag deploys.
+
 ## [1.4.3] - 2020-05-13
 
 ### Added
