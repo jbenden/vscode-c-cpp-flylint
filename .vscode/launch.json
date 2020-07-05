@@ -7,11 +7,11 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}/client" ],
+			"args": ["--extensionDevelopmentPath=${workspaceRoot}", "--inspect-extensions=9993" ],
 			"stopOnEntry": false,
 			"sourceMaps": true,
-			"outFiles": [ "${workspaceRoot}/client/out/src/**/*.js" ],
-			"preLaunchTask": "watch:client"
+			"outFiles": [ "${workspaceRoot}/dist/**/*.js" ],
+			"preLaunchTask": "npm: vscode:prepublish"
 		},
 		{
 			"name": "Attach to Server",
@@ -19,8 +19,8 @@
 			"request": "attach",
 			"port": 6011,
 			"sourceMaps": true,
-			"outFiles": [ "${workspaceRoot}/client/server/**/*.js" ],
-			"preLaunchTask": "watch:server"
+			"outFiles": [ "${workspaceRoot}/dist/server/**/*.js" ],
+			"preLaunchTask": "npm: watch:server"
 		},
         {
             "name": "Launch Mocha Tests",
