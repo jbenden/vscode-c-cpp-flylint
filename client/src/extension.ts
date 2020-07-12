@@ -10,7 +10,7 @@ import * as path from "path";
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in Node.
-    const serverModule = context.asAbsolutePath(path.join("server", "server.js"));
+    const serverModule = context.asAbsolutePath(path.join("dist", "server", "server.bundle.js"));
 
     // The debug options for the server.
     const debugOptions = {

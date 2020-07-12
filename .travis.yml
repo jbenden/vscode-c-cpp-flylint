@@ -15,7 +15,7 @@ before_install:
   - npm install -g vsce
 
 install:
-  - npm install
+  - npm install --verbose
   - npm run compile
 
 script:

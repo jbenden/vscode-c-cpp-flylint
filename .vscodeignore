@@ -8,3 +8,11 @@ yarn.lock
 src/**
 tsconfig.json
 *.vsix
+server/**
+client/**
+webpack.config.js
+**/*.sh
+.codeclimate.yml
+.eslintignore
+.mdlrc
+node_modules/**
