@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+* Clang: Ignore lines from wxWidget headers. Fixes #83.
+
 ### Added
 
 * Use webpack to compress and optimize delivery of extension.
