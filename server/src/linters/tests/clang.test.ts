@@ -91,4 +91,22 @@ class ClangTests {
         result.should.have.property('severity', 'Information');
         expect(result['message']).to.match(/^expanded from macro \'ARRAY_LEN\'/);
     }
+
+    @test("should handle parsing excluded line")
+    parsesExcludedLinesWithoutFailure() {
+        let test = [
+            `warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]`,
+            `/Users/user/cpp-test/main.cpp:8:2: warning: C++98 requires newline at end of file [Lexical or Preprocessor Issue]`
+        ];
+        let actual = this.linter['parseLines'](test)
+
+        actual.should.have.length(1);
+
+        let result = actual.pop();
+
+        result.should.have.property('fileName', '/Users/user/cpp-test/main.cpp');
+        result.should.have.property('line', 7);
+        result.should.have.property('severity', 'Warning');
+        expect(result['message']).to.match(/^C\+\+98 requires newline at end of file/);
+    }
 }
