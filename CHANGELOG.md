@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 * Add additional line parse exclusion to Clang. Fixes #88.
+* Removed `everything` warning from Clang, by default.
 
 ## [1.5.1] - 2020-07-21
 
