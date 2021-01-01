@@ -619,6 +619,98 @@
               ]
             }
           }
+        },
+        "c-cpp-flylint.pclintplus.enable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable the PC-lint Plus linter"
+        },
+        "c-cpp-flylint.pclintplus.executable": {
+          "type": "string",
+          "description": "This option allows you to override the executable called when using PC-lint Plus",
+          "default": "pclp"
+        },
+        "c-cpp-flylint.pclintplus.configFile": {
+          "type": "string",
+          "description": "A PC-lint Plus file to use/fallback to if no config file is found in the current project",
+          "default": ".pclint.lnt"
+        },
+        "c-cpp-flylint.pclintplus.headerArgs": {
+          "type": "array",
+          "description": "A list of arguments passed to PC-lint Plus when scanning header source files",
+          "default": []
+        },
+        "c-cpp-flylint.pclintplus.severityLevels": {
+          "type": "object",
+          "description": "Maps the severity levels of PC-lint Plus to VSCode severity levels (Error, Warning, Information, Hint). Setting to 'None' will not show the severity type at all.",
+          "default": {
+            "error": "Error",
+            "warning": "Warning",
+            "info": "Information",
+            "note": "Hint"
+          },
+          "properties": {
+            "error": {
+              "description": "Used when major issues are found.",
+              "type": "string",
+              "default": "Error",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "warning": {
+              "description": "Suggestions about defensive programming to prevent potential issues.",
+              "type": "string",
+              "default": "Warning",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "info": {
+              "description": "Suggestions for producing better code.",
+              "type": "string",
+              "default": "Information",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "note": {
+              "description": "Suggestions for producing better code.",
+              "type": "string",
+              "default": "Warning",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "supplemental": {
+              "description": "Suggestions for producing better code.",
+              "type": "string",
+              "default": "Hint",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            }
+          }
         }
       }
     }
