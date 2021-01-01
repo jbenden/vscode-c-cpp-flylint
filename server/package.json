@@ -35,7 +35,9 @@
     "chai-as-promised": "^7.1.1",
     "mocha": "^7.1.2",
     "mock-fs": "^4.5.0",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   },
   "scripts": {
     "compile": "npm run installServer && webpack --config webpack.config-server.js",

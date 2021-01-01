@@ -170,6 +170,8 @@ export class Linter {
             .catch(() => {
                 this.disable();
 
+                console.log(`The configuration file was not found for ${this.name}; looked for ${this.configFile}`);
+
                 throw Error(`could not locate configuration file for ${this.name}, disabling linter`);
             });
     }
@@ -181,7 +183,12 @@ export class Linter {
             do {
                 directory = parent;
 
-                const location = path.join(directory, fileName);
+                const location: string = (() => {
+                    if (path.isAbsolute(fileName))
+                        return fileName;
+                    else
+                        return path.join(directory, fileName);
+                })();
 
                 try {
                     fs.accessSync(location, fs.constants.R_OK);

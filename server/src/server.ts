@@ -26,6 +26,7 @@ import { Linter, Lint } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
 import { Clang } from './linters/clang';
+import { PclintPlus } from './linters/pclintplus';
 const glob = require('fast-glob');
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 
@@ -157,6 +158,8 @@ async function reconfigureExtension(settings: Settings, workspaceRoot: string): 
         linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck);
     if (currentSettings['c-cpp-flylint'].flexelint.enable)
         linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint);
+    if (currentSettings['c-cpp-flylint'].pclintplus.enable)
+        linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus);
 
     _.forEach(linters, (linter) => {
         if (linter.isActive() && !linter.isEnabled()) {

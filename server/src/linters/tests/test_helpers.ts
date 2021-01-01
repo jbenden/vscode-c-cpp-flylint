@@ -38,6 +38,27 @@ export const defaultConfig = {
                 Note: 'Hint'
             }
         },
+        pclintplus: {
+            enable: true,
+            executable: (isWindows ? "pclp.exe" : "pclp"),
+            configFile: "tsconfig.json",
+            headerArgs: [
+                "-e750",
+                "-e751",
+                "-e752",
+                "-e753",
+                "-e754",
+                "-e1526",
+                "-e1714"
+            ],
+            severityLevels: {
+                error: 'Error',
+                warning: 'Warning',
+                info: 'Information',
+                note: 'Hint',
+                supplemental: 'Hint'
+            }
+        },
         cppcheck: {
             enable: true,
             executable: (isWindows ? "cppcheck.exe" : "cppcheck"),
@@ -117,6 +138,18 @@ export function before() {
 
         // fake binary for non-Windows users
         'flexelint': mock.file({
+            content: '#!/usr/bin/env bash\n\nexit 0\n',
+            mode: 0o755
+        }),
+
+        // fake EXE for Windows users
+        'pclp.exe': mock.file({
+            content: 'I MISS DOS...',
+            mode: 0o755
+        }),
+
+        // fake binary for non-Windows users
+        'pclp': mock.file({
             content: '#!/usr/bin/env bash\n\nexit 0\n',
             mode: 0o755
         }),

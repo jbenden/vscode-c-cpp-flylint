@@ -46,6 +46,14 @@ export interface ClangSeverityMaps {
     note: SeverityLevel;
 }
 
+export interface PclintPlusSeverityMaps {
+    error: SeverityLevel;
+    warning: SeverityLevel;
+    info: SeverityLevel;
+    note: SeverityLevel;
+    supplemental: SeverityLevel;
+}
+
 // Settings as defined in VS Code.
 export interface Settings {
     'c-cpp-flylint': {
@@ -69,6 +77,13 @@ export interface Settings {
             configFile: string;
             headerArgs: string | string[];
             severityLevels: FlexelintSeverityMaps;
+        }
+        pclintplus: {
+            enable: boolean;
+            executable: string;
+            configFile: string;
+            headerArgs: string | string[];
+            severityLevels: PclintPlusSeverityMaps;
         }
         cppcheck: {
             enable: boolean;
