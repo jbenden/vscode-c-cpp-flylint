@@ -20,7 +20,7 @@
 			"port": 6011,
 			"sourceMaps": true,
 			"outFiles": [ "${workspaceRoot}/dist/server/**/*.js" ],
-			"preLaunchTask": "npm: watch:server"
+			"preLaunchTask": "npm: webpack:watch"
 		},
         {
             "name": "Launch Mocha Tests",

@@ -1,14 +1,12 @@
-import * as assert from 'assert';
 import { slow, suite, test, timeout } from '@testdeck/mocha';
 import { expect } from 'chai';
-import * as mock from 'mock-fs';
 import * as _ from "lodash";
 import { Settings } from '../../settings';
 import { Clang } from '../clang';
-import { before, after, isWindows, defaultConfig } from './test_helpers';
+import { before, after, defaultConfig } from './test_helpers';
 
 @suite(timeout(3000), slow(1000))
-class ClangTests {
+export class ClangTests {
     private config: Settings;
     private linter: Clang;
 
@@ -54,7 +52,7 @@ class ClangTests {
 
     @test("should handle parsing an invalid line")
     parsesUnknownLine() {
-        let actual = this.linter['parseLine']('should not parse!');
+        let actual = this.linter['parseLine']('should not parse!')!;
         actual.should.have.property('parseError');
     }
 
@@ -83,7 +81,7 @@ class ClangTests {
 
         actual.should.have.length(17);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'rounding.c');
         result.should.have.property('line', 21);
@@ -102,7 +100,7 @@ class ClangTests {
 
         actual.should.have.length(1);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', '/Users/user/cpp-test/main.cpp');
         result.should.have.property('line', 7);

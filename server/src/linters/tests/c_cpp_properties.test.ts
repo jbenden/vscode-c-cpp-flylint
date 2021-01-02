@@ -1,20 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as assert from 'assert';
 import { slow, suite, test, timeout } from '@testdeck/mocha';
-import * as mock from 'mock-fs';
 import * as _ from "lodash";
-import { Settings, IConfiguration, IConfigurations, propertiesPlatform } from '../../settings';
-import { Clang } from '../clang';
+import { Settings, IConfigurations, propertiesPlatform } from '../../settings';
 import { getCppProperties } from '../../server';
-import { before, after, isWindows, defaultConfig } from './test_helpers';
+import { defaultConfig } from './test_helpers';
 import * as chai from 'chai';
 
 @suite(timeout(3000), slow(1000))
-class CcppPropertiesTests {
-    private config: Settings;
-    private linter: Clang;
-
+export class CcppPropertiesTests {
     @test("should find the fixture file")
     findsFixtureFile() {
         var propertiesData : IConfigurations = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../../../server/src/linters/tests/c_cpp_properties.json'), 'utf8'));

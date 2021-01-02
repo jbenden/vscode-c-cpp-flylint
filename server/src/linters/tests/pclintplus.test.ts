@@ -6,7 +6,7 @@ import { Settings } from '../../settings';
 import { before, after, defaultConfig } from './test_helpers';
 
 @suite(timeout(3000), slow(1000))
-class PclintPlusTests {
+export class PclintPlusTests {
     private config: Settings;
     private linter: PclintPlus;
 
@@ -65,7 +65,7 @@ class PclintPlusTests {
     @test("should handle parsing an invalid line")
     parsesUnknownLine() {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        let actual = this.linter['parseLine']('should not parse!');
+        let actual = this.linter['parseLine']('should not parse!')!;
         actual.should.have.property('parseError');
     }
 
@@ -83,7 +83,7 @@ class PclintPlusTests {
 
         actual.should.have.length(1);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
         result.should.have.property('line', 163);
@@ -107,7 +107,7 @@ class PclintPlusTests {
 
         actual.should.have.length(1);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
         result.should.have.property('line', 163);
@@ -150,7 +150,7 @@ class PclintPlusTests {
 
         actual.should.have.length(23);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c');
         result.should.have.property('line', 29);

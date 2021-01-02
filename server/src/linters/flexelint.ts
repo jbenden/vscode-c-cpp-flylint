@@ -1,10 +1,9 @@
-import * as which from 'which';
-import * as fs from "fs";
 import * as path from "path";
-import { spawnSync } from 'child_process';
+import * as _ from 'lodash';
 import { Settings } from "../settings";
-import { isString } from 'util';
 import { headerExts, Linter } from './linter';
+import { InternalDiagnostic } from "../server";
+import { DiagnosticSeverity } from "vscode-languageserver-protocol";
 
 export class Flexelint extends Linter {
     constructor(settings: Settings, workspaceRoot: string) {
@@ -16,9 +15,7 @@ export class Flexelint extends Linter {
         this.active = this.enabled = settings['c-cpp-flylint'].flexelint.enable;
     }
 
-    protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
-        tmpFileName;
-
+    protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
         var args = [
             this.executable,
             "-v",
@@ -33,7 +30,7 @@ export class Flexelint extends Linter {
         if (headerExts.indexOf(path.extname(fileName)) != -1) {
             var hArgs = this.settings['c-cpp-flylint'].flexelint.headerArgs;
 
-            if (isString(hArgs)) {
+            if (_.isString(hArgs)) {
                 args.push(hArgs);
             } else {
                 hArgs.forEach(element => {
@@ -47,27 +44,29 @@ export class Flexelint extends Linter {
         return args;
     }
 
-    protected transformParse(currentParsed: {[key:string]:any}, parsed: {[key:string]:any}) {
-        if ((parsed['code'] === "830" && parsed['message'] !== 'Location cited in prior message') || (parsed['code'] === "831" && parsed['message'] !== 'Reference cited in prior message')) {
-            currentParsed['line'] = parsed['line'];
-            currentParsed['column'] = parsed['column'];
-            parsed = {};
-        } else if (parsed['code'] === "830" || parsed['code'] === "831") {
-            parsed = {};
+    protected transformParse(currentParsed: InternalDiagnostic | null, parsed: InternalDiagnostic | null) {
+        if (parsed) {
+            if ((parsed['code'] === "830" && parsed['message'] !== 'Location cited in prior message') || (parsed['code'] === "831" && parsed['message'] !== 'Reference cited in prior message')) {
+                currentParsed!['line'] = parsed['line'];
+                currentParsed!['column'] = parsed['column'];
+                parsed = null;
+            } else if (parsed['code'] === "830" || parsed['code'] === "831") {
+                parsed = null;
+            }
         }
 
         return {currentParsed: currentParsed, parsed: parsed};
     }
 
-    protected parseLine(line: string) {
+    protected parseLine(line: string): InternalDiagnostic | null {
         let regex = /^(.+?)\s\s([0-9]+)\s([0-9]+\s)?\s(Info|Warning|Error|Note)\s([0-9]+):\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
         let excludeRegex = /^((During Specific Walk:|\s\sFile\s).*|)$/;
 
         if (excludeRegex.exec(line) != null) {
-            // skip this line, so return that fact....
-            return {};
+            // skip this line
+            return null;
         }
 
         if ((regexArray = regex.exec(line)) != null) {
@@ -81,11 +80,20 @@ export class Flexelint extends Linter {
                 source: 'Flexelint',
             };
         } else {
-            return { parseError: 'Line could not be parsed: ' + line };
+            return {
+                parseError: 'Line could not be parsed: ' + line,
+                fileName: '',
+                line: 0,
+                column: 0,
+                severity: DiagnosticSeverity.Error,
+                code: 0,
+                message: '',
+                source: 'Flexelint'
+            };
         }
     }
 
-    private getSeverityCode(severity: string): string {
+    private getSeverityCode(severity: string): DiagnosticSeverity {
         return this.settings['c-cpp-flylint'].flexelint.severityLevels[severity];
     }
 }

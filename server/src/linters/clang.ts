@@ -1,18 +1,13 @@
-import * as which from 'which';
-import * as fs from "fs";
 import * as path from "path";
-import { spawnSync } from 'child_process';
 import * as _ from "lodash";
 import { Settings } from "../settings";
-import { isString } from 'util';
 import { Linter, Lint } from './linter';
+import { InternalDiagnostic } from "../server";
+import { DiagnosticSeverity } from "vscode-languageserver-protocol";
 
 export class Clang extends Linter {
-    private fileName : String[];
-    private lineNumber : Number[];
-    private messages : String[];
-    private actualFileName : String;
-    private tmpFileName : String;
+    private actualFileName : string;
+    private tmpFileName : string;
 
     constructor(settings: Settings, workspaceRoot: string) {
         super('Clang', settings, workspaceRoot, false);
@@ -26,7 +21,7 @@ export class Clang extends Linter {
         this.active = this.enabled = settings['c-cpp-flylint'].clang.enable;
     }
 
-    public lintOn() {
+    public lintOn(): Lint {
         return Lint.ON_SAVE | Lint.ON_TYPE;
     }
 
@@ -128,19 +123,19 @@ export class Clang extends Linter {
         return args;
     }
 
-    protected parseLine(line: string) {
+    protected parseLine(line: string): InternalDiagnostic | null {
         let regex = /^(.+?):([0-9]+):([0-9]+):\s(fatal error|error|warning|note):\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
         if (line === '') {
-            // skip this line, so return that fact....
-            return {};
+            // skip this line
+            return null;
         }
 
         let excludeRegex = /^(WX.*|_WX.*|__WX.*|Q_.*|warning: .* incompatible with .*|warning: .* input unused|warning: include location .* is unsafe for cross-compilation.*)$/;
         if (excludeRegex.exec(line) != null) {
-            // skip this line, so return that fact....
-            return {};
+            // skip this line
+            return null;
         }
 
         let inFileArray: RegExpExecArray | null;
@@ -151,7 +146,7 @@ export class Clang extends Linter {
                 fileName: (inFileArray[1] === this.tmpFileName ? this.actualFileName : inFileArray[1]),
                 line: parseInt(inFileArray[2]) - 1,
                 column: 0,
-                severity: 'Warning',
+                severity: DiagnosticSeverity.Warning,
                 code: 0,
                 message: 'Issues in file included from here',
                 source: 'Clang'
@@ -169,32 +164,24 @@ export class Clang extends Linter {
                 source: 'Clang',
             };
         } else {
-            return { parseError: 'Line could not be parsed: ' + line };
+            return {
+                parseError: 'Line could not be parsed: ' + line,
+                fileName: '',
+                line: 0,
+                column: 0,
+                severity: DiagnosticSeverity.Error,
+                code: 0,
+                message: '',
+                source: 'Clang'
+            };
         }
     }
 
-    private getSeverityCode(severity: string): string {
+    private getSeverityCode(severity: string): DiagnosticSeverity {
         return this.settings['c-cpp-flylint'].clang.severityLevels[severity];
     }
 
-    private getStandardParams() {
-        let standard = this.standard;
-        let params: string[] = [];
-
-        if (standard) {
-            _.each(standard, (element: string) => {
-                params.push(`--std=${element}`);
-            });
-        }
-        else {
-            params.push('--std=c++11');
-            params.push('--std=c11');
-        }
-
-        return params;
-    }
-
-    private getPedanticParams() {
+    private getPedanticParams(): string[] {
         let params: string[] = [];
 
         if (this.settings['c-cpp-flylint'].clang.pedantic) {
@@ -208,7 +195,7 @@ export class Clang extends Linter {
         return params;
     }
 
-    private getLanguageParam() {
+    private getLanguageParam(): string[] {
         let language = this.language;
         let params: string[] = [];
 

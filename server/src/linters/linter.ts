@@ -2,10 +2,9 @@ import * as which from 'which';
 import * as fs from "fs";
 import * as path from "path";
 import * as _ from "lodash";
+import { InternalDiagnostic } from "../server";
 import { Settings } from "../settings";
-import { isString } from 'util';
 import * as cross_spawn from 'cross-spawn';
-import { isWindows } from './tests/test_helpers';
 import * as child_process from 'child_process';
 
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
@@ -59,11 +58,11 @@ export class Linter {
                    this.settings['c-cpp-flylint'][key][item] !== null;
         }
 
-        let maybe = (orig, maybeKey) => {
+        let maybe = (orig : string[] | string, maybeKey : string) => {
             if (checkKey(maybeKey)) {
                 if (_.isArray(orig)) {
                     return this.settings['c-cpp-flylint'][key][maybeKey];
-                } else if (typeof orig === "string" || orig instanceof String) {
+                } else if (_.isString(orig)) {
                     return this.settings['c-cpp-flylint'][key][maybeKey];
                 }
             }
@@ -105,21 +104,18 @@ export class Linter {
         this.enabled = false;
     }
 
-    public lintOn() {
+    public lintOn(): Lint {
         return Lint.ON_SAVE;
     }
 
-    public initialize() {
-        return this.maybeEnable()
-            .then(() => {
-                return this;
-            })
-            .catch(() => {
-                return this;
-            });
+    public async initialize() {
+        await this.maybeEnable().catch(() => {
+            // empty
+        });
+        return this;
     }
 
-    private maybeEnable() {
+    private async maybeEnable() {
         if (!this.isEnabled()) {
             return Promise.resolve("");
         }
@@ -154,7 +150,7 @@ export class Linter {
         });
     }
 
-    private maybeConfigFilePresent(): Promise<string> {
+    private async maybeConfigFilePresent(): Promise<string> {
         if (!this.requireConfig) {
             return Promise.resolve("");
         }
@@ -241,11 +237,10 @@ export class Linter {
             console.log('executing: ', cmd, params.join(' '));
         }
 
-
         return cross_spawn.sync(cmd, params, { 'cwd': workspaceDir });
     }
 
-    public lint(fileName: string, directory: null | string, tmpFileName: string): {}[] {
+    public lint(fileName: string, directory: null | string, tmpFileName: string): InternalDiagnostic[] {
         if (!this.enabled) { return []; }
 
         let result = this.runLinter(this.buildCommandLine(fileName, tmpFileName), directory || this.workspaceRoot);
@@ -268,12 +263,9 @@ export class Linter {
         return ch == '\'' || ch == '\"';
     }
 
-    protected parseLines(lines: string[]) {
-        var results;
-        var currentParsed;
-
-        results = [];
-        currentParsed = {};
+    protected parseLines(lines: string[]): InternalDiagnostic[] {
+        let results: InternalDiagnostic[] = [];
+        let currentParsed: InternalDiagnostic | null = null;
 
         lines.forEach(line => {
             if (this.isQuote(line.charAt(0))) {
@@ -285,7 +277,7 @@ export class Linter {
             }
 
             let parsed = this.parseLine(line);
-            if (parsed !== {}) {
+            if (parsed) {
                 // check for parse error
                 if (parsed.parseError) {
                     if (this.settings['c-cpp-flylint'].ignoreParseErrors) {
@@ -298,7 +290,7 @@ export class Linter {
 
                 ({currentParsed, parsed} = this.transformParse(currentParsed, parsed));
 
-                if (currentParsed !== undefined && currentParsed.hasOwnProperty('fileName')) {
+                if (currentParsed !== null && !currentParsed.parseError) {
                     // output an entry
                     results.push(currentParsed);
                 }
@@ -307,7 +299,7 @@ export class Linter {
             }
         });
 
-        if (currentParsed !== undefined && currentParsed.hasOwnProperty('fileName')) {
+        if (currentParsed !== null) {
             // output an entry
             results.push(currentParsed);
         }
@@ -315,13 +307,12 @@ export class Linter {
         return results;
     }
 
-    protected transformParse(currentParsed: {[key:string]:any}, parsed: {[key:string]:any}) {
+    protected transformParse(currentParsed: InternalDiagnostic | null, parsed: InternalDiagnostic | null) {
         return {currentParsed: currentParsed, parsed: parsed};
     }
 
-    protected parseLine(line: string): {[key:string]:any} {
-        line;
-        return {};
+    protected parseLine(_line: string): InternalDiagnostic | null {
+        return null;
     }
 
     protected isValidLanguage(language: string): boolean {
@@ -329,7 +320,7 @@ export class Linter {
         return _.includes(allowLanguages, language);
     }
 
-    protected getIncludePathParams() {
+    protected getIncludePathParams(): string[] {
         let paths = this.includePaths;
         let params: string[] = [];
 
@@ -348,7 +339,7 @@ export class Linter {
         return params;
     }
 
-    protected expandedArgsFor(key: string, joined: boolean, values: string[] | null, defaults: string[] | null) {
+    protected expandedArgsFor(key: string, joined: boolean, values: string[] | null, defaults: string[] | null): string[] {
         let params: string[] = [];
 
         if (values) {

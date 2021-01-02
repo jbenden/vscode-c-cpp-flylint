@@ -1,14 +1,12 @@
-import * as assert from 'assert';
 import { slow, suite, test, timeout } from '@testdeck/mocha';
 import { expect } from 'chai';
-import * as mock from 'mock-fs';
 import * as _ from "lodash";
 import { Settings } from '../../settings';
 import { CppCheck } from '../cppcheck';
-import { before, after, isWindows, defaultConfig } from './test_helpers';
+import { before, after, defaultConfig } from './test_helpers';
 
 @suite(timeout(3000), slow(1000))
-class CppCheckTests {
+export class CppCheckTests {
     private config: Settings;
     private linter: CppCheck;
 
@@ -54,7 +52,7 @@ class CppCheckTests {
 
     @test("should handle parsing an invalid line")
     parsesUnknownLine() {
-        let actual = this.linter['parseLine']('should not parse!');
+        let actual = this.linter['parseLine']('should not parse!')!;
         actual.should.have.property('parseError');
     }
 
@@ -81,7 +79,7 @@ class CppCheckTests {
 
         actual.should.have.length(1);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 2836);
@@ -114,7 +112,7 @@ class CppCheckTests {
 
         actual.should.have.length(1);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 2836);
@@ -142,7 +140,7 @@ class CppCheckTests {
 
         actual.should.have.length(4);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 1 - 1);
@@ -151,7 +149,7 @@ class CppCheckTests {
         result.should.have.property('code', "misra-c2012-21.6");
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
-        result = actual.pop();
+        result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 20 - 1);
@@ -160,7 +158,7 @@ class CppCheckTests {
         result.should.have.property('code', "misra-c2012-18.8");
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
-        result = actual.pop();
+        result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 11 - 1);
@@ -169,7 +167,7 @@ class CppCheckTests {
         result.should.have.property('code', "misra-c2012-17.7");
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
-        result = actual.pop();
+        result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 9 - 1);
@@ -197,7 +195,7 @@ class CppCheckTests {
 
         actual.should.have.length(4);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 36 - 1);
@@ -206,7 +204,7 @@ class CppCheckTests {
         result.should.have.property('code', "misra-c2012-10.4");
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
-        result = actual.pop();
+        result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 15 - 1);
@@ -215,7 +213,7 @@ class CppCheckTests {
         result.should.have.property('code', "misra-c2012-10.4");
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
-        result = actual.pop();
+        result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 23 - 1);
@@ -224,7 +222,7 @@ class CppCheckTests {
         result.should.have.property('code', "zerodiv");
         expect(result['message']).to.equal('Division by zero');
 
-        result = actual.pop();
+        result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 9 - 1);

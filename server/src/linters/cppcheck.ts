@@ -1,11 +1,8 @@
-import * as which from 'which';
-import * as fs from "fs";
-import * as path from "path";
-import { spawnSync } from 'child_process';
 import * as _ from "lodash";
 import { Settings } from "../settings";
-import { isString } from 'util';
 import { Linter } from './linter';
+import { InternalDiagnostic } from "../server";
+import { DiagnosticSeverity } from "vscode-languageserver-protocol";
 
 export class CppCheck extends Linter {
     constructor(settings: Settings, workspaceRoot: string) {
@@ -17,9 +14,7 @@ export class CppCheck extends Linter {
         this.active = this.enabled = settings['c-cpp-flylint'].cppcheck.enable;
     }
 
-    protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
-        tmpFileName;
-
+    protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
         let enableParams = this.settings['c-cpp-flylint'].cppcheck.unusedFunctions
                             ? [ '--enable=warning,style,performance,portability,information,unusedFunction' ]
                             : [ '--enable=warning,style,performance,portability,information' ];
@@ -75,15 +70,15 @@ export class CppCheck extends Linter {
         return args;
     }
 
-    protected parseLine(line: string) {
+    protected parseLine(line: string): InternalDiagnostic | null {
         let regex = /^(.+?)\s\s([0-9]+)\s([0-9]+\s)?\s(style|information|portability|performance|warning|error)\s(.+?):\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
         let excludeRegex = /^((Checking |Defines:|Undefines:|Includes:|Platform:|.*information missingInclude.*).*|)$/;
 
         if (excludeRegex.exec(line) != null) {
-            // skip this line, so return that fact....
-            return {};
+            // skip this line
+            return null;
         }
 
         if ((regexArray = regex.exec(line)) != null) {
@@ -97,17 +92,21 @@ export class CppCheck extends Linter {
                 source: 'CppCheck',
             };
         } else {
-            return { parseError: 'Line could not be parsed: ' + line };
+            return {
+                parseError: 'Line could not be parsed: ' + line,
+                fileName: '',
+                line: 0,
+                column: 0,
+                severity: DiagnosticSeverity.Error,
+                code: 0,
+                message: '',
+                source: 'CppCheck'
+            };
         }
     }
 
-    private getSeverityCode(severity: string): string {
+    private getSeverityCode(severity: string): DiagnosticSeverity {
         return this.settings['c-cpp-flylint'].cppcheck.severityLevels[severity];
-    }
-
-    private isValidStandard(standard: string): boolean {
-        const allowedStandards = [ 'posix', 'c89', 'c99', 'c11', 'c17', 'c18', 'c++03', 'c++11', 'c++14', 'c++17', 'c++20' ];
-        return _.includes(allowedStandards, standard);
     }
 
     private isValidPlatform(platform: string): boolean {
@@ -115,7 +114,7 @@ export class CppCheck extends Linter {
         return _.includes(allowedPlatforms, platform);
     }
 
-    private getPlatformParams() {
+    private getPlatformParams(): string {
         let platform = this.settings['c-cpp-flylint'].cppcheck.platform;
 
         if (platform) {
@@ -129,7 +128,7 @@ export class CppCheck extends Linter {
         return '--platform=native';
     }
 
-    private getSuppressionParams() {
+    private getSuppressionParams(): string[] {
         let suppressions = this.settings['c-cpp-flylint'].cppcheck.suppressions;
         let params: string[] = [];
 
@@ -142,7 +141,7 @@ export class CppCheck extends Linter {
         return params;
     }
 
-    private getLanguageParam() {
+    private getLanguageParam(): string[] {
         let language = this.language;
         let params: string[] = [];
 
@@ -153,7 +152,7 @@ export class CppCheck extends Linter {
         return params;
     }
 
-    private getAddonParams() {
+    private getAddonParams(): string[] {
         let addons = this.settings['c-cpp-flylint'].cppcheck.addons;
         let params: string[] = [];
 

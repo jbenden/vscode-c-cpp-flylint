@@ -1,10 +1,11 @@
+import { Settings } from '../../settings';
 import * as mock from 'mock-fs';
 
 export const isWindows = process.platform === 'win32' ||
     process.env.OSTYPE === 'cygwin' ||
     process.env.OSTYPE === 'msys'
 
-export const defaultConfig = {
+export const defaultConfig: Settings = {
     'c-cpp-flylint': {
         enable: true,
         debug: false,
@@ -16,6 +17,8 @@ export const defaultConfig = {
         defines: [],
         undefines: [],
         language: "c",
+        ignoreParseErrors: false,
+        excludeFromWorkspacePaths: [],
 
         flexelint: {
             enable: true,
@@ -68,38 +71,40 @@ export const defaultConfig = {
             force: false,
             inconclusive: false,
             platform: "native",
-            standard: null,
-            includePaths: null,
-            defines: null,
-            undefines: null,
             suppressions: [],
-            language: null,
             severityLevels: {
-                "error": "Error",
-                "warning": "Warning",
-                "style": "Information",
-                "performance": "Warning",
-                "portability": "Warning",
-                "information": "Information"
-            }
+                error: "Error",
+                warning: "Warning",
+                style: "Information",
+                performance: "Warning",
+                portability: "Warning",
+                information: "Information"
+            },
+            standard: ["c99"],
+            includePaths: [],
+            defines: [],
+            undefines: [],
+            language: "c",
+            addons: [],
+            extraArgs: null,
         },
         clang: {
             enable: true,
             executable: (isWindows ? "clang.exe" : "clang"),
             configFile: ".clang_complete",
             severityLevels: {
-                "error": "Error",
-                "fatal": "Error",
-                "warning": "Warning",
-                "note": "Information"
+                error: "Error",
+                fatal: "Error",
+                warning: "Warning",
+                note: "Information"
             },
 
             // common options, which may be overridden per syntax analyzer
-            standard: null,
-            includePaths: null,
-            defines: null,
-            undefines: null,
-            language: null,
+            standard: ["c99"],
+            includePaths: [],
+            defines: [],
+            undefines: [],
+            language: "c",
 
             // special options
             extraArgs: null,
@@ -122,8 +127,6 @@ export function before() {
 
     chai.use(chaiAsPromised);
     chai.should();
-
-    let ourDir = process.cwd();
 
     mock({
         ".clang_complete": 'text content',

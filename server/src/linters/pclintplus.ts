@@ -2,6 +2,8 @@ import * as path from "path";
 import * as _ from "lodash";
 import { Settings } from "../settings";
 import { headerExts, Linter } from './linter';
+import { InternalDiagnostic } from "../server";
+import { DiagnosticSeverity } from "vscode-languageserver-protocol";
 
 export class PclintPlus extends Linter {
     constructor(settings: Settings, workspaceRoot: string) {
@@ -42,7 +44,7 @@ export class PclintPlus extends Linter {
         return args;
     }
 
-    protected parseLine(line: string) {
+  protected parseLine(line: string): InternalDiagnostic | null {
         let regex = /^((.+?)\s\s([0-9]+)\s([0-9]+\s)?\s(info|warning|error|note|supplemental)\s([0-9]+):\s(.*)|(.+?):([0-9]+):([0-9]+:)?\s(info|warning|error|note|supplemental)\s([0-9]+):\s(.*))$/;
         let regexArray: RegExpExecArray | null;
 
@@ -50,7 +52,7 @@ export class PclintPlus extends Linter {
 
         if (excludeRegex.exec(line) != null) {
             // skip this line
-            return {};
+            return null;
         }
 
         if ((regexArray = regex.exec(line)) != null) {
@@ -76,11 +78,20 @@ export class PclintPlus extends Linter {
                 };
             }
         } else {
-            return { parseError: 'Line could not be parsed: ' + line };
+            return {
+                parseError: 'Line could not be parsed: ' + line,
+                fileName: '',
+                line: 0,
+                column: 0,
+                severity: DiagnosticSeverity.Error,
+                code: 0,
+                message: '',
+                source: 'PclintPlus'
+            };
         }
     }
 
-    private getSeverityCode(severity: string): string {
+    private getSeverityCode(severity: string): DiagnosticSeverity {
         return this.settings['c-cpp-flylint'].pclintplus.severityLevels[severity];
     }
 }

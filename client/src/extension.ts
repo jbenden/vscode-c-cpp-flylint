@@ -1,4 +1,4 @@
-import {commands, ExtensionContext, window, workspace} from "vscode";
+import {ExtensionContext, window, workspace} from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,

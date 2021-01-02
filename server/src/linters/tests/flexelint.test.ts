@@ -1,14 +1,12 @@
-import * as assert from 'assert';
 import { slow, suite, test, timeout } from '@testdeck/mocha';
 import { expect } from 'chai';
-import * as mock from 'mock-fs';
 import * as _ from "lodash";
 import { Flexelint } from '../flexelint';
 import { Settings } from '../../settings';
-import { before, after, isWindows, defaultConfig } from './test_helpers';
+import { before, after, defaultConfig } from './test_helpers';
 
 @suite(timeout(3000), slow(1000))
-class FlexelintTests {
+export class FlexelintTests {
     private config: Settings;
     private linter: Flexelint;
 
@@ -62,7 +60,7 @@ class FlexelintTests {
 
     @test("should handle parsing an invalid line")
     parsesUnknownLine() {
-        let actual = this.linter['parseLine']('should not parse!');
+        let actual = this.linter['parseLine']('should not parse!')!;
         actual.should.have.property('parseError');
     }
 
@@ -83,7 +81,7 @@ class FlexelintTests {
 
         actual.should.have.length(2);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 2932);
@@ -96,7 +94,7 @@ class FlexelintTests {
     @test("should parse a line with a missing column number")
     parsesLineWithMissingColumnNumber() {
         let test = "include/omniplayer/app.h  36  Warning 1526: Member function 'tp::op::OPApp::OnCmdLineParsed(wxCmdLineParser &)' (line 36, file include/omniplayer/app.h) not defined";
-        let actual = this.linter['parseLine'](test);
+        let actual = this.linter['parseLine'](test)!;
 
         actual.should.have.property('fileName', 'include/omniplayer/app.h');
         actual.should.have.property('line', 35);
@@ -109,7 +107,7 @@ class FlexelintTests {
     @test("should parse a line with complete detail")
     parsesFullLine() {
         let test = "include/omniplayer/app.h  48 0  Info 1714: Member function 'tp::op::OPApp::IsVerbose(void) const' (line 48, file /home/jbenden/repo/git/omniplayer.git/include/omniplayer/app.h) not referenced";
-        let actual = this.linter['parseLine'](test);
+        let actual = this.linter['parseLine'](test)!;
 
         actual.should.have.property('fileName', 'include/omniplayer/app.h');
         actual.should.have.property('line', 47);
@@ -129,7 +127,7 @@ class FlexelintTests {
 
         actual.should.have.length(1);
 
-        let result = actual.pop();
+        let result = actual.pop()!;
 
         result.should.have.property('fileName', 'C:\\msys64\\usr\\lib\\gcc\\x86_64-pc-msys\\6.3.0\\include\\c++\\stdlib.h');
         result.should.have.property('line', 59);
@@ -142,7 +140,7 @@ class FlexelintTests {
     @test("should parse the line")
     shouldParse0001() {
         let test = "c:\\Source\\rsync2\\rsync.h  314 10  Warning 537: Repeated include file 'C:\\msys64\\usr\\lib\\gcc\\x86_64-pc-msys\\6.3.0\\include\\stdint.h'";
-        let actual = this.linter['parseLine'](test);
+        let actual = this.linter['parseLine'](test)!;
 
         actual.should.have.property('fileName', 'c:\\Source\\rsync2\\rsync.h');
     }

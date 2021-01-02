@@ -3,17 +3,14 @@ import {
     Diagnostic,
     DiagnosticSeverity,
     ErrorMessageTracker,
-    Files,
     IConnection,
-    InitializeError,
-    InitializeParams,
     InitializeResult,
     IPCMessageReader,
     DidChangeConfigurationNotification,
     IPCMessageWriter,
-    ResponseError,
     TextDocument,
     TextDocuments,
+    TextDocumentChangeEvent,
 } from 'vscode-languageserver';
 import { ExecuteCommandParams, WorkspaceFolder } from 'vscode-languageserver-protocol/lib/protocol';
 import { URI } from 'vscode-uri';
@@ -21,13 +18,13 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 import * as _ from "lodash";
-import { Settings, IConfiguration, IConfigurations, propertiesPlatform } from './settings';
+import { Settings, IConfigurations, propertiesPlatform } from './settings';
 import { Linter, Lint } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
 import { Clang } from './linters/clang';
 import { PclintPlus } from './linters/pclintplus';
-const glob = require('fast-glob');
+import * as glob from 'fast-glob';
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
@@ -39,9 +36,6 @@ const documents: TextDocuments = new TextDocuments();
 // Does the LS client support the configuration abilities?
 let hasConfigurationCapability = false;
 
-// Does the LS client support multiple workspace folders?
-let hasWorkspaceFolderCapability = false;
-
 let defaultSettings: Settings;
 let globalSettings: Settings;
 
@@ -50,6 +44,8 @@ let documentSettings: Map<string, Thenable<Settings>> = new Map();
 
 // A mapping between an opened document and its' configured analyzers.
 let documentLinters: Map<string, Thenable<Linter[]>> = new Map();
+
+export type InternalDiagnostic = { severity: DiagnosticSeverity, line: number, column: number, message: string, code: undefined | number | string, source: string, parseError?: any, fileName: string };
 
 // Clear the entire contents of TextDocument related caches.
 function flushCache() {
@@ -62,7 +58,6 @@ connection.onInitialize((params): InitializeResult => {
     let capabilities = params.capabilities;
 
     hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
-    hasWorkspaceFolderCapability = !!(capabilities.workspace && !!capabilities.workspace.workspaceFolders);
 
     let result: InitializeResult = {
         capabilities: {
@@ -82,9 +77,9 @@ connection.onInitialize((params): InitializeResult => {
 connection.onInitialized(() => {
     if (hasConfigurationCapability) {
         connection.client.register(
-			DidChangeConfigurationNotification.type,
-			undefined
-		);
+            DidChangeConfigurationNotification.type,
+            undefined
+        );
     }
 });
 
@@ -108,8 +103,7 @@ async function getWorkspaceRoot(resource: string): Promise<string> {
     let folders: WorkspaceFolder[] | null = await connection.workspace.getWorkspaceFolders();
     let result: string = "";
 
-    if (folders !== null)
-    {
+    if (folders !== null) {
         // sort folders by length, decending.
         folders = folders.sort((a: WorkspaceFolder, b: WorkspaceFolder): number => {
             return a.uri == b.uri ? 0 : (a.uri.length <= b.uri.length ? 1 : -1);
@@ -121,8 +115,7 @@ async function getWorkspaceRoot(resource: string): Promise<string> {
             const folderFsPath: string = folderUri.fsPath;
 
             // does the resource path start with this folder path?
-            if (path.normalize(resourceFsPath).startsWith(path.normalize(folderFsPath)))
-            {
+            if (path.normalize(resourceFsPath).startsWith(path.normalize(folderFsPath))) {
                 // found the project root for this file.
                 result = path.normalize(folderFsPath);
             }
@@ -185,13 +178,13 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
 
                     _.forEach(platformConfig.includePath, (path: string) => {
                         try {
-                            let { value, error } = substituteVariables(path, { env: process.env });
-                            let globbed_path = glob.sync(value, {cwd: workspaceRoot, dot: true, onlyDirectories: true, unique: true, absolute: true});
+                            let { value } = substituteVariables(path, { env: process.env });
+                            let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: true, onlyDirectories: true, unique: true, absolute: true });
 
                             // console.log("Path: " + path + "  VALUE: " + value + "  Globbed is: " + globbed_path.toString());
 
                             currentSettings['c-cpp-flylint'].includePaths =
-                                currentSettings['c-cpp-flylint'].includePaths.concat(globbed_path);
+                                currentSettings['c-cpp-flylint'].includePaths.concat(globbed_path as string[]);
                         }
                         catch (err) {
                             console.log(err);
@@ -220,8 +213,6 @@ function getMergedSettings(settings: Settings, workspaceRoot: string) {
 
 async function getDocumentLinters(resource: string): Promise<Linter[]> {
     const settings: Settings = await getDocumentSettings(resource);
-    const fileUri: URI = URI.parse(resource);
-    const filePath: string = fileUri.fsPath;
 
     let result = documentLinters.get(resource);
     if (!result) {
@@ -240,7 +231,7 @@ documents.onDidClose(e => {
     documentSettings.delete(e.document.uri);
 })
 
-function onChangedContent(event) {
+function onChangedContent(event: TextDocumentChangeEvent): any {
     if (didStart) {
         validateTextDocument(event.document, Lint.ON_TYPE);
     }
@@ -248,15 +239,11 @@ function onChangedContent(event) {
 
 documents.onDidChangeContent(_.debounce(onChangedContent, 250));
 
-documents.onDidSave(async (event) => {
-    let settings = await getDocumentSettings(event.document.uri);
-
+documents.onDidSave(async (event: TextDocumentChangeEvent) => {
     validateTextDocument(event.document, Lint.ON_SAVE);
 });
 
-documents.onDidOpen(async (event) => {
-    let settings = await getDocumentSettings(event.document.uri);
-
+documents.onDidOpen(async (event: TextDocumentChangeEvent) => {
     validateTextDocument(event.document, Lint.ON_SAVE);
 
     didStart = true;
@@ -271,19 +258,15 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
     if (workspaceRoot === undefined ||
         workspaceRoot === null ||
         filePath === undefined ||
-        filePath === null)
-    {
+        filePath === null) {
         // lint can only successfully happen in a workspace, not per-file basis
-
         console.log("Will not analyze a lone file; must open a folder workspace.");
-
         return;
     }
 
     if (fileUri.scheme !== 'file') {
         // lint can only lint files on disk.
         console.log(`Skipping scan of non-local content at ${fileUri.toString()}`);
-
         return;
     }
 
@@ -313,7 +296,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
     const relativePath = path.relative(workspaceRoot, filePath);
 
     // deep-copy current items, so mid-stream configuration change doesn't spoil the party
-    const lintersCopy : Linter[] = _.cloneDeep(linters);
+    const lintersCopy: Linter[] = _.cloneDeep(linters);
 
     console.log(`Performing lint scan of ${filePath}...`);
 
@@ -328,7 +311,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
     lintersCopy.forEach(linter => {
         if ((<number>linter.lintOn() & <number>lintOn) & <number>lintOnMask) {
             try {
-                const result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
+                let result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
                 while (result.length > 0) {
                     let diagnostics: Diagnostic[] = [];
@@ -336,22 +319,22 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
                     let i = result.length;
 
                     while (i-- >= 0) {
-                        var msg : {} = result[i];
+                        var msg: InternalDiagnostic = result[i];
 
-                        if (msg === null || msg === undefined || !msg.hasOwnProperty('line')) {
+                        if (msg === null || msg === undefined || msg.parseError || !msg.hasOwnProperty('line') || msg.source === '') {
                             result.splice(i, 1);
                             continue;
                         }
 
-                        if (currentFile === '' && msg.hasOwnProperty('fileName')) {
-                            currentFile = msg['fileName'];
+                        if (currentFile === '') {
+                            currentFile = msg.fileName;
                         }
 
-                        if (!msg.hasOwnProperty('fileName') || currentFile !== msg['fileName']) {
+                        if (currentFile !== msg.fileName) {
                             continue;
                         }
 
-                        if (relativePath === msg['fileName'] || (path.isAbsolute(msg['fileName']) && filePath === msg['fileName'])) {
+                        if (relativePath === msg.fileName || (path.isAbsolute(msg.fileName) && filePath === msg.fileName)) {
                             diagnostics.push(makeDiagnostic(documentLines, msg));
                         } else {
                             diagnostics.push(makeDiagnostic(null, msg));
@@ -360,15 +343,15 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
                         result.splice(i, 1);
                     }
 
-                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ":::" + e.code + ":::" + e.message; } );
+                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ":::" + e.code + ":::" + e.message; });
 
-                    if (allDiagnostics.hasOwnProperty(currentFile)) {
-                        allDiagnostics[currentFile] = _.union(allDiagnostics[currentFile], diagnostics);
+                    if (allDiagnostics.has(currentFile)) {
+                        allDiagnostics.set(currentFile, _.union(allDiagnostics.get(currentFile), diagnostics));
                     } else {
-                        allDiagnostics[currentFile] = diagnostics;
+                        allDiagnostics.set(currentFile, diagnostics);
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 tracker.add(getErrorMessage(e, textDocument));
             }
         } else {
@@ -378,53 +361,56 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
 
     tmpDocument.removeCallback();
 
-    _.each(allDiagnostics, (diagnostics, currentFile) => {
+    let sendDiagnosticsToEditor = (diagnostics: Diagnostic[], currentFile: string) => {
         var currentFilePath = path.resolve(currentFile).replace(/\\/g, '/');
 
-        if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!)))
-        {
-            var acceptFile : boolean = true;
+        if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!))) {
+            var acceptFile: boolean = true;
 
             // see if we are to accept the diagnostics upon this file.
             _.each(settings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath) => {
                 var normalizedExcludedPath = path.normalize(excludedPath);
 
-                if (!path.isAbsolute(normalizedExcludedPath))
-                {
+                if (!path.isAbsolute(normalizedExcludedPath)) {
                     // prepend the workspace path and renormalize the path.
                     normalizedExcludedPath = path.normalize(path.join(workspaceRoot!, normalizedExcludedPath));
                 }
 
                 // does the document match our excluded path?
-                if (path.normalize(currentFilePath).startsWith(normalizedExcludedPath))
-                {
+                if (path.normalize(currentFilePath).startsWith(normalizedExcludedPath)) {
                     // it did; so do not accept diagnostics from this file.
                     acceptFile = false;
                 }
             });
 
-            if (acceptFile)
-            {
+            if (acceptFile) {
                 // Windows drive letter must be prefixed with a slash
                 if (currentFilePath[0] !== '/') {
                     currentFilePath = '/' + currentFilePath;
                 }
 
-                connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
-                connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics});
+                connection.sendDiagnostics({ uri: 'file://' + currentFilePath, diagnostics: [] });
+                connection.sendDiagnostics({ uri: 'file://' + currentFilePath, diagnostics });
             }
         }
-    });
+    };
+
+    // Send diagnostics to VSCode
+    for (let diagnosticEntry of allDiagnostics) {
+        let [fileName, fileDiagnostics] = diagnosticEntry;
+
+        sendDiagnosticsToEditor(fileDiagnostics, fileName.toString());
+    }
 
     // Remove all previous problem reports, when no further exist
-    if (!allDiagnostics.hasOwnProperty(relativePath) && !allDiagnostics.hasOwnProperty(filePath)) {
-        let currentFilePath =  path.resolve(filePath).replace(/\\/g, '/');
+    if (!allDiagnostics.has(relativePath) && !allDiagnostics.has(filePath)) {
+        let currentFilePath = path.resolve(filePath).replace(/\\/g, '/');
         // Windows drive letter must be prefixed with a slash
         if (currentFilePath[0] !== '/') {
             currentFilePath = '/' + currentFilePath;
         }
 
-        connection.sendDiagnostics({uri: 'file://' + currentFilePath, diagnostics: []});
+        connection.sendDiagnostics({ uri: 'file://' + currentFilePath, diagnostics: [] });
     }
 
     console.log('Completed lint scans...');
@@ -433,57 +419,57 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
     tracker.sendErrors(connection);
 }
 
-function makeDiagnostic(documentLines: string[] | null, msg): Diagnostic {
+function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic): Diagnostic {
     let severity = DiagnosticSeverity[msg.severity];
 
-    let line;
+    let line: number;
     if (documentLines !== null) {
         line = _.chain(msg.line)
-                .defaultTo(0)
-                .clamp(0, documentLines.length - 1)
-                .value();
+            .defaultTo(0)
+            .clamp(0, documentLines.length - 1)
+            .value();
     } else {
         line = msg.line;
     }
 
     // 0 <= n
-    let column;
+    let column: number;
     if (msg.column) {
         column = msg.column;
     } else {
         column = 0;
     }
 
-    let message;
+    let message: string;
     if (msg.message) {
         message = msg.message;
     } else {
         message = "Unknown error";
     }
 
-    let code;
+    let code: undefined | number | string;
     if (msg.code) {
         code = msg.code;
     } else {
         code = undefined;
     }
 
-    let source;
+    let source: string;
     if (msg.source) {
         source = msg.source;
     } else {
         source = 'c-cpp-flylint';
     }
 
-    let startColumn = column;
-    let endColumn = column + 1;
+    let startColumn: number = column;
+    let endColumn: number = column + 1;
 
     if (documentLines !== null && column == 0 && documentLines.length > 0) {
-        let l: string = _.nth(documentLines, line);
+        let l: string = _.nth(documentLines, line) as string;
 
         // Find the line's starting column, sans-white-space
         let lineMatches = l.match(/\S/)
-        if (lineMatches !== null) {
+        if (!_.isNull(lineMatches) && _.isNumber(lineMatches.index)) {
             startColumn = lineMatches.index;
         }
 
@@ -494,8 +480,8 @@ function makeDiagnostic(documentLines: string[] | null, msg): Diagnostic {
     return {
         severity: severity,
         range: {
-            start: {line: line, character: startColumn},
-            end:   {line: line, character: endColumn}
+            start: { line: line, character: startColumn },
+            end: { line: line, character: endColumn }
         },
         message: message,
         code: code,
@@ -503,10 +489,10 @@ function makeDiagnostic(documentLines: string[] | null, msg): Diagnostic {
     };
 }
 
-function getErrorMessage(err, document: TextDocument): string {
+function getErrorMessage(err: Error, document: TextDocument): string {
     let errorMessage = "unknown error";
 
-    if (typeof err.message === "string" || err.message instanceof String) {
+    if (_.isString(err.message)) {
         errorMessage = (err.message as string);
     }
 
