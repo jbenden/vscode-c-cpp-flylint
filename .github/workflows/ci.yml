@@ -29,3 +29,5 @@ jobs:
     - run: npm ci
     - run: npm run compile --if-present
     - run: npm test
+      env:
+        TRAVIS: true
