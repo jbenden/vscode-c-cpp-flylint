@@ -1,0 +1,45 @@
+name: Deploy
+
+# Controls when the action will run. 
+on:
+  push:
+    tags:
+    - 'v*'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - run: npm ci
+    - uses: lannonbr/vsce-action@master
+      with:
+        args: "package"
+        #args: "publish -p $VSCE_TOKEN"
+      #env:
+        #VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    - name: Upload Release Asset
+      uses: Roang-zero1/github-upload-release-artifacts-action@master
+      with:
+        args:
+        - '*.vsix'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
