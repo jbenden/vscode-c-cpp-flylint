@@ -1,6 +1,6 @@
 name: Deploy
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   push:
     tags:
@@ -19,7 +19,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - run: npm ci
+    - run: npm install
     - uses: lannonbr/vsce-action@master
       with:
         args: "package"
@@ -32,6 +32,6 @@ jobs:
     - name: Publish to VS Code Marketplace
       uses: lannonbr/vsce-action@master
       with:
-        args: "publish -p $VSCE_TOKEN"
+        args: "publish"
       env:
-        VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+        VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
