@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+* Switched CI/CD from Travis-ci.org to GitHub Actions.
+* Switch webpack over to "production" mode, when publishing
+  extension using vsce.
+
 ## [1.7.0] - 2021-01-10
 
 ### Added
