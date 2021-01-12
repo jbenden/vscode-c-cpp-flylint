@@ -47,7 +47,7 @@
     "compile:server": "cd server && npm run compile && cd ..",
     "test": "cd server && npm test && cd ..",
     "vscode:prepublish": "npm run compile:server && npm run compile:client",
-    "webpack": "webpack --mode development",
+    "webpack": "webpack --mode production",
     "webpack:watch": "webpack --mode development --watch"
   },
   "devDependencies": {
