@@ -23,6 +23,10 @@ jobs:
     - uses: lannonbr/vsce-action@master
       with:
         args: "package"
+    - name: Create release
+      uses: Roang-zero1/github-create-release-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Upload Release Asset
       uses: Roang-zero1/github-upload-release-artifacts-action@master
       with:
