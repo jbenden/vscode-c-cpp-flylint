@@ -18,9 +18,20 @@ export interface IExpansionResult {
 export const headerExts = ['.h', '.H', '.hh', '.hpp', '.h++', '.hxx'];
 
 export enum Lint {
-    ON_SAVE = 1,
-    ON_TYPE = 2
+    ON_SAVE  = 1,
+    ON_TYPE  = 2,
+    ON_BUILD = 3,
 };
+
+export function toLint(s: string): Lint {
+    switch (s) {
+        case "onSave": return Lint.ON_SAVE;
+        case "onType": return Lint.ON_TYPE;
+        case "onBuild": return Lint.ON_BUILD;
+        default:
+            throw Error("Unknown onLint value of " + s);
+    }
+}
 
 export class Linter {
     protected name: string;
@@ -104,8 +115,8 @@ export class Linter {
         this.enabled = false;
     }
 
-    public lintOn(): Lint {
-        return Lint.ON_SAVE;
+    public lintOn(): Lint[] {
+        return [ Lint.ON_SAVE, Lint.ON_BUILD ];
     }
 
     public async initialize() {

@@ -19,7 +19,7 @@ import * as path from "path";
 import * as tmp from "tmp";
 import * as _ from "lodash";
 import { Settings, IConfigurations, propertiesPlatform } from './settings';
-import { Linter, Lint } from "./linters/linter";
+import { Linter, Lint, toLint } from "./linters/linter";
 import { Flexelint } from './linters/flexelint';
 import { CppCheck } from './linters/cppcheck';
 import { Clang } from './linters/clang';
@@ -98,6 +98,13 @@ connection.onDidChangeConfiguration(change => {
 
     // Revalidate all open text documents
     if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, false));
+});
+
+connection.onNotification("onBuild", (params : any) => {
+    console.log("Received a notification that a build has completed: " + _.toString(params));
+
+    // Revalidate all open text documents
+    if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_BUILD, false));
 });
 
 async function getWorkspaceRoot(resource: string): Promise<string> {
@@ -328,16 +335,10 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
 
     console.log(`Performing lint scan of ${filePath}...`);
 
-    let lintOnMask = 0;
-    if (settings['c-cpp-flylint'].run === "onSave") {
-        lintOnMask = 1;
-        // only run 1
-    } else if (settings['c-cpp-flylint'].run === "onType") {
-        lintOnMask = 3;
-    }
+    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
 
     lintersCopy.forEach(linter => {
-        if ((<number>linter.lintOn() & <number>lintOn) & <number>lintOnMask) {
+        if (userLintOn === lintOn && userLintOn in linter.lintOn()) {
             try {
                 let result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
@@ -383,7 +384,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
                 tracker.add(getErrorMessage(e, textDocument));
             }
         } else {
-            console.log(`Skipping ${linter.Name()} linter because lintOn ${linter.lintOn()} is not in ${lintOn}.`);
+            console.log(`Skipping ${linter.Name()} linter because lintOn ${lintOn.toString()} is not in ${linter.lintOn().toString()}.`);
         }
     });
 

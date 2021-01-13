@@ -1,4 +1,4 @@
-import {ExtensionContext, window, workspace} from "vscode";
+import {ExtensionContext, window, workspace, tasks, TaskEndEvent, TaskGroup} from "vscode";
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -52,6 +52,18 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
         .then(() => {
             client.onRequest('activeTextDocument', () => {
                 return window.activeTextEditor!.document;
+            });
+
+            tasks.onDidEndTask((e : TaskEndEvent) => {
+                if (e.execution.task.group && e.execution.task.group === TaskGroup.Build) {
+                    // send a build notification event
+                    let params = {
+                        taskName: e.execution.task.name,
+                        taskSource: e.execution.task.source,
+                        isBackground: e.execution.task.isBackground,
+                    };
+                    client.sendNotification("onBuild", params);
+                }
             });
         });
 

@@ -21,8 +21,8 @@ export class Clang extends Linter {
         this.active = this.enabled = settings['c-cpp-flylint'].clang.enable;
     }
 
-    public lintOn(): Lint {
-        return Lint.ON_SAVE | Lint.ON_TYPE;
+    public lintOn(): Lint[] {
+        return [ Lint.ON_SAVE, Lint.ON_TYPE, Lint.ON_BUILD ];
     }
 
     protected resetParser() {

@@ -59,7 +59,7 @@ export interface Settings {
     'c-cpp-flylint': {
         enable: boolean;
         debug: boolean;
-        run: "onSave" | "onType";
+        run: "onSave" | "onType" | "onBuild";
         ignoreParseErrors: boolean;
 
         excludeFromWorkspacePaths: string[];
