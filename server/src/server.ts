@@ -45,12 +45,16 @@ let documentSettings: Map<string, Thenable<Settings>> = new Map();
 // A mapping between an opened document and its' configured analyzers.
 let documentLinters: Map<string, Thenable<Linter[]>> = new Map();
 
+// A mapping between an opened document and its' configured analyzers.
+let documentVersions: Map<string, number> = new Map();
+
 export type InternalDiagnostic = { severity: DiagnosticSeverity, line: number, column: number, message: string, code: undefined | number | string, source: string, parseError?: any, fileName: string };
 
 // Clear the entire contents of TextDocument related caches.
 function flushCache() {
     documentLinters.clear();
     documentSettings.clear();
+    documentVersions.clear();
 }
 
 // After the server has started the client sends an initialize request.
@@ -93,7 +97,7 @@ connection.onDidChangeConfiguration(change => {
     }
 
     // Revalidate all open text documents
-    if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE));
+    if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, false));
 });
 
 async function getWorkspaceRoot(resource: string): Promise<string> {
@@ -229,27 +233,28 @@ async function getDocumentLinters(resource: string): Promise<Linter[]> {
 documents.onDidClose(e => {
     documentLinters.delete(e.document.uri);
     documentSettings.delete(e.document.uri);
+    documentVersions.delete(e.document.uri);
 })
 
 function onChangedContent(event: TextDocumentChangeEvent): any {
     if (didStart) {
-        validateTextDocument(event.document, Lint.ON_TYPE);
+        validateTextDocument(event.document, Lint.ON_TYPE, false);
     }
 }
 
 documents.onDidChangeContent(_.debounce(onChangedContent, 250));
 
 documents.onDidSave(async (event: TextDocumentChangeEvent) => {
-    validateTextDocument(event.document, Lint.ON_SAVE);
+    validateTextDocument(event.document, Lint.ON_SAVE, false);
 });
 
 documents.onDidOpen(async (event: TextDocumentChangeEvent) => {
-    validateTextDocument(event.document, Lint.ON_SAVE);
+    validateTextDocument(event.document, Lint.ON_SAVE, false);
 
     didStart = true;
 });
 
-async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
+async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, force: boolean) {
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
     const fileUri: URI = URI.parse(textDocument.uri);
     const filePath: string = fileUri.fsPath;
@@ -284,6 +289,29 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint) {
         tracker.sendErrors(connection);
 
         return;
+    }
+
+    // check document version number
+    let documentVersion = textDocument.version;
+    let lastVersion = documentVersions.get(textDocument.uri);
+    if (lastVersion) {
+        if (settings['c-cpp-flylint'].debug) {
+            console.log(`${filePath} is currently version number ${documentVersion} and ${lastVersion} was already been scanned.`);
+        }
+
+        if (documentVersion <= lastVersion && !force) {
+            if (settings['c-cpp-flylint'].debug) {
+                console.log(`Skipping scan of ${filePath} because this file version number ${documentVersion} has already been scanned.`);
+            }
+
+            return;
+        }
+    }
+    documentVersions.set(textDocument.uri, textDocument.version);
+
+    if (settings['c-cpp-flylint'].debug) {
+        console.log(`${filePath} force = ${force}.`);
+        console.log(`${filePath} is now at version number ${documentVersion}.`);
     }
 
     var tmpDocument = tmp.fileSync();
@@ -511,7 +539,7 @@ connection.onDidChangeWatchedFiles((params) => {
         if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
             flushCache();
 
-            if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE));
+            if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, true));
         }
     });
 });
@@ -530,7 +558,7 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                             const documentUri = URI.parse(document.uri);
 
                             if (fileUri.fsPath === documentUri.fsPath) {
-                                validateTextDocument(document, Lint.ON_SAVE);
+                                validateTextDocument(document, Lint.ON_SAVE, true);
                             }
                         } catch (err) {
                             tracker.add(getErrorMessage(err, document));
@@ -539,7 +567,7 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                 }
             });
     } else if (params.command === 'c-cpp-flylint.analyzeWorkspace') {
-        documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE));
+        documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, true));
     }
 
     tracker.sendErrors(connection);
