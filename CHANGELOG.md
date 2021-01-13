@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+* Added ability to trigger analysis after build task completion.
+  Fixes #61.
+
+### Changed
+
+* When using the command palette to request a document or
+  workspace analysis, the analysis is forced to complete.
+* Changed the API for `Linter.lintOn()`.
+* Only perform a single analysis on a document's version
+  number (this is a part of VS Code's API). Each change
+  increments this number.
+
 ## [1.7.1] - 2021-01-12
 
 ### Changed
