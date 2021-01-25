@@ -24,6 +24,7 @@ supporting a number of static code analyzers for C and C++ code.
 * [PC-lint Plus](https://gimpel.com/)
 * [Flexelint](http://www.gimpel.com/html/flex.htm) or
   [PC-lint](http://www.gimpel.com/html/pcl.htm)
+* [FlawFinder](https://dwheeler.com/flawfinder/)
 
 ## Requirements
 
@@ -62,6 +63,10 @@ the URL mentioned elsewhere in this documentation.
 
 PC-lint and PC-lint Plus are commercial software; however, they may
 be obtained from the URL mentioned elsewhere in this documentation.
+
+FlawFinder is available via `pip`:
+
+    # sudo pip install flawfinder
 
 ### macOS
 

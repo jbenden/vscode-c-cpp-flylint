@@ -54,6 +54,16 @@ export interface PclintPlusSeverityMaps {
     supplemental: SeverityLevel;
 }
 
+export interface FlawFinderSeverityMaps {
+    5: SeverityLevel;
+    4: SeverityLevel;
+    3: SeverityLevel;
+    2: SeverityLevel;
+    1: SeverityLevel;
+    0: SeverityLevel;
+}
+
+
 // Settings as defined in VS Code.
 export interface Settings {
     'c-cpp-flylint': {
@@ -128,6 +138,11 @@ export interface Settings {
             blocks: boolean;
             includes: string[] | null;
             standardLibs: string[] | null;
+        }
+        flawfinder: {
+            enable: boolean;
+            executable: string;
+            severityLevels: FlawFinderSeverityMaps;
         }
     };
 }

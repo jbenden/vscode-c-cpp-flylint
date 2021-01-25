@@ -25,6 +25,7 @@ import { CppCheck } from './linters/cppcheck';
 import { Clang } from './linters/clang';
 import { PclintPlus } from './linters/pclintplus';
 import * as glob from 'fast-glob';
+import { FlawFinder } from './linters/flawfinder';
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
@@ -164,6 +165,8 @@ async function reconfigureExtension(settings: Settings, workspaceRoot: string): 
         linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint);
     if (currentSettings['c-cpp-flylint'].pclintplus.enable)
         linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus);
+    if (currentSettings['c-cpp-flylint'].flawfinder.enable)
+        linters.push(await (new FlawFinder(currentSettings, workspaceRoot).initialize()) as FlawFinder);
 
     _.forEach(linters, (linter) => {
         if (linter.isActive() && !linter.isEnabled()) {
