@@ -729,18 +729,18 @@
           "type": "object",
           "description": "Maps the severity levels of CppCheck to VSCode severity levels (Error, Warning, Information, Hint). Setting to 'None' will not show the severity type at all.",
           "default": {
-            "5": "Error",
-            "4": "Warning",
-            "3": "Warning",
-            "2": "Warning",
+            "0": "Information",
             "1": "Warning",
-            "0": "Information"
+            "2": "Warning",
+            "3": "Warning",
+            "4": "Warning",
+            "5": "Error"
           },
           "properties": {
-            "5": {
-              "description": "Used when lv 5 issues are found.",
+            "0": {
+              "description": "Used when lv 0 issues are found.",
               "type": "string",
-              "default": "Error",
+              "default": "Information",
               "enum": [
                 "Error",
                 "Warning",
@@ -749,20 +749,8 @@
                 "None"
               ]
             },
-            "4": {
-              "description": "Used when lv 4 issues are found.",
-              "type": "string",
-              "default": "Warning",
-              "enum": [
-                "Error",
-                "Warning",
-                "Hint",
-                "Information",
-                "None"
-              ]
-            },
-            "3": {
-              "description": "Used when lv 3 issues are found.",
+            "1": {
+              "description": "Used when lv 1 issues are found.",
               "type": "string",
               "default": "Warning",
               "enum": [
@@ -785,8 +773,8 @@
                 "None"
               ]
             },
-            "1": {
-              "description": "Used when lv 1 issues are found.",
+            "3": {
+              "description": "Used when lv 3 issues are found.",
               "type": "string",
               "default": "Warning",
               "enum": [
@@ -797,10 +785,22 @@
                 "None"
               ]
             },
-            "0": {
-              "description": "Used when lv 0 issues are found.",
+            "4": {
+              "description": "Used when lv 4 issues are found.",
               "type": "string",
-              "default": "Information",
+              "default": "Warning",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
+            },
+            "5": {
+              "description": "Used when lv 5 issues are found.",
+              "type": "string",
+              "default": "Error",
               "enum": [
                 "Error",
                 "Warning",
