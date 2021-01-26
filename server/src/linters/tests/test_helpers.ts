@@ -191,6 +191,12 @@ export function before() {
         'clang': mock.file({
             content: '#!/usr/bin/env bash\n\nexit 0\n',
             mode: 0o755
+        }),
+
+        // fake binary for non-Windows users
+        'flawfinder': mock.file({
+            content: '#!/usr/bin/env bash\n\nexit 0\n',
+            mode: 0o755
         })
     })
 }
