@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 * Only perform a single analysis on a document's version
   number (this is a part of VS Code's API). Each change
   increments this number.
+* Handle removing all excluded workspace paths, from all
+  automatically generated include paths. Fixes #57.
 
 ## [1.7.1] - 2021-01-12
 

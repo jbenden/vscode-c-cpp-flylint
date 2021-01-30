@@ -192,15 +192,65 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
                     process.env.workspaceRoot = workspaceRoot;
                     process.env.workspaceFolder = workspaceRoot;
 
-                    _.forEach(platformConfig.includePath, (path: string) => {
+                    _.forEach(platformConfig.includePath, (ipath: string) => {
                         try {
-                            let { value } = substituteVariables(path, { env: process.env });
+                            let { value } = substituteVariables(ipath, { env: process.env });
                             let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: true, onlyDirectories: true, unique: true, absolute: true });
 
-                            // console.log("Path: " + path + "  VALUE: " + value + "  Globbed is: " + globbed_path.toString());
+                            if (currentSettings['c-cpp-flylint'].debug) {
+                                console.log("Path: " + ipath + "  VALUE: " + value + "  Globbed is: " + globbed_path.toString());
+                            }
 
-                            currentSettings['c-cpp-flylint'].includePaths =
-                                currentSettings['c-cpp-flylint'].includePaths.concat(globbed_path as string[]);
+                            _.each(globbed_path, (gpath: string) => {
+                                var currentFilePath = path.resolve(gpath).replace(/\\/g, '/');
+
+                                if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!))) {
+                                    var acceptFile: boolean = true;
+
+                                    // see if we are to accept the diagnostics upon this file.
+                                    _.each(currentSettings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath) => {
+                                        var normalizedExcludedPath = path.normalize(excludedPath);
+
+                                        if (!path.isAbsolute(normalizedExcludedPath)) {
+                                            // prepend the workspace path and renormalize the path.
+                                            normalizedExcludedPath = path.normalize(path.join(workspaceRoot!, normalizedExcludedPath));
+                                        }
+
+                                        // does the document match our excluded path?
+                                        if (path.normalize(currentFilePath).startsWith(normalizedExcludedPath)) {
+                                            // it did; so do not accept diagnostics from this file.
+                                            acceptFile = false;
+                                        }
+                                    });
+
+                                    if (acceptFile) {
+                                        // Windows drive letter must be prefixed with a slash
+                                        if (currentFilePath[0] !== '/') {
+                                            currentFilePath = '/' + currentFilePath;
+                                        }
+
+                                        if (currentSettings['c-cpp-flylint'].debug) {
+                                            console.log("Adding path: " + currentFilePath);
+                                        }
+
+                                        currentSettings['c-cpp-flylint'].includePaths =
+                                            currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath);
+                                    }
+                                } else {
+                                    // file is outside of workspace root, perhaps a system folder
+                                    // Windows drive letter must be prefixed with a slash
+                                    if (currentFilePath[0] !== '/') {
+                                        currentFilePath = '/' + currentFilePath;
+                                    }
+
+                                    if (currentSettings['c-cpp-flylint'].debug) {
+                                        console.log("Adding system path: " + currentFilePath);
+                                    }
+
+                                    currentSettings['c-cpp-flylint'].includePaths =
+                                        currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath);
+                                }
+                            });
                         }
                         catch (err) {
                             console.log(err);
