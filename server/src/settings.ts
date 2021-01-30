@@ -55,14 +55,13 @@ export interface PclintPlusSeverityMaps {
 }
 
 export interface FlawFinderSeverityMaps {
-    5: SeverityLevel;
-    4: SeverityLevel;
-    3: SeverityLevel;
-    2: SeverityLevel;
-    1: SeverityLevel;
     0: SeverityLevel;
+    1: SeverityLevel;
+    2: SeverityLevel;
+    3: SeverityLevel;
+    4: SeverityLevel;
+    5: SeverityLevel;
 }
-
 
 // Settings as defined in VS Code.
 export interface Settings {

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 * Added ability to trigger analysis after build task completion.
   Fixes #61.
+* Added support for D. Wheeler's Flawfinder linter.
 
 ### Changed
 

@@ -21,10 +21,10 @@ supporting a number of static code analyzers for C and C++ code.
 
 * [Clang](https://clang.llvm.org/)
 * [CppCheck](http://cppcheck.sourceforge.net/)
+* [FlawFinder](https://dwheeler.com/flawfinder/)
 * [PC-lint Plus](https://gimpel.com/)
 * [Flexelint](http://www.gimpel.com/html/flex.htm) or
   [PC-lint](http://www.gimpel.com/html/pcl.htm)
-* [FlawFinder](https://dwheeler.com/flawfinder/)
 
 ## Requirements
 

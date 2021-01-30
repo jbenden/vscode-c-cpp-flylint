@@ -18,14 +18,16 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 import * as _ from "lodash";
+import * as glob from 'fast-glob';
 import { Settings, IConfigurations, propertiesPlatform } from './settings';
 import { Linter, Lint, toLint } from "./linters/linter";
-import { Flexelint } from './linters/flexelint';
-import { CppCheck } from './linters/cppcheck';
+
 import { Clang } from './linters/clang';
-import { PclintPlus } from './linters/pclintplus';
-import * as glob from 'fast-glob';
+import { CppCheck } from './linters/cppcheck';
 import { FlawFinder } from './linters/flawfinder';
+import { Flexelint } from './linters/flexelint';
+import { PclintPlus } from './linters/pclintplus';
+
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
@@ -101,7 +103,7 @@ connection.onDidChangeConfiguration(change => {
     if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, false));
 });
 
-connection.onNotification("onBuild", (params : any) => {
+connection.onNotification("onBuild", (params: any) => {
     console.log("Received a notification that a build has completed: " + _.toString(params));
 
     // Revalidate all open text documents
@@ -375,7 +377,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
                         result.splice(i, 1);
                     }
 
-                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ":::" + e.code + ":::" + e.message; });
+                    diagnostics = _.uniqBy(diagnostics, function(e) { return e.range.start.line + ":::" + e.code + ":::" + e.message; });
 
                     if (allDiagnostics.has(currentFile)) {
                         allDiagnostics.set(currentFile, _.union(allDiagnostics.get(currentFile), diagnostics));

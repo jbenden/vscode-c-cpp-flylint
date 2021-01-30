@@ -34,7 +34,7 @@ export class FlawFinderTests {
         this.linter['setExecutable']('nonexistent');
 
         var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.rejectedWith('', 'The executable was not found for CppCheck, disabling linter');
+        return result.should.eventually.be.rejectedWith('', 'The executable was not found for FlawFinder, disabling linter');
     }
 
     @test("should handle parsing an invalid line")

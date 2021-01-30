@@ -9,7 +9,7 @@ export class FlawFinder extends Linter {
         super('FlawFinder', settings, workspaceRoot, false);
         this.cascadeCommonSettings('flawfinder');
 
-        this.executable = settings['c-cpp-flylint'].flawfinder.executable;
+        this.setExecutable(settings['c-cpp-flylint'].flawfinder.executable);
         this.active = this.enabled = settings['c-cpp-flylint'].flawfinder.enable;
     }
 
