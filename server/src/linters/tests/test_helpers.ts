@@ -117,6 +117,18 @@ export const defaultConfig: Settings = {
             blocks: true,
             includes: null,
             standardLibs: null
+        },
+        flawfinder: {
+            enable: true,
+            executable: "flawfinder",
+            severityLevels: {
+                5: "Error",
+                4: "Warning",
+                3: "Information",
+                2: "Information",
+                1: "Information",
+                0: "Information"
+            }
         }
     }
 };
@@ -179,7 +191,13 @@ export function before() {
         'clang': mock.file({
             content: '#!/usr/bin/env bash\n\nexit 0\n',
             mode: 0o755
-        })
+        }),
+
+        // fake binary for non-Windows users
+        'flawfinder': mock.file({
+            content: '#!/usr/bin/env bash\n\nexit 0\n',
+            mode: 0o755
+        }),
     })
 }
 
