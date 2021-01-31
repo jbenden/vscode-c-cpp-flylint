@@ -369,7 +369,6 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
             return;
         }
     }
-    documentVersions.set(textDocument.uri, textDocument.version);
 
     if (settings['c-cpp-flylint'].debug) {
         console.log(`${filePath} force = ${force}.`);
@@ -391,6 +390,8 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
     console.log(`Performing lint scan of ${filePath}...`);
 
     const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+
+    var hasSkipLinter = false;
 
     lintersCopy.forEach(linter => {
         if (userLintOn === lintOn && userLintOn in linter.lintOn()) {
@@ -439,6 +440,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
                 tracker.add(getErrorMessage(e, textDocument));
             }
         } else {
+            hasSkipLinter = true;
             console.log(`Skipping ${linter.Name()} linter because lintOn ${lintOn.toString()} is not in ${linter.lintOn().toString()}.`);
         }
     });
@@ -499,6 +501,9 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
 
     console.log('Completed lint scans...');
 
+    if (!hasSkipLinter) {
+        documentVersions.set(textDocument.uri, textDocument.version);
+    }
     // Send any exceptions encountered during processing to VSCode.
     tracker.sendErrors(connection);
 }
