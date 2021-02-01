@@ -13,10 +13,9 @@
         "strictNullChecks": true,
         "experimentalDecorators": true
     },
-	"exclude": ["node_modules", ".vscode-test"],
+    "exclude": ["node_modules", ".vscode-test"],
     "include": [
-        "src/server.ts",
-        "src/linters/**/*.ts",
+        "src/**/*.ts",
         "typings.d.ts"
     ]
 }
