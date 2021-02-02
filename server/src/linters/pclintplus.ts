@@ -1,9 +1,9 @@
-import * as path from "path";
-import * as _ from "lodash";
-import { Settings } from "../settings";
+import * as path from 'path';
+import * as _ from 'lodash';
+import { PclintPlusSeverityMaps, Settings } from '../settings';
 import { headerExts, Linter } from './linter';
-import { InternalDiagnostic } from "../server";
-import { DiagnosticSeverity } from "vscode-languageserver-protocol";
+import { InternalDiagnostic } from '../server';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class PclintPlus extends Linter {
     constructor(settings: Settings, workspaceRoot: string) {
@@ -19,15 +19,15 @@ export class PclintPlus extends Linter {
         var args = [
             this.executable,
             this.configFile,
-            "-v",                            // turn off verbosity
-            "-b",                            // suppress banner output
-            "-format=%f  %l %c  %t %n: %m",  // format of diagnostic
-            "-h1",                           // height of diagnostics message
-            "-width(0,0)",                   // width of a line, and continuation indent
-            "-zero(400)",                    // exit zero if no warnings at level >= 400
-        ]
+            '-v',                            // turn off verbosity
+            '-b',                            // suppress banner output
+            '-format=%f  %l %c  %t %n: %m',  // format of diagnostic
+            '-h1',                           // height of diagnostics message
+            '-width(0,0)',                   // width of a line, and continuation indent
+            '-zero(400)',                    // exit zero if no warnings at level >= 400
+        ];
 
-        if (headerExts.indexOf(path.extname(fileName)) != -1) {
+        if (headerExts.indexOf(path.extname(fileName)) !== -1) {
             var hArgs = this.settings['c-cpp-flylint'].pclintplus.headerArgs;
 
             if (typeof hArgs === 'string') {
@@ -44,18 +44,18 @@ export class PclintPlus extends Linter {
         return args;
     }
 
-  protected parseLine(line: string): InternalDiagnostic | null {
+    protected parseLine(line: string): InternalDiagnostic | null {
         let regex = /^((.+?)\s\s([0-9]+)\s([0-9]+\s)?\s(info|warning|error|note|supplemental)\s([0-9]+):\s(.*)|(.+?):([0-9]+):([0-9]+:)?\s(info|warning|error|note|supplemental)\s([0-9]+):\s(.*))$/;
         let regexArray: RegExpExecArray | null;
 
         let excludeRegex = /^(\s.*|[^\s:]+|)$/;
 
-        if (excludeRegex.exec(line) != null) {
+        if (excludeRegex.exec(line) !== null) {
             // skip this line
             return null;
         }
 
-        if ((regexArray = regex.exec(line)) != null) {
+        if ((regexArray = regex.exec(line)) !== null) {
             if (_.every([regexArray[2], regexArray[3], regexArray[4]], el => el !== undefined)) {
                 return {
                     fileName: regexArray[2],
@@ -91,7 +91,7 @@ export class PclintPlus extends Linter {
         }
     }
 
-    private getSeverityCode(severity: string): DiagnosticSeverity {
-        return this.settings['c-cpp-flylint'].pclintplus.severityLevels[severity];
+    private getSeverityCode(severity: string) /*: DiagnosticSeverity */ {
+        return this.settings['c-cpp-flylint'].pclintplus.severityLevels[severity as keyof PclintPlusSeverityMaps] as DiagnosticSeverity;
     }
 }

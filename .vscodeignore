@@ -1,4 +1,6 @@
+.github/**
 .gitignore
+.log/**
 .vscode/**
 .vscode-test/**
 yarn.lock
@@ -7,12 +9,20 @@ yarn.lock
 **/*.map
 src/**
 tsconfig.json
+tsconfig.base.json
 *.vsix
 server/**
+!server/out/**/*.js
 client/**
+!client/out/**/*.js
 webpack.config.js
+shared.webpack.config.js
 **/*.sh
 .codeclimate.yml
 .eslintignore
 .mdlrc
 node_modules/**
+*.svg
+*.pdf
+cppcheck-*
+*.patch

@@ -12,3 +12,9 @@ insert_final_newline = true
 
 [package.json]
 indent_size = 2
+
+[tsconfig*]
+indent_style = tab
+
+[*webpack*]
+indent_style = tab

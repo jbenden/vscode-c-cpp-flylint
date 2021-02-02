@@ -1,4 +1,5 @@
 import * as os from 'os';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export interface IConfiguration {
     name: string;
@@ -16,12 +17,11 @@ export function propertiesPlatform() {
         case 'linux': return 'Linux';
         case 'win32': return 'Win32';
         default:
-            console.log("Unsupported operating system.");
-            return "null";
+            throw RangeError(`Unsupported operating system; no entry for ${os.platform()}`);
     }
 }
 
-export type SeverityLevel = 'Error' | 'Warning' | 'Information' | 'Hint' | 'None';
+export type SeverityLevel = DiagnosticSeverity | string;
 
 export interface CppCheckSeverityMaps {
     error: SeverityLevel;
@@ -55,12 +55,12 @@ export interface PclintPlusSeverityMaps {
 }
 
 export interface FlawFinderSeverityMaps {
-    0: SeverityLevel;
-    1: SeverityLevel;
-    2: SeverityLevel;
-    3: SeverityLevel;
-    4: SeverityLevel;
-    5: SeverityLevel;
+    '0': SeverityLevel;
+    '1': SeverityLevel;
+    '2': SeverityLevel;
+    '3': SeverityLevel;
+    '4': SeverityLevel;
+    '5': SeverityLevel;
 }
 
 // Settings as defined in VS Code.
@@ -68,7 +68,7 @@ export interface Settings {
     'c-cpp-flylint': {
         enable: boolean;
         debug: boolean;
-        run: "onSave" | "onType" | "onBuild";
+        run: 'onSave' | 'onType' | 'onBuild';
         ignoreParseErrors: boolean;
 
         excludeFromWorkspacePaths: string[];
@@ -78,7 +78,7 @@ export interface Settings {
         includePaths: string[];
         defines: string[];
         undefines: string[];
-        language: "c" | "c++";
+        language: 'c' | 'c++';
 
         flexelint: {
             enable: boolean;
@@ -102,14 +102,14 @@ export interface Settings {
             verbose: boolean;
             force: boolean;
             inconclusive: boolean;
-            platform: "avr8" | "unix32" | "unix64" | "win32A" | "win32W" | "win64" | "native";
+            platform: 'avr8' | 'unix32' | 'unix64' | 'win32A' | 'win32W' | 'win64' | 'native';
             standard: string[] | null;
             includePaths: string[] | null;
             defines: string[] | null;
             undefines: string[] | null;
             suppressions: string[];
             addons: string[];
-            language: "c" | "c++" | null;
+            language: 'c' | 'c++' | null;
             severityLevels: CppCheckSeverityMaps;
             extraArgs: string[] | null;
         }
@@ -124,7 +124,7 @@ export interface Settings {
             includePaths: string[];
             defines: string[];
             undefines: string[];
-            language: "c" | "c++";
+            language: 'c' | 'c++';
 
             // special options
             extraArgs: string[] | null;

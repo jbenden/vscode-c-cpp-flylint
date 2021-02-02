@@ -1,26 +1,31 @@
+/* eslint-disable no-console */
 import {
+    Connection,
     createConnection,
     Diagnostic,
     DiagnosticSeverity,
     ErrorMessageTracker,
-    IConnection,
     InitializeResult,
     IPCMessageReader,
     DidChangeConfigurationNotification,
     IPCMessageWriter,
-    TextDocument,
     TextDocuments,
     TextDocumentChangeEvent,
-} from 'vscode-languageserver';
-import { ExecuteCommandParams, WorkspaceFolder } from 'vscode-languageserver-protocol/lib/protocol';
+    TextDocumentSyncKind,
+} from 'vscode-languageserver/node';
+import {
+    TextDocument
+} from 'vscode-languageserver-textdocument';
+import { ExecuteCommandParams, WorkspaceFolder } from 'vscode-languageclient/node';
 import { URI } from 'vscode-uri';
-import * as fs from "fs";
-import * as path from "path";
-import * as tmp from "tmp";
-import * as _ from "lodash";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as tmp from 'tmp';
+import * as _ from 'lodash';
 import * as glob from 'fast-glob';
+import { EntryItem } from 'fast-glob/out/types';
 import { Settings, IConfigurations, propertiesPlatform } from './settings';
-import { Linter, Lint, toLint } from "./linters/linter";
+import { Linter, Lint, toLint } from './linters/linter';
 
 import { Clang } from './linters/clang';
 import { CppCheck } from './linters/cppcheck';
@@ -31,10 +36,10 @@ import { PclintPlus } from './linters/pclintplus';
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
-const connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+const connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
 // Create a simple text document manager. The text document manager supports full document sync only.
-const documents: TextDocuments = new TextDocuments();
+let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 // Does the LS client support the configuration abilities?
 let hasConfigurationCapability = false;
@@ -53,6 +58,11 @@ let documentVersions: Map<string, number> = new Map();
 
 export type InternalDiagnostic = { severity: DiagnosticSeverity, line: number, column: number, message: string, code: undefined | number | string, source: string, parseError?: any, fileName: string };
 
+namespace CommandIds {
+    export const analyzeActiveDocument: string = 'c-cpp-flylint.analyzeActiveDocument';
+    export const analyzeWorkspace: string = 'c-cpp-flylint.analyzeWorkspace';
+}
+
 // Clear the entire contents of TextDocument related caches.
 function flushCache() {
     documentLinters.clear();
@@ -68,11 +78,23 @@ connection.onInitialize((params): InitializeResult => {
 
     let result: InitializeResult = {
         capabilities: {
-            textDocumentSync: documents.syncKind,
+            textDocumentSync: {
+                openClose: true,
+                change: TextDocumentSyncKind.Full,
+                willSaveWaitUntil: false,
+                save: {
+                    includeText: false
+                }
+            },
+            workspace: {
+                workspaceFolders: {
+                    supported: true
+                }
+            },
             executeCommandProvider: {
                 commands: [
-                    "c-cpp-flylint.analyzeActiveDocument",
-                    "c-cpp-flylint.analyzeWorkspace"
+                    CommandIds.analyzeActiveDocument,
+                    CommandIds.analyzeWorkspace,
                 ]
             }
         }
@@ -100,14 +122,14 @@ connection.onDidChangeConfiguration(change => {
     }
 
     // Revalidate all open text documents
-    if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, false));
+    if (didStart) { documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, false)); }
 });
 
-connection.onNotification("onBuild", (params: any) => {
-    console.log("Received a notification that a build has completed: " + _.toString(params));
+connection.onNotification('onBuild', (params: any) => {
+    console.log('Received a notification that a build has completed: ' + _.toString(params));
 
     // Revalidate all open text documents
-    if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_BUILD, false));
+    if (didStart) { documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_BUILD, false)); }
 });
 
 async function getWorkspaceRoot(resource: string): Promise<string> {
@@ -115,12 +137,12 @@ async function getWorkspaceRoot(resource: string): Promise<string> {
     const resourceFsPath: string = resourceUri.fsPath;
 
     let folders: WorkspaceFolder[] | null = await connection.workspace.getWorkspaceFolders();
-    let result: string = "";
+    let result: string = '';
 
     if (folders !== null) {
         // sort folders by length, decending.
         folders = folders.sort((a: WorkspaceFolder, b: WorkspaceFolder): number => {
-            return a.uri == b.uri ? 0 : (a.uri.length <= b.uri.length ? 1 : -1);
+            return a.uri === b.uri ? 0 : (a.uri.length <= b.uri.length ? 1 : -1);
         });
 
         // look for a matching workspace folder root.
@@ -157,18 +179,13 @@ function getDocumentSettings(resource: string): Thenable<Settings> {
 async function reconfigureExtension(settings: Settings, workspaceRoot: string): Promise<Linter[]> {
     let currentSettings = getMergedSettings(settings, workspaceRoot);
 
-    let linters: Linter[] = []  // clear array
+    let linters: Linter[] = [];  // clear array
 
-    if (currentSettings['c-cpp-flylint'].clang.enable)
-        linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang);
-    if (currentSettings['c-cpp-flylint'].cppcheck.enable)
-        linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck);
-    if (currentSettings['c-cpp-flylint'].flexelint.enable)
-        linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint);
-    if (currentSettings['c-cpp-flylint'].pclintplus.enable)
-        linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus);
-    if (currentSettings['c-cpp-flylint'].flawfinder.enable)
-        linters.push(await (new FlawFinder(currentSettings, workspaceRoot).initialize()) as FlawFinder);
+    if (currentSettings['c-cpp-flylint'].clang.enable) { linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang); }
+    if (currentSettings['c-cpp-flylint'].cppcheck.enable) { linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck); }
+    if (currentSettings['c-cpp-flylint'].flexelint.enable) { linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint); }
+    if (currentSettings['c-cpp-flylint'].pclintplus.enable) { linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus); }
+    if (currentSettings['c-cpp-flylint'].flawfinder.enable) { linters.push(await (new FlawFinder(currentSettings, workspaceRoot).initialize()) as FlawFinder); }
 
     _.forEach(linters, (linter) => {
         if (linter.isActive() && !linter.isEnabled()) {
@@ -183,7 +200,7 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
             const cCppProperties: IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
-            const platformConfig = cCppProperties.configurations.find(el => el.name == propertiesPlatform());
+            const platformConfig = cCppProperties.configurations.find(el => el.name === propertiesPlatform());
 
             if (platformConfig !== undefined) {
                 // Found a configuration set; populate the currentSettings
@@ -198,11 +215,11 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
                             let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: true, onlyDirectories: true, unique: true, absolute: true });
 
                             if (currentSettings['c-cpp-flylint'].debug) {
-                                console.log("Path: " + ipath + "  VALUE: " + value + "  Globbed is: " + globbed_path.toString());
+                                console.log('Path: ' + ipath + '  VALUE: ' + value + '  Globbed is: ' + globbed_path.toString());
                             }
 
-                            _.each(globbed_path, (gpath: string) => {
-                                var currentFilePath = path.resolve(gpath).replace(/\\/g, '/');
+                            _.each(globbed_path, (gpath: string | EntryItem) => {
+                                var currentFilePath = path.resolve(gpath as string).replace(/\\/g, '/');
 
                                 if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!))) {
                                     var acceptFile: boolean = true;
@@ -230,7 +247,7 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
                                         }
 
                                         if (currentSettings['c-cpp-flylint'].debug) {
-                                            console.log("Adding path: " + currentFilePath);
+                                            console.log('Adding path: ' + currentFilePath);
                                         }
 
                                         currentSettings['c-cpp-flylint'].includePaths =
@@ -244,7 +261,7 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
                                     }
 
                                     if (currentSettings['c-cpp-flylint'].debug) {
-                                        console.log("Adding system path: " + currentFilePath);
+                                        console.log('Adding system path: ' + currentFilePath);
                                     }
 
                                     currentSettings['c-cpp-flylint'].includePaths =
@@ -264,7 +281,7 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
         }
     }
     catch (err) {
-        console.log("Could not find or parse the workspace c_cpp_properties.json file; continuing...");
+        console.log('Could not find or parse the workspace c_cpp_properties.json file; continuing...');
     }
 
     return currentSettings;
@@ -296,9 +313,9 @@ documents.onDidClose(e => {
     documentLinters.delete(e.document.uri);
     documentSettings.delete(e.document.uri);
     documentVersions.delete(e.document.uri);
-})
+});
 
-function onChangedContent(event: TextDocumentChangeEvent): any {
+function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): any {
     if (didStart) {
         validateTextDocument(event.document, Lint.ON_TYPE, false);
     }
@@ -306,11 +323,11 @@ function onChangedContent(event: TextDocumentChangeEvent): any {
 
 documents.onDidChangeContent(_.debounce(onChangedContent, 250));
 
-documents.onDidSave(async (event: TextDocumentChangeEvent) => {
+documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
     validateTextDocument(event.document, Lint.ON_SAVE, false);
 });
 
-documents.onDidOpen(async (event: TextDocumentChangeEvent) => {
+documents.onDidOpen(async (event: TextDocumentChangeEvent<TextDocument>) => {
     validateTextDocument(event.document, Lint.ON_SAVE, false);
 
     didStart = true;
@@ -327,7 +344,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
         filePath === undefined ||
         filePath === null) {
         // lint can only successfully happen in a workspace, not per-file basis
-        console.log("Will not analyze a lone file; must open a folder workspace.");
+        console.log('Will not analyze a lone file; must open a folder workspace.');
         return;
     }
 
@@ -428,7 +445,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
                         result.splice(i, 1);
                     }
 
-                    diagnostics = _.uniqBy(diagnostics, function(e) { return e.range.start.line + ":::" + e.code + ":::" + e.message; });
+                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ':::' + e.code + ':::' + e.message; });
 
                     if (allDiagnostics.has(currentFile)) {
                         allDiagnostics.set(currentFile, _.union(allDiagnostics.get(currentFile), diagnostics));
@@ -509,8 +526,6 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
 }
 
 function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic): Diagnostic {
-    let severity = DiagnosticSeverity[msg.severity];
-
     let line: number;
     if (documentLines !== null) {
         line = _.chain(msg.line)
@@ -533,7 +548,7 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
     if (msg.message) {
         message = msg.message;
     } else {
-        message = "Unknown error";
+        message = 'Unknown error';
     }
 
     let code: undefined | number | string;
@@ -553,11 +568,11 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
     let startColumn: number = column;
     let endColumn: number = column + 1;
 
-    if (documentLines !== null && column == 0 && documentLines.length > 0) {
+    if (documentLines !== null && column === 0 && documentLines.length > 0) {
         let l: string = _.nth(documentLines, line) as string;
 
         // Find the line's starting column, sans-white-space
-        let lineMatches = l.match(/\S/)
+        let lineMatches = l.match(/\S/);
         if (!_.isNull(lineMatches) && _.isNumber(lineMatches.index)) {
             startColumn = lineMatches.index;
         }
@@ -567,7 +582,7 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
     }
 
     return {
-        severity: severity,
+        severity: msg.severity,
         range: {
             start: { line: line, character: startColumn },
             end: { line: line, character: endColumn }
@@ -579,7 +594,7 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
 }
 
 function getErrorMessage(err: Error, document: TextDocument): string {
-    let errorMessage = "unknown error";
+    let errorMessage = 'unknown error';
 
     if (_.isString(err.message)) {
         errorMessage = (err.message as string);
@@ -592,7 +607,7 @@ function getErrorMessage(err: Error, document: TextDocument): string {
 }
 
 connection.onDidChangeWatchedFiles((params) => {
-    console.log('FS change notification occurred; re-linting all opened documents.')
+    console.log('FS change notification occurred; re-linting all opened documents.');
 
     params.changes.forEach(async element => {
         let configFilePath = URI.parse(element.uri);
@@ -600,7 +615,7 @@ connection.onDidChangeWatchedFiles((params) => {
         if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
             flushCache();
 
-            if (didStart) documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, true));
+            if (didStart) { documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, true)); }
         }
     });
 });
@@ -608,7 +623,7 @@ connection.onDidChangeWatchedFiles((params) => {
 connection.onExecuteCommand((params: ExecuteCommandParams) => {
     const tracker = new ErrorMessageTracker();
 
-    if (params.command === 'c-cpp-flylint.analyzeActiveDocument') {
+    if (params.command === CommandIds.analyzeActiveDocument) {
         (connection.sendRequest('activeTextDocument') as Thenable<TextDocument>)
             .then((activeDocument) => {
                 if (activeDocument !== undefined && activeDocument !== null) {
@@ -627,12 +642,12 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                     }
                 }
             });
-    } else if (params.command === 'c-cpp-flylint.analyzeWorkspace') {
+    } else if (params.command === CommandIds.analyzeWorkspace) {
         documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, true));
     }
 
     tracker.sendErrors(connection);
-})
+});
 
 // Make the text document manager listen on the connection for open, change, and close text document events.
 documents.listen(connection);

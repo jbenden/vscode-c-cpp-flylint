@@ -1,6 +1,6 @@
 import { slow, suite, test, timeout } from '@testdeck/mocha';
 import { expect } from 'chai';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { Settings } from '../../settings';
 import { CppCheck } from '../cppcheck';
 import { before, after, defaultConfig } from './test_helpers';
@@ -23,13 +23,13 @@ export class CppCheckTests {
         this.linter = new CppCheck(this.config, process.cwd());
     }
 
-    @test("should find the CppCheck executable linter")
+    @test('should find the CppCheck executable linter')
     executableIsFound() {
         var result = this.linter['maybeEnable']();
         return result.should.eventually.be.fulfilled;
     }
 
-    @test("should not find a missing executable linter")
+    @test('should not find a missing executable linter')
     executableIsNotFound() {
         this.linter['setExecutable']('nonexistent');
 
@@ -37,26 +37,26 @@ export class CppCheckTests {
         return result.should.eventually.be.rejectedWith('', 'The executable was not found for CppCheck, disabling linter');
     }
 
-    @test("should build a proper command-line for a C++ source file")
+    @test('should build a proper command-line for a C++ source file')
     commandLine() {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        var actual = this.linter['buildCommandLine']("main.cc", "main.cc");
+        var actual = this.linter['buildCommandLine']('main.cc', 'main.cc');
         actual.should.have.length(8);
     }
 
-    @test("should build a proper command-line for a C++ header file")
+    @test('should build a proper command-line for a C++ header file')
     commandLineWithHeaderFile() {
-        var actual = this.linter['buildCommandLine']("main.h", "main.h");
+        var actual = this.linter['buildCommandLine']('main.h', 'main.h');
         actual.should.have.length(8);
     }
 
-    @test("should handle parsing an invalid line")
+    @test('should handle parsing an invalid line')
     parsesUnknownLine() {
         let actual = this.linter['parseLine']('should not parse!')!;
         actual.should.have.property('parseError');
     }
 
-    @test("should skip over excluded patterns")
+    @test('should skip over excluded patterns')
     skipsOverExcludedPatterns() {
         let test = [
             'Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1',
@@ -85,11 +85,11 @@ export class CppCheckTests {
         result.should.have.property('line', 2836);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "unusedStructMember");
+        result.should.have.property('code', 'unusedStructMember');
         expect(result['message']).to.match(/^struct member \'Anonymous5::name_space\' is never used\./);
     }
 
-    @test("should correctly handle quoted lines")
+    @test('should correctly handle quoted lines')
     handleQuotedLines() {
         let test = [
             '"Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1"',
@@ -118,11 +118,11 @@ export class CppCheckTests {
         result.should.have.property('line', 2836);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "unusedStructMember");
+        result.should.have.property('code', 'unusedStructMember');
         expect(result['message']).to.match(/^struct member \'Anonymous5::name_space\' is never used\./);
     }
 
-    @test("Should handle output from misra addon")
+    @test('Should handle output from misra addon')
     handleMisra() {
         let test = [
             'Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1',
@@ -132,7 +132,7 @@ export class CppCheckTests {
             `"flist.c  9  style misra-c2012-10.4: misra violation (use --rule-texts=<file> to get proper output)"`,
             `"flist.c  11  style misra-c2012-17.7: misra violation (use --rule-texts=<file> to get proper output)"`,
             `"flist.c  20  style misra-c2012-18.8: misra violation (use --rule-texts=<file> to get proper output)"`,
-            `"flist.c  1  style misra-c2012-21.6: misra violation (use --rule-texts=<file> to get proper output)"`,    
+            `"flist.c  1  style misra-c2012-21.6: misra violation (use --rule-texts=<file> to get proper output)"`,
             `"    information missingIncludeSystem: Cppcheck cannot find all the include files (use --check-config for details)"`,
             `"    information missingInclude: Cppcheck cannot find all the include files (use --check-config for details)"`,
         ];
@@ -146,7 +146,7 @@ export class CppCheckTests {
         result.should.have.property('line', 1 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "misra-c2012-21.6");
+        result.should.have.property('code', 'misra-c2012-21.6');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
@@ -155,7 +155,7 @@ export class CppCheckTests {
         result.should.have.property('line', 20 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "misra-c2012-18.8");
+        result.should.have.property('code', 'misra-c2012-18.8');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
@@ -164,7 +164,7 @@ export class CppCheckTests {
         result.should.have.property('line', 11 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "misra-c2012-17.7");
+        result.should.have.property('code', 'misra-c2012-17.7');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
@@ -173,11 +173,11 @@ export class CppCheckTests {
         result.should.have.property('line', 9 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "misra-c2012-10.4");
+        result.should.have.property('code', 'misra-c2012-10.4');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
     }
 
-    @test("Should find identical errors on different lines")
+    @test('Should find identical errors on different lines')
     handleIdenticalErrors() {
         let test = [
             'Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1',
@@ -201,7 +201,7 @@ export class CppCheckTests {
         result.should.have.property('line', 36 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "misra-c2012-10.4");
+        result.should.have.property('code', 'misra-c2012-10.4');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
@@ -210,7 +210,7 @@ export class CppCheckTests {
         result.should.have.property('line', 15 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Information');
-        result.should.have.property('code', "misra-c2012-10.4");
+        result.should.have.property('code', 'misra-c2012-10.4');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
@@ -219,7 +219,7 @@ export class CppCheckTests {
         result.should.have.property('line', 23 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Error');
-        result.should.have.property('code', "zerodiv");
+        result.should.have.property('code', 'zerodiv');
         expect(result['message']).to.equal('Division by zero');
 
         result = actual.pop()!;
@@ -228,7 +228,7 @@ export class CppCheckTests {
         result.should.have.property('line', 9 - 1);
         result.should.have.property('column', 0);
         result.should.have.property('severity', 'Error');
-        result.should.have.property('code', "zerodiv");
+        result.should.have.property('code', 'zerodiv');
         expect(result['message']).to.equal('Division by zero');
     }
 }

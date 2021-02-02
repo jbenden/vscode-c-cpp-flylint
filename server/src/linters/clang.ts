@@ -1,20 +1,17 @@
-import * as path from "path";
-import * as _ from "lodash";
-import { Settings } from "../settings";
+import * as path from 'path';
+import * as _ from 'lodash';
+import { ClangSeverityMaps, Settings } from '../settings';
 import { Linter, Lint } from './linter';
-import { InternalDiagnostic } from "../server";
-import { DiagnosticSeverity } from "vscode-languageserver-protocol";
+import { InternalDiagnostic } from '../server';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class Clang extends Linter {
-    private actualFileName : string;
-    private tmpFileName : string;
+    private actualFileName: string = '';
+    private tmpFileName: string = '';
 
     constructor(settings: Settings, workspaceRoot: string) {
         super('Clang', settings, workspaceRoot, false);
         this.cascadeCommonSettings('clang');
-
-        // reset; we used all values
-        this.resetParser();
 
         this.executable = settings['c-cpp-flylint'].clang.executable;
         this.configFile = settings['c-cpp-flylint'].clang.configFile;
@@ -22,39 +19,34 @@ export class Clang extends Linter {
     }
 
     public lintOn(): Lint[] {
-        return [ Lint.ON_SAVE, Lint.ON_TYPE, Lint.ON_BUILD ];
-    }
-
-    protected resetParser() {
-        this.actualFileName = "";
-        this.tmpFileName = "";
+        return [Lint.ON_SAVE, Lint.ON_TYPE, Lint.ON_BUILD];
     }
 
     protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
         let includePathParams = this.getIncludePathParams();
         let languageParam = this.getLanguageParam();
-        let iquoteParams : string[];
+        let iquoteParams: string[];
 
-        if (this.settings['c-cpp-flylint'].run == "onType") {
+        if (this.settings['c-cpp-flylint'].run === 'onType') {
             iquoteParams = this.expandedArgsFor(
                 '-iquote',
                 false,
                 [path.dirname(fileName)].concat(this.includePaths),
                 null
-            )
+            );
         } else {
             iquoteParams = [];
         }
 
         let pedanticParams = this.getPedanticParams();
         let msExtensions = this.settings['c-cpp-flylint'].clang.msExtensions ?
-                                [ '-fms-extensions' ] : [];
+            ['-fms-extensions'] : [];
         let noExceptions = this.settings['c-cpp-flylint'].clang.noExceptions ?
-                                [ '-fno-exceptions' ] : [];
+            ['-fno-exceptions'] : [];
         let noRtti = this.settings['c-cpp-flylint'].clang.noRtti ?
-                                [ '-fno-rtti' ] : [];
+            ['-fno-rtti'] : [];
         let blocks = this.settings['c-cpp-flylint'].clang.blocks ?
-                                [ '-fblocks' ] : [];
+            ['-fblocks'] : [];
         let includeArgParams = this.expandedArgsFor(
             '-include',
             false,
@@ -87,14 +79,14 @@ export class Clang extends Linter {
             null);
 
         let args = [
-                this.executable,
-                '-fsyntax-only',
-                '-fno-color-diagnostics',
-                '-fno-caret-diagnostics',
-                '-fno-diagnostics-show-option',
-                '-fdiagnostics-show-category=name',
-                '-ferror-limit=200'
-            ]
+            this.executable,
+            '-fsyntax-only',
+            '-fno-color-diagnostics',
+            '-fno-caret-diagnostics',
+            '-fno-diagnostics-show-option',
+            '-fdiagnostics-show-category=name',
+            '-ferror-limit=200'
+        ]
             .concat(iquoteParams)
             .concat(standardParams)
             .concat(pedanticParams)
@@ -111,7 +103,7 @@ export class Clang extends Linter {
             .concat(languageParam)
             .concat(this.settings['c-cpp-flylint'].clang.extraArgs || []);
 
-        if (this.settings['c-cpp-flylint'].run == "onType") {
+        if (this.settings['c-cpp-flylint'].run === 'onType') {
             args.push(tmpFileName);
         } else {
             args.push(fileName);
@@ -133,7 +125,7 @@ export class Clang extends Linter {
         }
 
         let excludeRegex = /^(WX.*|_WX.*|__WX.*|Q_.*|warning: .* incompatible with .*|warning: .* input unused|warning: include location .* is unsafe for cross-compilation.*)$/;
-        if (excludeRegex.exec(line) != null) {
+        if (excludeRegex.exec(line) !== null) {
             // skip this line
             return null;
         }
@@ -141,7 +133,7 @@ export class Clang extends Linter {
         let inFileArray: RegExpExecArray | null;
         let inFileRegex = /^In file included from (.+?):([0-9]+):$/;
 
-        if ((inFileArray = inFileRegex.exec(line)) != null) {
+        if ((inFileArray = inFileRegex.exec(line)) !== null) {
             return {
                 fileName: (inFileArray[1] === this.tmpFileName ? this.actualFileName : inFileArray[1]),
                 line: parseInt(inFileArray[2]) - 1,
@@ -153,7 +145,7 @@ export class Clang extends Linter {
             };
         }
 
-        if ((regexArray = regex.exec(line)) != null) {
+        if ((regexArray = regex.exec(line)) !== null) {
             return {
                 fileName: (regexArray[1] === this.tmpFileName ? this.actualFileName : regexArray[1]),
                 line: parseInt(regexArray[2]) - 1,
@@ -178,7 +170,7 @@ export class Clang extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        return this.settings['c-cpp-flylint'].clang.severityLevels[severity];
+        return this.settings['c-cpp-flylint'].clang.severityLevels[severity as keyof ClangSeverityMaps] as DiagnosticSeverity;
     }
 
     private getPedanticParams(): string[] {

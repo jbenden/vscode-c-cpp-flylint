@@ -1,38 +1,38 @@
-import { Settings } from '../../settings';
 import * as mock from 'mock-fs';
+import { Settings } from '../../settings';
 
 export const isWindows = process.platform === 'win32' ||
     process.env.OSTYPE === 'cygwin' ||
-    process.env.OSTYPE === 'msys'
+    process.env.OSTYPE === 'msys';
 
 export const defaultConfig: Settings = {
     'c-cpp-flylint': {
         enable: true,
         debug: false,
-        run: "onSave",
+        run: 'onSave',
 
         // common options, which may be overridden per syntax analyzer
-        standard: ["c99"],
+        standard: ['c99'],
         includePaths: [],
         defines: [],
         undefines: [],
-        language: "c",
+        language: 'c',
         ignoreParseErrors: false,
         excludeFromWorkspacePaths: [],
 
         flexelint: {
             enable: true,
             // executable: "C:\\Source\\flexelint\\src\\flexelint.exe",
-            executable: (isWindows ? "flexelint.exe" : "flexelint"),
-            configFile: "tsconfig.json",
+            executable: (isWindows ? 'flexelint.exe' : 'flexelint'),
+            configFile: 'tsconfig.json',
             headerArgs: [
-                "-e750",
-                "-e751",
-                "-e752",
-                "-e753",
-                "-e754",
-                "-e1526",
-                "-e1714"
+                '-e750',
+                '-e751',
+                '-e752',
+                '-e753',
+                '-e754',
+                '-e1526',
+                '-e1714'
             ],
             severityLevels: {
                 Error: 'Error',
@@ -43,16 +43,16 @@ export const defaultConfig: Settings = {
         },
         pclintplus: {
             enable: true,
-            executable: (isWindows ? "pclp.exe" : "pclp"),
-            configFile: "tsconfig.json",
+            executable: (isWindows ? 'pclp.exe' : 'pclp'),
+            configFile: 'tsconfig.json',
             headerArgs: [
-                "-e750",
-                "-e751",
-                "-e752",
-                "-e753",
-                "-e754",
-                "-e1526",
-                "-e1714"
+                '-e750',
+                '-e751',
+                '-e752',
+                '-e753',
+                '-e754',
+                '-e1526',
+                '-e1714'
             ],
             severityLevels: {
                 error: 'Error',
@@ -64,47 +64,47 @@ export const defaultConfig: Settings = {
         },
         cppcheck: {
             enable: true,
-            executable: (isWindows ? "cppcheck.exe" : "cppcheck"),
-            configFile: ".clang_complete",
+            executable: (isWindows ? 'cppcheck.exe' : 'cppcheck'),
+            configFile: '.clang_complete',
             unusedFunctions: false,
             verbose: false,
             force: false,
             inconclusive: false,
-            platform: "native",
+            platform: 'native',
             suppressions: [],
             severityLevels: {
-                error: "Error",
-                warning: "Warning",
-                style: "Information",
-                performance: "Warning",
-                portability: "Warning",
-                information: "Information"
+                error: 'Error',
+                warning: 'Warning',
+                style: 'Information',
+                performance: 'Warning',
+                portability: 'Warning',
+                information: 'Information'
             },
-            standard: ["c99"],
+            standard: ['c99'],
             includePaths: [],
             defines: [],
             undefines: [],
-            language: "c",
+            language: 'c',
             addons: [],
             extraArgs: null,
         },
         clang: {
             enable: true,
-            executable: (isWindows ? "clang.exe" : "clang"),
-            configFile: ".clang_complete",
+            executable: (isWindows ? 'clang.exe' : 'clang'),
+            configFile: '.clang_complete',
             severityLevels: {
-                error: "Error",
-                fatal: "Error",
-                warning: "Warning",
-                note: "Information"
+                error: 'Error',
+                fatal: 'Error',
+                warning: 'Warning',
+                note: 'Information'
             },
 
             // common options, which may be overridden per syntax analyzer
-            standard: ["c99"],
+            standard: ['c99'],
             includePaths: [],
             defines: [],
             undefines: [],
-            language: "c",
+            language: 'c',
 
             // special options
             extraArgs: null,
@@ -120,30 +120,30 @@ export const defaultConfig: Settings = {
         },
         flawfinder: {
             enable: true,
-            executable: "flawfinder",
+            executable: 'flawfinder',
             severityLevels: {
-                5: "Error",
-                4: "Warning",
-                3: "Information",
-                2: "Information",
-                1: "Information",
-                0: "Information"
+                5: 'Error',
+                4: 'Warning',
+                3: 'Information',
+                2: 'Information',
+                1: 'Information',
+                0: 'Information'
             }
         }
     }
 };
 
 export function before() {
-    let chai = require("chai");
-    let chaiAsPromised = require("chai-as-promised");
+    let chai = require('chai');
+    let chaiAsPromised = require('chai-as-promised');
 
     chai.use(chaiAsPromised);
     chai.should();
 
     mock({
-        ".clang_complete": 'text content',
+        '.clang_complete': 'text content',
 
-        "tsconfig.json": 'text content',
+        'tsconfig.json': 'text content',
 
         // fake EXE for Windows users
         'flexelint.exe': mock.file({
@@ -198,7 +198,7 @@ export function before() {
             content: '#!/usr/bin/env bash\n\nexit 0\n',
             mode: 0o755
         }),
-    })
+    });
 }
 
 export function after() {

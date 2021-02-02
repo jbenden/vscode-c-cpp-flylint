@@ -1,9 +1,10 @@
+/* eslint-disable no-console */
 import * as which from 'which';
-import * as fs from "fs";
-import * as path from "path";
-import * as _ from "lodash";
-import { InternalDiagnostic } from "../server";
-import { Settings } from "../settings";
+import * as fs from 'fs';
+import * as path from 'path';
+import * as _ from 'lodash';
+import { InternalDiagnostic } from '../server';
+import { Settings } from '../settings';
 import * as cross_spawn from 'cross-spawn';
 import * as child_process from 'child_process';
 
@@ -18,18 +19,18 @@ export interface IExpansionResult {
 export const headerExts = ['.h', '.H', '.hh', '.hpp', '.h++', '.hxx'];
 
 export enum Lint {
-    ON_SAVE  = 1,
-    ON_TYPE  = 2,
+    ON_SAVE = 1,
+    ON_TYPE = 2,
     ON_BUILD = 3,
-};
+}
 
 export function toLint(s: string): Lint {
     switch (s) {
-        case "onSave": return Lint.ON_SAVE;
-        case "onType": return Lint.ON_TYPE;
-        case "onBuild": return Lint.ON_BUILD;
+        case 'onSave': return Lint.ON_SAVE;
+        case 'onType': return Lint.ON_TYPE;
+        case 'onBuild': return Lint.ON_BUILD;
         default:
-            throw Error("Unknown onLint value of " + s);
+            throw Error('Unknown onLint value of ' + s);
     }
 }
 
@@ -39,8 +40,8 @@ export class Linter {
     protected workspaceRoot: string;
     protected enabled: boolean;
     protected active: boolean;
-    protected executable: string;
-    protected configFile: string;
+    protected executable: string = '';
+    protected configFile: string = '';
     protected requireConfig: boolean;
     protected language: string;
     protected standard: string[];
@@ -64,22 +65,22 @@ export class Linter {
 
     protected cascadeCommonSettings(key: string) {
         let checkKey = (item: string): boolean => {
-            return this.settings['c-cpp-flylint'][key].hasOwnProperty(item) &&
-                   this.settings['c-cpp-flylint'][key].hasOwnProperty(item) !== null &&
-                   this.settings['c-cpp-flylint'][key][item] !== null;
-        }
+            return this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']].hasOwnProperty(item) &&
+                this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']].hasOwnProperty(item) !== null &&
+                (this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']] as any)[item] !== null;
+        };
 
-        let maybe = (orig : string[] | string, maybeKey : string) => {
+        let maybe = (orig: string[] | string, maybeKey: string) => {
             if (checkKey(maybeKey)) {
                 if (_.isArray(orig)) {
-                    return this.settings['c-cpp-flylint'][key][maybeKey];
+                    return (this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']] as any)[maybeKey];
                 } else if (_.isString(orig)) {
-                    return this.settings['c-cpp-flylint'][key][maybeKey];
+                    return (this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']] as any)[maybeKey];
                 }
             }
 
             return orig;
-        }
+        };
         this.language = maybe(this.language, 'language');
         this.standard = maybe(this.standard, 'standard');
         this.defines = maybe(this.defines, 'defines');
@@ -116,7 +117,7 @@ export class Linter {
     }
 
     public lintOn(): Lint[] {
-        return [ Lint.ON_SAVE, Lint.ON_BUILD ];
+        return [Lint.ON_SAVE, Lint.ON_BUILD];
     }
 
     public async initialize() {
@@ -128,7 +129,7 @@ export class Linter {
 
     private async maybeEnable() {
         if (!this.isEnabled()) {
-            return Promise.resolve("");
+            return Promise.resolve('');
         }
 
         return this.maybeExecutablePresent()
@@ -141,12 +142,12 @@ export class Linter {
 
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
-            let whichConfig = {};
+            let whichConfig = {} as any;
             if (process.env.TRAVIS || process.env.LOADED_MOCHA_OPTS) {
                 whichConfig['path'] = process.cwd();
             }
 
-            which(this.executable, whichConfig, (err, result) => {
+            which(this.executable, whichConfig, (err: any, result: any) => {
                 if (err) {
                     this.disable();
 
@@ -156,14 +157,16 @@ export class Linter {
 
                     reject(Error(`The executable was not found for ${this.name}, disabling linter`));
                 }
-                else resolve(result);
+                else {
+                    resolve(result);
+                }
             });
         });
     }
 
     private async maybeConfigFilePresent(): Promise<string> {
         if (!this.requireConfig) {
-            return Promise.resolve("");
+            return Promise.resolve('');
         }
 
         return this.locateFile(this.workspaceRoot, this.configFile)
@@ -191,10 +194,11 @@ export class Linter {
                 directory = parent;
 
                 const location: string = (() => {
-                    if (path.isAbsolute(fileName))
+                    if (path.isAbsolute(fileName)) {
                         return fileName;
-                    else
+                    } else {
                         return path.join(directory, fileName);
+                    }
                 })();
 
                 try {
@@ -212,9 +216,9 @@ export class Linter {
     }
 
     protected locateFiles(directory: string, fileName: string[]): Promise<string[]> {
-        var locates : Array<Promise<string>>
+        var locates: Array<Promise<string>>;
 
-        locates = []
+        locates = [];
 
         fileName.forEach(element => {
             locates.push(this.locateFile(directory, element));
@@ -255,15 +259,15 @@ export class Linter {
         if (!this.enabled) { return []; }
 
         let result = this.runLinter(this.buildCommandLine(fileName, tmpFileName), directory || this.workspaceRoot);
-        let stdout = result.stdout !== null ? result.stdout.toString('utf-8').replace(/\r/g, "").split("\n") : [];
-        let stderr = result.stderr !== null ? result.stderr.toString('utf-8').replace(/\r/g, "").split("\n") : [];
+        let stdout = result.stdout !== null ? result.stdout.toString('utf-8').replace(/\r/g, '').split('\n') : [];
+        let stderr = result.stderr !== null ? result.stderr.toString('utf-8').replace(/\r/g, '').split('\n') : [];
 
         if (this.settings['c-cpp-flylint'].debug) {
             console.log(stdout);
             console.log(stderr);
         }
 
-        if (result.status != 0) {
+        if (result.status !== 0) {
             console.log(`${this.name} exited with status code ${result.status}`);
         }
 
@@ -271,7 +275,7 @@ export class Linter {
     }
 
     protected isQuote(ch: string): boolean {
-        return ch == '\'' || ch == '\"';
+        return ch === '\'' || ch === '\"';
     }
 
     protected parseLines(lines: string[]): InternalDiagnostic[] {
@@ -299,7 +303,7 @@ export class Linter {
                     }
                 }
 
-                ({currentParsed, parsed} = this.transformParse(currentParsed, parsed));
+                ({ currentParsed, parsed } = this.transformParse(currentParsed, parsed));
 
                 if (currentParsed !== null && !currentParsed.parseError) {
                     // output an entry
@@ -319,7 +323,7 @@ export class Linter {
     }
 
     protected transformParse(currentParsed: InternalDiagnostic | null, parsed: InternalDiagnostic | null) {
-        return {currentParsed: currentParsed, parsed: parsed};
+        return { currentParsed: currentParsed, parsed: parsed };
     }
 
     protected parseLine(_line: string): InternalDiagnostic | null {
@@ -327,7 +331,7 @@ export class Linter {
     }
 
     protected isValidLanguage(language: string): boolean {
-        const allowLanguages = [ 'c', 'c++' ];
+        const allowLanguages = ['c', 'c++'];
         return _.includes(allowLanguages, language);
     }
 
