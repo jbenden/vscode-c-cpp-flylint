@@ -1,15 +1,34 @@
 // Place your settings in this file to overwrite default and user settings.
 {
     "files.exclude": {
-        "out": false // set this to true to hide the "out" folder with the compiled JS files
+	"out": false
     },
     "search.exclude": {
-        "out": true // set this to false to include "out" folder in search results
+	"out": true,
+	"server": true
     },
-    // We want to use the TS server from our node_modules folder to control its version.
+    "files.trimTrailingWhitespace": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 4,
     "typescript.tsdk": "./node_modules/typescript/lib",
     "typescript.tsc.autoDetect": "off",
+    "typescript.tsserver.trace": "off",
+    "typescript.tsserver.log": "off",
+    "tslint.enable": false,
+    "eslint.enable": true,
+    "editor.codeActionsOnSave": {
+    	"source.fixAll.eslint": true
+    },
+    "editor.codeActionsOnSaveTimeout": 2000,
+    "eslint.workingDirectories": [
+	    "./client",
+	    "./server"
+    ],
+    "eslint.trace.server": "off",
+    "eslint.debug": false,
+    "eslint.lintTask.enable": false,
+    "eslint.format.enable": true,
     "markdownlint.config": {
-        "MD024": false
-    }
+         "MD024": false
+     }
 }

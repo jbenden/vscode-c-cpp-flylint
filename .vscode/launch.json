@@ -1,44 +1,47 @@
+// A launch configuration that compiles the extension and then opens it inside a new window
 {
 	"version": "0.2.0",
-	// List of configurations. Add new configurations or edit existing ones.
 	"configurations": [
 		{
-			"name": "Launch Client",
-			"type": "extensionHost",
+			"type": "pwa-extensionHost",
 			"request": "launch",
+			"name": "Launch Client",
 			"runtimeExecutable": "${execPath}",
-			"args": ["--extensionDevelopmentPath=${workspaceRoot}", "--inspect-extensions=9993" ],
-			"stopOnEntry": false,
+			"args": ["--extensionDevelopmentPath=${workspaceFolder}" ],
 			"sourceMaps": true,
-			"outFiles": [ "${workspaceRoot}/dist/**/*.js" ],
-			"preLaunchTask": "npm: vscode:prepublish"
+			"outFiles": ["${workspaceFolder}/client/out/**/*.js"],
+			"preLaunchTask": "npm: compile"
 		},
 		{
-			"name": "Attach to Server",
 			"type": "node",
 			"request": "attach",
+			"name": "Attach to Server",
+			"address": "localhost",
+			"protocol": "inspector",
 			"port": 6011,
+			"timeout": 60000,
 			"sourceMaps": true,
-			"outFiles": [ "${workspaceRoot}/dist/server/**/*.js" ],
-			"preLaunchTask": "npm: webpack:watch"
+			"outFiles": ["${workspaceFolder}/server/out/**/*.js"]
 		},
-        {
-            "name": "Launch Mocha Tests",
-            "type": "node",
-            "request": "launch",
-            "runtimeExecutable": "${workspaceRoot}/server/node_modules/mocha/bin/_mocha",
-            "args": [
-                "-u", "tdd",
-                "--no-timeouts",
-                "--colors",
-                "${workspaceRoot}/client/server/linters/tests"
-            ],
-            "internalConsoleOptions": "openOnSessionStart",
-            "stopOnEntry": false,
-            "sourceMaps": true,
-			"outFiles": [ "${workspaceRoot}/client/server/**/*.js" ],
-            "preLaunchTask": "compile"
-        }
+		{
+			"name": "Launch Mocha Tests",
+			"type": "node",
+			"request": "launch",
+			"runtimeExecutable": "${workspaceFolder}/node_modules/.bin/mocha",
+			"args": [
+				"--no-timeouts",
+				"--colors",
+				"${workspaceFolder}/server/out/linters/tests/*.test.js"
+			],
+			"env": {
+				"TRAVIS": "true"
+			},
+			"internalConsoleOptions": "openOnSessionStart",
+			"stopOnEntry": false,
+			"sourceMaps": true,
+			"outFiles": [ "${workspaceFolder}/server/out/**/*.js" ],
+			"preLaunchTask": "npm: compile"
+		}
 	],
 	"compounds": [
 		{

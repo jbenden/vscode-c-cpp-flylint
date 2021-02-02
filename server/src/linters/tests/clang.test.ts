@@ -1,6 +1,6 @@
 import { slow, suite, test, timeout } from '@testdeck/mocha';
 import { expect } from 'chai';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { Settings } from '../../settings';
 import { Clang } from '../clang';
 import { before, after, defaultConfig } from './test_helpers';
@@ -23,13 +23,13 @@ export class ClangTests {
         this.linter = new Clang(this.config, process.cwd());
     }
 
-    @test("should find the Clang executable linter")
+    @test('should find the Clang executable linter')
     executableIsFound() {
         var result = this.linter['maybeEnable']();
         return result.should.eventually.be.fulfilled;
     }
 
-    @test("should not find a missing executable linter")
+    @test('should not find a missing executable linter')
     executableIsNotFound() {
         this.linter['setExecutable']('nonexistent');
 
@@ -37,26 +37,26 @@ export class ClangTests {
         return result.should.eventually.be.rejectedWith('', 'The executable was not found for Clang, disabling linter');
     }
 
-    @test("should build a proper command-line for a C++ source file")
+    @test('should build a proper command-line for a C++ source file')
     commandLine() {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        var actual = this.linter['buildCommandLine']("main.cc", "main.cc");
+        var actual = this.linter['buildCommandLine']('main.cc', 'main.cc');
         actual.should.have.length(17);
     }
 
-    @test("should build a proper command-line for a C++ header file")
+    @test('should build a proper command-line for a C++ header file')
     commandLineWithHeaderFile() {
-        var actual = this.linter['buildCommandLine']("main.h", "main.h");
+        var actual = this.linter['buildCommandLine']('main.h', 'main.h');
         actual.should.have.length(17);
     }
 
-    @test("should handle parsing an invalid line")
+    @test('should handle parsing an invalid line')
     parsesUnknownLine() {
         let actual = this.linter['parseLine']('should not parse!')!;
         actual.should.have.property('parseError');
     }
 
-    @test("should handle parsing multiple lines of output")
+    @test('should handle parsing multiple lines of output')
     parsesMultipleLines() {
         let test = [
             `rounding.c:35:51: error: use of undeclared identifier 'EXTRA_ROUNDING'`,
@@ -90,13 +90,13 @@ export class ClangTests {
         expect(result['message']).to.match(/^expanded from macro \'ARRAY_LEN\'/);
     }
 
-    @test("should handle parsing excluded line")
+    @test('should handle parsing excluded line')
     parsesExcludedLinesWithoutFailure() {
         let test = [
             `warning: include location '/usr/local/include' is unsafe for cross-compilation [-Wpoison-system-directories]`,
             `/Users/user/cpp-test/main.cpp:8:2: warning: C++98 requires newline at end of file [Lexical or Preprocessor Issue]`
         ];
-        let actual = this.linter['parseLines'](test)
+        let actual = this.linter['parseLines'](test);
 
         actual.should.have.length(1);
 

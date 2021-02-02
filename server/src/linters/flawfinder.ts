@@ -1,8 +1,8 @@
-import * as _ from "lodash";
-import { Settings } from "../settings";
+import * as _ from 'lodash';
+import { FlawFinderSeverityMaps, Settings } from '../settings';
 import { Linter } from './linter';
-import { InternalDiagnostic } from "../server";
-import { DiagnosticSeverity } from "vscode-languageserver-protocol";
+import { InternalDiagnostic } from '../server';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class FlawFinder extends Linter {
     constructor(settings: Settings, workspaceRoot: string) {
@@ -14,7 +14,7 @@ export class FlawFinder extends Linter {
     }
 
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
-        let args = [ this.executable ]
+        let args = [this.executable]
             .concat(['--columns'])
             .concat(['--dataonly'])
             .concat(['--singleline'])
@@ -31,12 +31,12 @@ export class FlawFinder extends Linter {
 
         let excludeRegex = /^((Examining ).*|)$/;
 
-        if (excludeRegex.exec(line) != null) {
+        if (excludeRegex.exec(line) !== null) {
             // skip this line
             return null;
         }
 
-        if ((regexArray = regex.exec(line)) != null) {
+        if ((regexArray = regex.exec(line)) !== null) {
             return {
                 fileName: regexArray[1],
                 line: parseInt(regexArray[2]) - 1,
@@ -61,6 +61,6 @@ export class FlawFinder extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        return this.settings['c-cpp-flylint'].flawfinder.severityLevels[severity];
+        return this.settings['c-cpp-flylint'].flawfinder.severityLevels[severity as keyof FlawFinderSeverityMaps] as DiagnosticSeverity;
     }
 }

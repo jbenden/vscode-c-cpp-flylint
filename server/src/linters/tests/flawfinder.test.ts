@@ -1,6 +1,6 @@
 import { slow, suite, test, timeout } from '@testdeck/mocha';
 import { expect } from 'chai';
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import { Settings } from '../../settings';
 import { FlawFinder } from '../flawfinder';
 import { before, after, defaultConfig } from './test_helpers';
@@ -23,13 +23,13 @@ export class FlawFinderTests {
         this.linter = new FlawFinder(this.config, process.cwd());
     }
 
-    @test("should find the FlawFinder executable linter")
+    @test('should find the FlawFinder executable linter')
     executableIsFound() {
         var result = this.linter['maybeEnable']();
         return result.should.eventually.be.fulfilled;
     }
 
-    @test("should not find a missing executable linter")
+    @test('should not find a missing executable linter')
     executableIsNotFound() {
         this.linter['setExecutable']('nonexistent');
 
@@ -37,13 +37,13 @@ export class FlawFinderTests {
         return result.should.eventually.be.rejectedWith('', 'The executable was not found for FlawFinder, disabling linter');
     }
 
-    @test("should handle parsing an invalid line")
+    @test('should handle parsing an invalid line')
     parsesUnknownLine() {
         let actual = this.linter['parseLine']('should not parse!')!;
         actual.should.have.property('parseError');
     }
 
-    @test("should skip over excluded patterns")
+    @test('should skip over excluded patterns')
     skipsOverExcludedPatterns() {
         let test = [
             `Examining git/test/test.c`,
@@ -60,7 +60,7 @@ export class FlawFinderTests {
         result.should.have.property('line', 6);
         result.should.have.property('column', 4);
         result.should.have.property('severity', 'Warning');
-        result.should.have.property('code', "(buffer) sprintf");
+        result.should.have.property('code', '(buffer) sprintf');
         expect(result['message']).to.match(/^Does not check for buffer overflows/);
     }
 }
