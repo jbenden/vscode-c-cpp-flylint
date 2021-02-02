@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   increments this number.
 * Handle removing all excluded workspace paths, from all
   automatically generated include paths. Fixes #57.
+* Refactored project's file-system layout, fixing a number
+  of problems, which includes #79. Introduced ESLint to
+  the project, and added to CI workflow.
+* Allow more than one analyzer per document version.
+  Fixes #100.
 
 ## [1.7.1] - 2021-01-12
 
