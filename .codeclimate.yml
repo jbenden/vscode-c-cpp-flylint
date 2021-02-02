@@ -28,4 +28,9 @@ exclude_paths:
   - "**/out/**/*"
   - "client/server/**/*"
   - "**/.git/**/*"
+  - "**/webpack.config.js"
+  - "**/tsconfig.json"
+  - "**/customInstallServerIntoExtension.js"
+  - "**/tsconfig.base.json"
+  - "**/shared.webpack.config.js"
 
