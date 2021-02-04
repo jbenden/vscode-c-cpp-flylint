@@ -143,5 +143,9 @@ export interface Settings {
             executable: string;
             severityLevels: FlawFinderSeverityMaps;
         }
+        lizard: {
+            enable: boolean;
+            executable: string;
+        }
     };
 }

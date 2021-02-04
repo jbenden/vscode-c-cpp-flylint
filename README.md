@@ -25,6 +25,7 @@ supporting a number of static code analyzers for C and C++ code.
 * [PC-lint Plus](https://gimpel.com/)
 * [Flexelint](http://www.gimpel.com/html/flex.htm) or
   [PC-lint](http://www.gimpel.com/html/pcl.htm)
+* [lizard](https://github.com/terryyin/lizard)
 
 ## Requirements
 
@@ -67,6 +68,10 @@ be obtained from the URL mentioned elsewhere in this documentation.
 FlawFinder is available via `pip`:
 
     # sudo pip install flawfinder
+
+lizard is available via `pip`:
+
+    # sudo pip install lizard
 
 ### macOS
 

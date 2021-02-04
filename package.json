@@ -820,6 +820,16 @@
               ]
             }
           }
+        },
+        "c-cpp-flylint.lizard.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable the lizard linter"
+        },
+        "c-cpp-flylint.lizard.executable": {
+          "type": "string",
+          "description": "This option allows you to override the executable called when using FlawFinder",
+          "default": "lizard"
         }
       }
     }
