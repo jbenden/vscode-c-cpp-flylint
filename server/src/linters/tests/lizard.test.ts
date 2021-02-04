@@ -7,7 +7,7 @@ import { Lizard } from '../lizard';
 import { before, after, defaultConfig } from './test_helpers';
 
 @suite(timeout(3000), slow(1000))
-export class FlawFinderTests {
+export class LizardTests {
     private config: Settings;
     private linter: Lizard;
 

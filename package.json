@@ -828,7 +828,7 @@
         },
         "c-cpp-flylint.lizard.executable": {
           "type": "string",
-          "description": "This option allows you to override the executable called when using FlawFinder",
+          "description": "This option allows you to override the executable called when using lizard",
           "default": "lizard"
         }
       }
