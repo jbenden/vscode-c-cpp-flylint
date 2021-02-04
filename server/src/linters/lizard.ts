@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { Settings } from '../settings';
 import { Linter } from './linter';
 import { InternalDiagnostic } from '../server';
