@@ -1,6 +1,6 @@
 #!/bin/sh
 
-sudo env CONTAINER_TIMEOUT_SECONDS=1800 docker run \
+env CONTAINER_TIMEOUT_SECONDS=1800 docker run \
   --interactive --tty --rm \
   --env CODECLIMATE_CODE="$PWD" \
   --volume "$PWD":/code \

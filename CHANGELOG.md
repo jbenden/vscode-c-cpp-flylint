@@ -9,109 +9,109 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-* Added ability to trigger analysis after build task completion.
+- Added ability to trigger analysis after build task completion.
   Fixes #61.
-* Added support for D. Wheeler's Flawfinder linter.
+- Added support for D. Wheeler's Flawfinder linter.
   See #99.
-* Added support for Lizard, a cyclomatic complexity analyzer.
+- Added support for Lizard, a cyclomatic complexity analyzer.
   See #103.
 
 ### Changed
 
-* When using the command palette to request a document or
+- When using the command palette to request a document or
   workspace analysis, the analysis is forced to complete.
-* Changed the API for `Linter.lintOn()`.
-* Only perform a single analysis on a document's version
+- Changed the API for `Linter.lintOn()`.
+- Only perform a single analysis on a document's version
   number (this is a part of VS Code's API). Each change
   increments this number.
-* Handle removing all excluded workspace paths, from all
+- Handle removing all excluded workspace paths, from all
   automatically generated include paths. Fixes #57.
-* Refactored project's file-system layout, fixing a number
+- Refactored project's file-system layout, fixing a number
   of problems, which includes #79. Introduced ESLint to
   the project, and added to CI workflow.
-* Allow more than one analyzer per document version.
+- Allow more than one analyzer per document version.
   Fixes #100.
 
 ## [1.7.1] - 2021-01-12
 
 ### Changed
 
-* Switched CI/CD from Travis-ci.org to GitHub Actions.
-* Switch webpack over to "production" mode, when publishing
+- Switched CI/CD from Travis-ci.org to GitHub Actions.
+- Switch webpack over to "production" mode, when publishing
   extension using vsce.
 
 ## [1.7.0] - 2021-01-10
 
 ### Added
 
-* Added support for Gimpel Software's PC-lint Plus linter.
+- Added support for Gimpel Software's PC-lint Plus linter.
 
 ## [1.6.0] - 2020-10-06
 
 ### Changed
 
-* Add additional line parse exclusion to Clang. Fixes #88.
-* Removed `everything` warning from Clang, by default.
+- Add additional line parse exclusion to Clang. Fixes #88.
+- Removed `everything` warning from Clang, by default.
 
 ## [1.5.1] - 2020-07-21
 
 ### Changed
 
-* Bump lodash dependency. PR #85 #86 #87.
+- Bump lodash dependency. PR #85 #86 #87.
 
 ## [1.5.0] - 2020-07-12
 
 ### Changed
 
-* Clang: Ignore lines from wxWidget headers. Fixes #83.
+- Clang: Ignore lines from wxWidget headers. Fixes #83.
 
 ### Added
 
-* Use webpack to compress and optimize delivery of extension.
+- Use webpack to compress and optimize delivery of extension.
 
 ## [1.4.4] - 2020-05-13
 
 ### Changed
 
-* Fixed cppcheck documentation on supported standards. Fixes #77.
-* Fixed Travis-CI during tag deploys.
+- Fixed cppcheck documentation on supported standards. Fixes #77.
+- Fixed Travis-CI during tag deploys.
 
 ## [1.4.3] - 2020-05-13
 
 ### Added
 
-* Added `extraArgs` configuration option to the CppCheck linter.
+- Added `extraArgs` configuration option to the CppCheck linter.
   Fixes #66, #78.
 
 ### Changed
 
-* Upgraded node modules to latest versions.
-* Modernized Travis-CI build script.
+- Upgraded node modules to latest versions.
+- Modernized Travis-CI build script.
 
 ## [1.4.2] - 2020-04-24
 
 ### Changed
 
-* Add recent standards to supported list. Fixes #77.
+- Add recent standards to supported list. Fixes #77.
 
 ## [1.4.1] - 2020-02-02
 
 ### Changed
 
-* Fixed bug where a given source code line containing multiple
+- Fixed bug where a given source code line containing multiple
   diagnostics were incorrectly filtered. PR #71.
 
 ## [1.4.0] - 2020-02-01
 
 ### Added
 
-* Added CppCheck add-ons support. PR #70.
+- Added CppCheck add-ons support. PR #70.
 
 ## [1.3.0] - 2020-02-01
 
 ### Changed
 
-* Upgrade to Node.js 12 and TypeScript 3.7. PR #69.
+- Upgrade to Node.js 12 and TypeScript 3.7. PR #69.
 
 ## [1.2.4] - 2019-04-12
 
