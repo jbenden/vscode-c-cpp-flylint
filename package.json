@@ -465,8 +465,8 @@
             "error": "Error",
             "warning": "Warning",
             "style": "Information",
-            "performance": "Warning",
-            "portability": "Warning",
+            "performance": "Information",
+            "portability": "Information",
             "information": "Information"
           },
           "properties": {
@@ -509,7 +509,7 @@
             "performance": {
               "description": "Suggestions for making the code faster. These suggestions only and may not increase execution speed.",
               "type": "string",
-              "default": "Warning",
+              "default": "Information",
               "enum": [
                 "Error",
                 "Warning",
@@ -521,7 +521,7 @@
             "portability": {
               "description": "Warnings about 64-bit and compiler portability.",
               "type": "string",
-              "default": "Warning",
+              "default": "Information",
               "enum": [
                 "Error",
                 "Warning",
