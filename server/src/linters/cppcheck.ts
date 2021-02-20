@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { CppCheckSeverityMaps, Settings } from '../settings';
+import { CppCheckSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter } from './linter';
 import { InternalDiagnostic } from '../server';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
@@ -106,7 +106,8 @@ export class CppCheck extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        return this.settings['c-cpp-flylint'].cppcheck.severityLevels[severity as keyof CppCheckSeverityMaps] as DiagnosticSeverity;
+        let output = this.settings['c-cpp-flylint'].cppcheck.severityLevels[severity as keyof CppCheckSeverityMaps];
+        return VS_DiagnosticSeverity.from(output);
     }
 
     private isValidPlatform(platform: string): boolean {

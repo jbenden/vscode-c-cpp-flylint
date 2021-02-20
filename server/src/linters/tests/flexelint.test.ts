@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { Flexelint } from '../flexelint';
 import { Settings } from '../../settings';
 import { before, after, defaultConfig } from './test_helpers';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 @suite(timeout(3000), slow(1000))
 export class FlexelintTests {
@@ -86,7 +87,7 @@ export class FlexelintTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 2932);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Warning');
+        result.should.have.property('severity', DiagnosticSeverity.Warning);
         result.should.have.property('code', '613');
         expect(result['message']).to.match(/^Possible use of null pointer \'flist\'/);
     }
@@ -99,7 +100,7 @@ export class FlexelintTests {
         actual.should.have.property('fileName', 'include/omniplayer/app.h');
         actual.should.have.property('line', 35);
         actual.should.have.property('column', 0);
-        actual.should.have.property('severity', 'Warning');
+        actual.should.have.property('severity', DiagnosticSeverity.Warning);
         actual.should.have.property('code', '1526');
         expect(actual['message']).to.match(/^Member function/);
     }
@@ -112,7 +113,7 @@ export class FlexelintTests {
         actual.should.have.property('fileName', 'include/omniplayer/app.h');
         actual.should.have.property('line', 47);
         actual.should.have.property('column', 0);
-        actual.should.have.property('severity', 'Information');
+        actual.should.have.property('severity', DiagnosticSeverity.Information);
         actual.should.have.property('code', '1714');
         expect(actual['message']).to.match(/^Member function/);
     }
@@ -132,7 +133,7 @@ export class FlexelintTests {
         result.should.have.property('fileName', 'C:\\msys64\\usr\\lib\\gcc\\x86_64-pc-msys\\6.3.0\\include\\c++\\stdlib.h');
         result.should.have.property('line', 59);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Error');
+        result.should.have.property('severity', DiagnosticSeverity.Error);
         result.should.have.property('code', '1087');
         expect(result['message']).to.match(/^Previous declaration of \'div/);
     }

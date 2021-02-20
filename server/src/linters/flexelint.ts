@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as _ from 'lodash';
-import { FlexelintSeverityMaps, Settings } from '../settings';
+import { FlexelintSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { headerExts, Linter } from './linter';
 import { InternalDiagnostic } from '../server';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
@@ -94,6 +94,7 @@ export class Flexelint extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        return this.settings['c-cpp-flylint'].flexelint.severityLevels[severity as keyof FlexelintSeverityMaps] as DiagnosticSeverity;
+        let output = this.settings['c-cpp-flylint'].flexelint.severityLevels[severity as keyof FlexelintSeverityMaps];
+        return VS_DiagnosticSeverity.from(output);
     }
 }

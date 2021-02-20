@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Cppcheck severity maps weren't ideal. Fixes #110.
+- Fixes wrong logic in converting a linter's diagnostic value to
+  the matching VSCode diagnostic value. Fixes #110.
 
 ## [1.8.0] - 2021-02-09
 

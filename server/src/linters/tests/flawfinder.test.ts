@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { Settings } from '../../settings';
 import { FlawFinder } from '../flawfinder';
 import { before, after, defaultConfig } from './test_helpers';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 @suite(timeout(3000), slow(1000))
 export class FlawFinderTests {
@@ -59,7 +60,7 @@ export class FlawFinderTests {
         result.should.have.property('fileName', 'git/test/test.c');
         result.should.have.property('line', 6);
         result.should.have.property('column', 4);
-        result.should.have.property('severity', 'Warning');
+        result.should.have.property('severity', DiagnosticSeverity.Warning);
         result.should.have.property('code', '(buffer) sprintf');
         expect(result['message']).to.match(/^Does not check for buffer overflows/);
     }

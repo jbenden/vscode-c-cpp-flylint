@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { Settings } from '../../settings';
 import { Clang } from '../clang';
 import { before, after, defaultConfig } from './test_helpers';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 @suite(timeout(3000), slow(1000))
 export class ClangTests {
@@ -86,7 +87,7 @@ export class ClangTests {
         result.should.have.property('fileName', 'rounding.c');
         result.should.have.property('line', 21);
         // result.should.have.property('column', 20);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         expect(result['message']).to.match(/^expanded from macro \'ARRAY_LEN\'/);
     }
 
@@ -104,7 +105,7 @@ export class ClangTests {
 
         result.should.have.property('fileName', '/Users/user/cpp-test/main.cpp');
         result.should.have.property('line', 7);
-        result.should.have.property('severity', 'Warning');
+        result.should.have.property('severity', DiagnosticSeverity.Warning);
         expect(result['message']).to.match(/^C\+\+98 requires newline at end of file/);
     }
 }

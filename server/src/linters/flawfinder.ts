@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { FlawFinderSeverityMaps, Settings } from '../settings';
+import { FlawFinderSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter } from './linter';
 import { InternalDiagnostic } from '../server';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
@@ -61,6 +61,7 @@ export class FlawFinder extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        return this.settings['c-cpp-flylint'].flawfinder.severityLevels[severity as keyof FlawFinderSeverityMaps] as DiagnosticSeverity;
+        let output = this.settings['c-cpp-flylint'].flawfinder.severityLevels[severity as keyof FlawFinderSeverityMaps];
+        return VS_DiagnosticSeverity.from(output);
     }
 }

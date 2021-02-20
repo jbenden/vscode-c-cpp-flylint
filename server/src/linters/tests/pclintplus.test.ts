@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { PclintPlus } from '../pclintplus';
 import { Settings } from '../../settings';
 import { before, after, defaultConfig } from './test_helpers';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 @suite(timeout(3000), slow(1000))
 export class PclintPlusTests {
@@ -88,7 +89,7 @@ export class PclintPlusTests {
         result.should.have.property('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
         result.should.have.property('line', 163);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Error');
+        result.should.have.property('severity', DiagnosticSeverity.Error);
         result.should.have.property('code', '307');
         expect(result['message']).to.match(/^cannot open indirect/);
     }
@@ -112,7 +113,7 @@ export class PclintPlusTests {
         result.should.have.property('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
         result.should.have.property('line', 163);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Error');
+        result.should.have.property('severity', DiagnosticSeverity.Error);
         result.should.have.property('code', '307');
         expect(result['message']).to.match(/^cannot open indirect/);
     }
@@ -155,7 +156,7 @@ export class PclintPlusTests {
         result.should.have.property('fileName', 'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c');
         result.should.have.property('line', 29);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', '765');
         expect(result['message']).to.match(/^external symbol \'init_uart\' could be made static/);
     }

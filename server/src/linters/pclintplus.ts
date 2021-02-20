@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as _ from 'lodash';
-import { PclintPlusSeverityMaps, Settings } from '../settings';
+import { PclintPlusSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { headerExts, Linter } from './linter';
 import { InternalDiagnostic } from '../server';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
@@ -91,7 +91,8 @@ export class PclintPlus extends Linter {
         }
     }
 
-    private getSeverityCode(severity: string) /*: DiagnosticSeverity */ {
-        return this.settings['c-cpp-flylint'].pclintplus.severityLevels[severity as keyof PclintPlusSeverityMaps] as DiagnosticSeverity;
+    private getSeverityCode(severity: string): DiagnosticSeverity {
+        let output = this.settings['c-cpp-flylint'].pclintplus.severityLevels[severity as keyof PclintPlusSeverityMaps];
+        return VS_DiagnosticSeverity.from(output);
     }
 }

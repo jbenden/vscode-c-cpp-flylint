@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as _ from 'lodash';
-import { ClangSeverityMaps, Settings } from '../settings';
+import { ClangSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter, Lint } from './linter';
 import { InternalDiagnostic } from '../server';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
@@ -170,7 +170,8 @@ export class Clang extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        return this.settings['c-cpp-flylint'].clang.severityLevels[severity as keyof ClangSeverityMaps] as DiagnosticSeverity;
+        let output = this.settings['c-cpp-flylint'].clang.severityLevels[severity as keyof ClangSeverityMaps];
+        return VS_DiagnosticSeverity.from(output);
     }
 
     private getPedanticParams(): string[] {

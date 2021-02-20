@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import { Settings } from '../../settings';
 import { CppCheck } from '../cppcheck';
 import { before, after, defaultConfig } from './test_helpers';
+import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 @suite(timeout(3000), slow(1000))
 export class CppCheckTests {
@@ -84,7 +85,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 2836);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'unusedStructMember');
         expect(result['message']).to.match(/^struct member \'Anonymous5::name_space\' is never used\./);
     }
@@ -117,7 +118,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 2836);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'unusedStructMember');
         expect(result['message']).to.match(/^struct member \'Anonymous5::name_space\' is never used\./);
     }
@@ -145,7 +146,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 1 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'misra-c2012-21.6');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
@@ -154,7 +155,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 20 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'misra-c2012-18.8');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
@@ -163,7 +164,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 11 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'misra-c2012-17.7');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
@@ -172,7 +173,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 9 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'misra-c2012-10.4');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
     }
@@ -200,7 +201,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 36 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'misra-c2012-10.4');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
@@ -209,7 +210,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 15 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Information');
+        result.should.have.property('severity', DiagnosticSeverity.Information);
         result.should.have.property('code', 'misra-c2012-10.4');
         expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
 
@@ -218,7 +219,7 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 23 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Error');
+        result.should.have.property('severity', DiagnosticSeverity.Error);
         result.should.have.property('code', 'zerodiv');
         expect(result['message']).to.equal('Division by zero');
 
@@ -227,8 +228,31 @@ export class CppCheckTests {
         result.should.have.property('fileName', 'flist.c');
         result.should.have.property('line', 9 - 1);
         result.should.have.property('column', 0);
-        result.should.have.property('severity', 'Error');
+        result.should.have.property('severity', DiagnosticSeverity.Error);
         result.should.have.property('code', 'zerodiv');
         expect(result['message']).to.equal('Division by zero');
+    }
+
+    @test('should properly map missingOverride warnings')
+    handleMissingOverrideWarnings110() {
+        let test = [
+	    `Checking example110.cpp ...`,
+	    `Checking example110.cpp: HAVE_CONFIG_H=1...`,
+	    `example110.cpp  6  style missingOverride: The function 'baz' overrides a function in a base class but is not marked with a 'override' specifier.`,
+	    `example110.cpp  2  style unusedFunction: The function 'baz' is never used.`,
+        ];
+        let actual = this.linter['parseLines'](test);
+
+        actual.should.have.length(2);
+
+        let result = actual.pop()!;
+        result = actual.pop()!;
+
+        result.should.have.property('fileName', 'example110.cpp');
+        result.should.have.property('line', 5);
+        result.should.have.property('column', 0);
+        result.should.have.property('severity', DiagnosticSeverity.Information);
+        result.should.have.property('code', 'missingOverride');
+        expect(result['message']).to.match(/^The function \'baz\' overrides a function in a base class/);
     }
 }
