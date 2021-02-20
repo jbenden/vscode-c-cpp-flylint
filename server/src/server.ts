@@ -214,7 +214,7 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
                     _.forEach(platformConfig.includePath, (ipath: string) => {
                         try {
                             let { value } = substituteVariables(ipath, { env: process.env });
-                            let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: true, onlyDirectories: true, unique: true, absolute: true });
+                            let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: false, onlyDirectories: true, unique: true, absolute: true });
 
                             if (currentSettings['c-cpp-flylint'].debug) {
                                 console.log('Path: ' + ipath + '  VALUE: ' + value + '  Globbed is: ' + globbed_path.toString());

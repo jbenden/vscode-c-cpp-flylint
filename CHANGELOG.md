@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fixes wrong logic in converting a linter's diagnostic value to
   the matching VSCode diagnostic value. Fixes #110.
 - Cppcheck lint parser should ignore automatically disabled checks.
+- Disable directory traversal into hidden folders, during build up
+  of include paths to pass on to the linters. Fixes #109.
 
 ## [1.8.0] - 2021-02-09
 
