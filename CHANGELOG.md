@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 
+- Fix non-fatal error about diagnostic code was neither a number nor
+  string. Fixes #111.
 - Slight performance improvement by exiting the analysis function
   earlier; namely, when the mode setting does not match the entry
   mode reason.

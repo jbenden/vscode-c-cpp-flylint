@@ -116,7 +116,7 @@ export class Clang extends Linter {
     }
 
     protected parseLine(line: string): InternalDiagnostic | null {
-        let regex = /^(.+?):([0-9]+):([0-9]+):\s(fatal error|error|warning|note):\s(.*)$/;
+        let regex = /^(.+?):([0-9]+):([0-9]+):\s(fatal|error|warning|note)(?: error)?:\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
         if (line === '') {
