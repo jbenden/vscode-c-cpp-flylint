@@ -362,6 +362,12 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
     // get the linters for the current file.
     let linters = await getDocumentLinters(textDocument.uri);
 
+    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+    if (userLintOn !== lintOn) {
+        console.log(`Skipping analysis because ${userLintOn} !== ${lintOn}.`);
+        return;
+    }
+
     if (linters === undefined || linters === null) {
         // cannot perform lint without active configuration!
         tracker.add(`c-cpp-flylint: A problem was encountered; the global list of analyzers is null or undefined.`);
@@ -408,12 +414,10 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
 
     console.log(`Performing lint scan of ${filePath}...`);
 
-    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
-
     var hasSkipLinter = false;
 
     lintersCopy.forEach(linter => {
-        if (userLintOn === lintOn && userLintOn in linter.lintOn()) {
+        if (lintOn in linter.lintOn()) {
             try {
                 let result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
@@ -460,7 +464,7 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
             }
         } else {
             hasSkipLinter = true;
-            console.log(`Skipping ${linter.Name()} linter because lintOn ${lintOn.toString()} is not in ${linter.lintOn().toString()}.`);
+            console.log(`Skipping ${linter.Name()} linter because lintOn ${lintOn.toString()} is not in ${linter.lintOn().toString()}, when under user-mode ${userLintOn}.`);
         }
     });
 
