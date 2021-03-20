@@ -108,6 +108,16 @@
       {
         "command": "c-cpp-flylint.analyzeWorkspace",
         "title": "C/C++ Flylint: Analyze all documents opened in the workspace"
+      },
+      {
+        "command": "c-cpp-flylint.workspace.resetState",
+        "title": "C/C++ Flylint: Reset Workspace State",
+        "description": "Reset keys in workspace state to undefined."
+      },
+      {
+        "command": "c-cpp-flylint.workspace.isTrusted.toggle",
+        "title": "C/C++ Flylint: Toggle Workspace Trust Flag",
+        "description": "Toggle the workspace trust flag. Workspace settings that determine tool locations are disabled by default in untrusted workspaces."
       }
     ],
     "configuration": {

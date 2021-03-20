@@ -89,6 +89,21 @@ the URL mentioned elsewhere in this documentation.
 PC-lint and PC-lint Plus are commercial software; however, they may
 be obtained from the URL mentioned elsewhere in this documentation.
 
+## Security
+
+This extension runs a few third-party command-line tools found from the
+locations determined by the `PATH` or `Path` environment variable, and
+the settings such as `"c-cpp-flylint.clang.executable"` or
+`"c-cpp-flylint.cppcheck.executable"`. Configuring them in workspace
+settings allows users to conveniently select a different set of tools
+based on project's need, but also allows attackers to run arbitrary
+binaries on your machine if they successfully convince you to open a
+random repository. In order to reduce the security risk, this extension
+reads the settings from user settings, by default. If the repository can
+be trusted and workspace settings must be used, you can mark the
+workspace as a trusted workspace using the
+`"C/C++ Flylint: Toggle Workspace Trust Flag"` command.
+
 ## Configuration Settings
 
 Due to the large quantity of configuration options -- in tandem with the

@@ -341,6 +341,12 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
     const filePath: string = fileUri.fsPath;
     const workspaceRoot: string = await getWorkspaceRoot(textDocument.uri);
 
+    const isTrusted: boolean = await connection.sendRequest('isTrusted');
+    if (!isTrusted) {
+        console.log('Will not analyze an untrusted workspace.');
+        return;
+    }
+
     if (workspaceRoot === undefined ||
         workspaceRoot === null ||
         filePath === undefined ||

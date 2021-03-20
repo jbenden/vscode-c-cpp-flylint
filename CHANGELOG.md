@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Configuring settings allows users to conveniently select a different
+  set of tools based on project's need, but also allows attackers to
+  run arbitrary binaries on your machine, if they successfully
+  convince you to open a random repository.
+
+  To reduce the security risk, you may mark a workspace as a trusted
+  workspace.
+
 ## [1.8.2] - 2021-02-24
 
 ### Changed
