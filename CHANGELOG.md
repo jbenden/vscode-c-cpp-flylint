@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   To reduce the security risk, you may mark a workspace as a trusted
   workspace.
 
+  CVE-2021-28953
+
 ## [1.8.2] - 2021-02-24
 
 ### Changed
