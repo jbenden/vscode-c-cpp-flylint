@@ -1,7 +1,7 @@
 {
   "name": "c-cpp-flylint-server",
   "description": "C/C++ Advanced Lint: Server",
-  "version": "1.8.2",
+  "version": "1.9.0",
   "author": {
     "name": "Joseph Benden",
     "email": "joe@benden.us",
