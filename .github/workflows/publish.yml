@@ -20,9 +20,18 @@ jobs:
       with:
         node-version: 12.x
     - run: npm install
-    - uses: lannonbr/vsce-action@master
+    - name: Publish to Open VSX Registry
+      uses: HaaLeo/publish-vscode-extension@v0
+      id: publishToOpenVSX
       with:
-        args: "package"
+        pat: ${{ secrets.OPEN_VSX_TOKEN }}
+    - name: Publish to Visual Studio Marketplace
+      uses: HaaLeo/publish-vscode-extension@v0
+      with:
+        pat: ${{ secrets.VSCE_TOKEN }}
+        registryUrl: https://marketplace.visualstudio.com
+        extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+        packagePath: ''
     - name: Create release
       uses: Roang-zero1/github-create-release-action@master
       env:
@@ -30,12 +39,6 @@ jobs:
     - name: Upload Release Asset
       uses: Roang-zero1/github-upload-release-artifacts-action@master
       with:
-        args: "*.vsix"
+        args: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Publish to VS Code Marketplace
-      uses: lannonbr/vsce-action@master
-      with:
-        args: "publish"
-      env:
-        VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
