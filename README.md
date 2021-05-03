@@ -12,7 +12,6 @@
 
 </div>
 
-
 A [Visual Studio Code](https://code.visualstudio.com/) extension
 supporting a number of static code analyzers for C and C++ code.
 
@@ -48,17 +47,9 @@ environment variable.
 If a tool is not automatically found, the appropriate
 `c-cpp-flylint.*.executable` configuration must be specified manually.
 
-### Windows
-
-Windows users may download and install the static code analyzers
-from the listed URLs mentioned elsewhere in this documentation.
-
-If PC-lint has been installed, be certain to use the `Flexelint`
-configuration sections, specifying the full path and filename
-of PC-lint as the `c-cpp-flylint.flexelint.executable`
-configuration option.
-
-### Debian & Ubuntu
+<details>
+<summary>Debian & Ubuntu</summary>
+<br>
 
 Clang is available via `apt-get`:
 
@@ -82,8 +73,12 @@ lizard is available via `pip`:
 
     # sudo pip install lizard
 
-### macOS
+</details>
 
+<details>
+<summary>macOS</summary>
+<br>
+    
 For macOS users, Clang is already included when Xcode and its' CLI
 tools are installed.
 
@@ -98,29 +93,50 @@ the URL mentioned elsewhere in this documentation.
 PC-lint and PC-lint Plus are commercial software; however, they may
 be obtained from the URL mentioned elsewhere in this documentation.
 
+</details>
+
+<details>
+<summary>Windows</summary>
+<br>
+    
+Windows users may download and install the static code analyzers
+from the listed URLs mentioned elsewhere in this documentation.
+
+If PC-lint has been installed, be certain to use the `Flexelint`
+configuration sections, specifying the full path and filename
+of PC-lint as the `c-cpp-flylint.flexelint.executable`
+configuration option.
+
+</details>
+
 ## Usage
 
 Once all requirements are met, the extension may be installed through
-one of the online Marketplaces; such as VSCode Marketplace or Open-VSX.
+one of the available marketplaces:
 
-After the extension is installed, then one must decide on how to best
-implement the necessary configuration changes to best met their project
-and/or environment needs. An example would be whether Cppformat is
-configured globally for all projects, configured for a whole workspace,
-or just configured for a specific project.
+* [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
+* [Open-VSX](https://open-vsx.org/extension/jbenden/c-cpp-flylint)
 
-Once an above choice is made, then open the appropriate configuration
+After the extension is installed, one must then decide on how to best
+implement the necessary configuration changes to best meet their project
+and/or environment needs. For instance, would `cppcheck` best be
+configured globally, for all projects; or configured for a whole workspace;
+or configured for a specific project.
+
+Once an above choice is made, open the appropriate configuration
 window. See VSCode documentation for help on accessing user,
 workspace, and project configuration windows.
 
 It is then recommended to narrow in to the extension's configuration;
-to view, and decide upon each and every setting.
+to view, and decide upon each and every setting. Start with enabling
+the linters desired and disabling those not, along with mapping any
+necessary build/compiler flags, as needed by most of the linters.
 
 > It is a huge help if the linters being configured are in working
-> order on the command-line, prior to an attempt at fully configuring
+> order on the command-line, prior to an attempt at configuring
 > the extension within VSCode.
 
-## Security
+### Security
 
 This extension runs a few third-party command-line tools found from the
 locations determined by the `PATH` or `Path` environment variable, and
@@ -135,7 +151,7 @@ be trusted and workspace settings must be used, you can mark the
 workspace as a trusted workspace using the
 `"C/C++ Flylint: Toggle Workspace Trust Flag"` command.
 
-## Configuration Settings
+### Configuration Settings
 
 Due to the large quantity of configuration options -- in tandem with the
 ever growing number of supported static code analyzers -- all
@@ -143,7 +159,7 @@ configuration options are not documented here.
 
 However, every configuration option is well documented within
 **File** -> **Preferences** -> **Settings** [alternatively, one of the
-keybindings: `Command+,` or `Ctrl+,`].
+keybindings: <kbd>Command+,</kbd> or <kbd>Ctrl+,</kbd>].
 
 ## Development Setup
 
@@ -155,12 +171,12 @@ keybindings: `Command+,` or `Ctrl+,`].
 * run `cd server && npm run test && cd ..` to execute the unit-tests for all linters.
 * run `npm run compile` or `npm run watch` to build the server
   and it will compile it into the `client/out` folder.
-* to debug press F5 which attaches a debugger to the server.
+* to debug press <kbd>F5</kbd> which attaches a debugger to the server.
 
 ### Developing the Extension/Client
 
 * open VS Code rooted inside the project root.
-* run F5 to build and debug the whole (client with the
+* run <kbd>F5</kbd> to build and debug the whole (client with the
   server) extension.
 
 ## Project details
