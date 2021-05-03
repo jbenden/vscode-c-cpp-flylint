@@ -1,4 +1,8 @@
-# C/C++ Advanced Lint for VS Code
+<div>
+<img src="C-Cpp-FlyLint_icon.svg" style="display: inline;" align="right" width="25%" height="256" />
+<h1>C/C++ Advanced Lint for VS Code</h1>
+
+<div>
 
 [![Version](https://vsmarketplacebadge.apphb.com/version-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
 [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
@@ -6,8 +10,13 @@
 [![Build Status](https://github.com/jbenden/vscode-c-cpp-flylint/workflows/CI/badge.svg?branch=master)](https://github.com/jbenden/vscode-c-cpp-flylint/actions)
 [![Code Climate](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint/badges/gpa.svg)](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint)
 
+</div>
+
+
 A [Visual Studio Code](https://code.visualstudio.com/) extension
 supporting a number of static code analyzers for C and C++ code.
+
+</div>
 
 ## Features
 
@@ -88,6 +97,28 @@ the URL mentioned elsewhere in this documentation.
 
 PC-lint and PC-lint Plus are commercial software; however, they may
 be obtained from the URL mentioned elsewhere in this documentation.
+
+## Usage
+
+Once all requirements are met, the extension may be installed through
+one of the online Marketplaces; such as VSCode Marketplace or Open-VSX.
+
+After the extension is installed, then one must decide on how to best
+implement the necessary configuration changes to best met their project
+and/or environment needs. An example would be whether Cppformat is
+configured globally for all projects, configured for a whole workspace,
+or just configured for a specific project.
+
+Once an above choice is made, then open the appropriate configuration
+window. See VSCode documentation for help on accessing user,
+workspace, and project configuration windows.
+
+It is then recommended to narrow in to the extension's configuration;
+to view, and decide upon each and every setting.
+
+> It is a huge help if the linters being configured are in working
+> order on the command-line, prior to an attempt at fully configuring
+> the extension within VSCode.
 
 ## Security
 
