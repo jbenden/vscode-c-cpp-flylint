@@ -84,7 +84,7 @@
   "dependencies": {
     "cross-spawn": "^7.0.3",
     "fast-glob": "^3.2.5",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "slash": "^3.0.0",
     "tmp": "^0.2.1",
     "var-expansion": "^0.1.0",
