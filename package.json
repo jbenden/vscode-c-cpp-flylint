@@ -738,7 +738,7 @@
         "c-cpp-flylint.flawfinder.enable": {
           "type": "boolean",
           "default": true,
-          "description": "Enable or disable the FlawFincer linter"
+          "description": "Enable or disable the FlawFinder linter"
         },
         "c-cpp-flylint.flawfinder.executable": {
           "type": "string",
