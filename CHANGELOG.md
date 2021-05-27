@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.9.1] - 2021-05-27
+
+### Changed
+
+- chore(deps): Bump browserslist from 4.16.3 to 4.16.6
+- chore(deps): Bump lodash from 4.17.20 to 4.17.21
+
 ## [1.9.0] - 2021-03-20
 
 ### Changed
