@@ -1,5 +1,5 @@
 <div>
-<img src="C-Cpp-FlyLint_icon.svg" style="display: inline;" align="right" width="25%" height="256" />
+<img src="C-Cpp-FlyLint_icon.png" style="display: inline;" align="right" width="25%" height="256" />
 <h1>C/C++ Advanced Lint for VS Code</h1>
 
 <div>
