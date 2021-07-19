@@ -36,9 +36,9 @@ export function toLint(s: string): Lint {
 
 export function fromLint(lint: Lint): string {
     switch (lint) {
-        case Lint.ON_SAVE: return "ON_SAVE";
-        case Lint.ON_TYPE: return "ON_TYPE";
-        case Lint.ON_BUILD: return "ON_BUILD";
+        case Lint.ON_SAVE: return 'ON_SAVE';
+        case Lint.ON_TYPE: return 'ON_TYPE';
+        case Lint.ON_BUILD: return 'ON_BUILD';
         default:
             throw Error('Unknown enum Lint value of ' + lint);
     }
