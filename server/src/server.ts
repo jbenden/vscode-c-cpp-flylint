@@ -25,7 +25,7 @@ import * as _ from 'lodash';
 import * as glob from 'fast-glob';
 import { EntryItem } from 'fast-glob/out/types';
 import { Settings, IConfigurations, propertiesPlatform } from './settings';
-import { Linter, Lint, toLint } from './linters/linter';
+import { Linter, Lint, fromLint, toLint } from './linters/linter';
 
 import { Clang } from './linters/clang';
 import { CppCheck } from './linters/cppcheck';
@@ -122,15 +122,21 @@ connection.onDidChangeConfiguration(change => {
         globalSettings = <Settings>(change.settings['c-cpp-flylint'] || defaultSettings);
     }
 
-    // Revalidate all open text documents
-    if (didStart) { documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, false)); }
+    validateAllDocuments({ force: false });
 });
 
-connection.onNotification('onBuild', (params: any) => {
+connection.onNotification('onBuild', async (params: any) => {
     console.log('Received a notification that a build has completed: ' + _.toString(params));
 
-    // Revalidate all open text documents
-    if (didStart) { documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_BUILD, false)); }
+    let settings = await getDocumentSettings(params.document ?? null);
+
+    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+    if (userLintOn !== Lint.ON_BUILD) {
+        console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_BUILD.`);
+        return;
+    }
+
+    validateAllDocuments({ force: false });
 });
 
 async function getWorkspaceRoot(resource: string): Promise<string> {
@@ -317,25 +323,58 @@ documents.onDidClose(e => {
     documentVersions.delete(e.document.uri);
 });
 
-function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): any {
+async function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): Promise<any> {
     if (didStart) {
-        validateTextDocument(event.document, Lint.ON_TYPE, false);
+        // get the settings for the current file.
+        let settings = await getDocumentSettings(event.document.uri);
+
+        const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+        if (userLintOn !== Lint.ON_TYPE) {
+            console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_TYPE.`);
+            return;
+        }
+
+        console.log(`onDidChangeContent starting analysis.`);
+        validateTextDocument(event.document, false);
     }
 }
 
-documents.onDidChangeContent(_.debounce(onChangedContent, 250));
+// FIXME: 1500 should be a configurable property!
+documents.onDidChangeContent(_.debounce(onChangedContent, 1500));
 
 documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
-    validateTextDocument(event.document, Lint.ON_SAVE, false);
+    // get the settings for the current file.
+    let settings = await getDocumentSettings(event.document.uri);
+
+    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+    if (userLintOn !== Lint.ON_SAVE && userLintOn !== Lint.ON_TYPE) {
+        console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_SAVE|ON_TYPE.`);
+        return;
+    }
+
+    console.log(`onDidSave starting analysis.`);
+    validateTextDocument(event.document, false);
 });
 
 documents.onDidOpen(async (event: TextDocumentChangeEvent<TextDocument>) => {
-    validateTextDocument(event.document, Lint.ON_SAVE, false);
+    console.log(`onDidOpen starting analysis.`);
+
+    // TODO: Always scan because we've not seen the document as of yet.
+    validateTextDocument(event.document, false);
 
     didStart = true;
 });
 
-async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, force: boolean) {
+async function validateAllDocuments(options: {force: boolean}) {
+    const {force} = options || {};
+
+    if (didStart) {
+        console.log(`validateAllDocuments is starting analysis.`);
+        documents.all().forEach(_.bind(validateTextDocument, _, _, force));
+    }
+}
+
+async function validateTextDocument(textDocument: TextDocument, force: boolean) {
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
     const fileUri: URI = URI.parse(textDocument.uri);
     const filePath: string = fileUri.fsPath;
@@ -367,13 +406,6 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
 
     // get the linters for the current file.
     let linters = await getDocumentLinters(textDocument.uri);
-
-    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
-    if (userLintOn !== lintOn) {
-        console.log(`Skipping analysis because ${userLintOn} !== ${lintOn}.`);
-        return;
-    }
-
     if (linters === undefined || linters === null) {
         // cannot perform lint without active configuration!
         tracker.add(`c-cpp-flylint: A problem was encountered; the global list of analyzers is null or undefined.`);
@@ -423,54 +455,49 @@ async function validateTextDocument(textDocument: TextDocument, lintOn: Lint, fo
     var hasSkipLinter = false;
 
     lintersCopy.forEach(linter => {
-        if (lintOn in linter.lintOn()) {
-            try {
-                let result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
+        try {
+            let result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
 
-                while (result.length > 0) {
-                    let diagnostics: Diagnostic[] = [];
-                    let currentFile: string = '';
-                    let i = result.length;
+            while (result.length > 0) {
+                let diagnostics: Diagnostic[] = [];
+                let currentFile: string = '';
+                let i = result.length;
 
-                    while (i-- >= 0) {
-                        var msg: InternalDiagnostic = result[i];
+                while (i-- >= 0) {
+                    var msg: InternalDiagnostic = result[i];
 
-                        if (msg === null || msg === undefined || msg.parseError || !msg.hasOwnProperty('line') || msg.source === '') {
-                            result.splice(i, 1);
-                            continue;
-                        }
-
-                        if (currentFile === '') {
-                            currentFile = msg.fileName;
-                        }
-
-                        if (currentFile !== msg.fileName) {
-                            continue;
-                        }
-
-                        if (relativePath === msg.fileName || (path.isAbsolute(msg.fileName) && filePath === msg.fileName)) {
-                            diagnostics.push(makeDiagnostic(documentLines, msg));
-                        } else {
-                            diagnostics.push(makeDiagnostic(null, msg));
-                        }
-
+                    if (msg === null || msg === undefined || msg.parseError || !msg.hasOwnProperty('line') || msg.source === '') {
                         result.splice(i, 1);
+                        continue;
                     }
 
-                    diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ':::' + e.code + ':::' + e.message; });
+                    if (currentFile === '') {
+                        currentFile = msg.fileName;
+                    }
 
-                    if (allDiagnostics.has(currentFile)) {
-                        allDiagnostics.set(currentFile, _.union(allDiagnostics.get(currentFile), diagnostics));
+                    if (currentFile !== msg.fileName) {
+                        continue;
+                    }
+
+                    if (relativePath === msg.fileName || (path.isAbsolute(msg.fileName) && filePath === msg.fileName)) {
+                        diagnostics.push(makeDiagnostic(documentLines, msg));
                     } else {
-                        allDiagnostics.set(currentFile, diagnostics);
+                        diagnostics.push(makeDiagnostic(null, msg));
                     }
+
+                    result.splice(i, 1);
                 }
-            } catch (e) {
-                tracker.add(getErrorMessage(e, textDocument));
+
+                diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ':::' + e.code + ':::' + e.message; });
+
+                if (allDiagnostics.has(currentFile)) {
+                    allDiagnostics.set(currentFile, _.union(allDiagnostics.get(currentFile), diagnostics));
+                } else {
+                    allDiagnostics.set(currentFile, diagnostics);
+                }
             }
-        } else {
-            hasSkipLinter = true;
-            console.log(`Skipping ${linter.Name()} linter because lintOn ${lintOn.toString()} is not in ${linter.lintOn().toString()}, when under user-mode ${userLintOn}.`);
+        } catch (e) {
+            tracker.add(getErrorMessage(e, textDocument));
         }
     });
 
@@ -627,7 +654,7 @@ connection.onDidChangeWatchedFiles((params) => {
         if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
             flushCache();
 
-            if (didStart) { documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, true)); }
+            validateAllDocuments({ force: true });
         }
     });
 });
@@ -646,7 +673,7 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                             const documentUri = URI.parse(document.uri);
 
                             if (fileUri.fsPath === documentUri.fsPath) {
-                                validateTextDocument(document, Lint.ON_SAVE, true);
+                                validateTextDocument(document, true);
                             }
                         } catch (err) {
                             tracker.add(getErrorMessage(err, document));
@@ -655,7 +682,7 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                 }
             });
     } else if (params.command === CommandIds.analyzeWorkspace) {
-        documents.all().forEach(_.bind(validateTextDocument, this, _, Lint.ON_SAVE, true));
+        validateAllDocuments({ force: true });
     }
 
     tracker.sendErrors(connection);
