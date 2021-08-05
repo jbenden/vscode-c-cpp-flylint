@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Integrate with new workspace trust API, introduced in v1.58 series.
   Fixes #130.
 - Fix event-driven linter analysis. Fixes #113.
+- Synchronized readme files.
+
+#### Development
+
+The Git branch where development takes place has been renamed to "main".
 
 ## [1.9.3] - 2021-06-11
 
