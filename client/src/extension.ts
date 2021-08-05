@@ -8,6 +8,7 @@ import {
 } from 'vscode-languageclient/node';
 import * as path from 'path';
 import { getFromWorkspaceState, resetWorkspaceState, setWorkspaceState, updateWorkspaceState } from './stateUtils';
+import { isBoolean } from 'lodash';
 
 const WORKSPACE_IS_TRUSTED_KEY = 'WORKSPACE_IS_TRUSTED_KEY';
 const SECURITY_SENSITIVE_CONFIG: string[] = [
@@ -21,6 +22,19 @@ const SECURITY_SENSITIVE_CONFIG: string[] = [
 var IS_TRUSTED: boolean = false;
 
 export async function maybeWorkspaceIsTrusted(ctx: ExtensionContext) {
+    if (workspace.hasOwnProperty('isTrusted') && workspace.hasOwnProperty('isTrusted') !== null) {
+        const workspaceIsTrusted = (workspace as any)['isTrusted'];
+        console.log(`Workspace has property "isTrusted". It has the value of "${workspaceIsTrusted}".`);
+        if (isBoolean(workspaceIsTrusted) && workspaceIsTrusted) {
+            IS_TRUSTED = true;
+            console.log(`Workspace was marked trusted, by user of VSCode.`);
+        } else {
+            IS_TRUSTED = false;
+            console.log(`Workspace is not trusted!`);
+        }
+        return;
+    }
+
     const isTrusted = getFromWorkspaceState(WORKSPACE_IS_TRUSTED_KEY, false);
     if (isTrusted !== IS_TRUSTED) {
         IS_TRUSTED = true;

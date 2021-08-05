@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Integrate with new workspace trust API, introduced in v1.58 series.
+  Fixes #130.
+
 ## [1.9.3] - 2021-06-11
 
 ### Changed
