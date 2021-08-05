@@ -68,7 +68,7 @@ export async function maybeWorkspaceIsTrusted(ctx: ExtensionContext) {
             await toggleWorkspaceIsTrusted();
             break;
         case 'More Info':
-            env.openExternal(Uri.parse('https://github.com/jbenden/vscode-c-cpp-flylint/blob/master/README.md#security'));
+            env.openExternal(Uri.parse('https://github.com/jbenden/vscode-c-cpp-flylint/blob/main/README.md#security'));
             break;
         default:
             break;

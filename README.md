@@ -7,7 +7,7 @@
 [![Version](https://vsmarketplacebadge.apphb.com/version-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
 [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
 [![Rating](https://vsmarketplacebadge.apphb.com/rating-short/jbenden.c-cpp-flylint.svg)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
-[![Build Status](https://github.com/jbenden/vscode-c-cpp-flylint/workflows/CI/badge.svg?branch=master)](https://github.com/jbenden/vscode-c-cpp-flylint/actions)
+[![Build Status](https://github.com/jbenden/vscode-c-cpp-flylint/workflows/CI/badge.svg?branch=main)](https://github.com/jbenden/vscode-c-cpp-flylint/actions)
 [![Code Climate](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint/badges/gpa.svg)](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint)
 
 </div>
@@ -78,7 +78,7 @@ lizard is available via `pip`:
 <details>
 <summary>macOS</summary>
 <br>
-    
+
 For macOS users, Clang is already included when Xcode and its' CLI
 tools are installed.
 
@@ -98,7 +98,7 @@ be obtained from the URL mentioned elsewhere in this documentation.
 <details>
 <summary>Windows</summary>
 <br>
-    
+
 Windows users may download and install the static code analyzers
 from the listed URLs mentioned elsewhere in this documentation.
 

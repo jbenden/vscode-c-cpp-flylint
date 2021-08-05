@@ -24,7 +24,7 @@
     "url": "https://github.com/jbenden/vscode-c-cpp-flylint/issues",
     "email": "joe@benden.us"
   },
-  "homepage": "https://github.com/jbenden/vscode-c-cpp-flylint/blob/master/README.md",
+  "homepage": "https://github.com/jbenden/vscode-c-cpp-flylint/blob/main/README.md",
   "engines": {
     "vscode": "^1.52.0"
   },
