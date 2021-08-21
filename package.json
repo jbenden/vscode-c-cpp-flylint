@@ -174,7 +174,7 @@
         "c-cpp-flylint.defines": {
           "type": "array",
           "default": [],
-          "description": "Preprocessor symbols to define. Cascades to all analyzers unless overridden in one or more analyzers."
+          "description": "Preprocessor symbols to define. Cascades to all analyzers unless overridden in one or more analyzers. If not specified it uses \"C_Cpp.default.defines\" or \"defines\" from c_cpp_properties.json"
         },
         "c-cpp-flylint.undefines": {
           "type": "array",
@@ -184,7 +184,7 @@
         "c-cpp-flylint.includePaths": {
           "type": "array",
           "default": [],
-          "description": "Paths to search for include files. They may be relative or absolute. Cascades to all analyzers unless overridden in one or more analyzers."
+          "description": "Paths to search for include files. They may be relative or absolute. Cascades to all analyzers unless overridden in one or more analyzers. If not specified it uses \"C_Cpp.default.includePath\" or \"includePath\" from c_cpp_properties.json"
         },
         "c-cpp-flylint.clang.enable": {
           "type": "boolean",
@@ -207,7 +207,7 @@
             "null"
           ],
           "default": null,
-          "description": "Paths to search for include files. They may be relative or absolute."
+          "description": "Paths to search for include files. They may be relative or absolute. If not specified it falls back to \"c-cpp-flylint.includePaths\""
         },
         "c-cpp-flylint.clang.standard": {
           "type": [
@@ -223,7 +223,7 @@
             "null"
           ],
           "default": null,
-          "description": "Preprocessor symbols to define."
+          "description": "Preprocessor symbols to define. If not specified it falls back to \"c-cpp-flylint.defines\""
         },
         "c-cpp-flylint.clang.undefines": {
           "type": [
@@ -395,7 +395,7 @@
             "null"
           ],
           "default": null,
-          "description": "Paths to search for include files. They may be relative or absolute."
+          "description": "Paths to search for include files. They may be relative or absolute. If not specified it falls back to \"c-cpp-flylint.includePaths\""
         },
         "c-cpp-flylint.cppcheck.platform": {
           "type": "string",
@@ -425,7 +425,7 @@
             "null"
           ],
           "default": null,
-          "description": "Preprocessor symbols to define."
+          "description": "Preprocessor symbols to define. If not specified it falls back to \"c-cpp-flylint.defines\""
         },
         "c-cpp-flylint.cppcheck.undefines": {
           "type": [
