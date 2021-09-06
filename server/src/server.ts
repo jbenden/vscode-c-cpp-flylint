@@ -233,8 +233,13 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
                                     var acceptFile: boolean = true;
 
                                     // see if we are to accept the diagnostics upon this file.
-                                    _.each(currentSettings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath) => {
-                                        var normalizedExcludedPath = path.normalize(excludedPath);
+                                    _.each(currentSettings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath: string) => {
+                                        var substExcludedPath = substituteVariables(excludedPath, { env: process.env, ignoreErrors: true });
+                                        var normalizedExcludedPath = path.normalize(substExcludedPath.value || '');
+
+                                        if (currentSettings['c-cpp-flylint'].debug) {
+                                            console.log('Exclude Path: ' + excludedPath + '  VALUE: ' + substExcludedPath.value + '  Normalized: ' + normalizedExcludedPath);
+                                        }
 
                                         if (!path.isAbsolute(normalizedExcludedPath)) {
                                             // prepend the workspace path and renormalize the path.

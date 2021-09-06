@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Perform variable substitution on each of the excluded directories listed
+  in `excludeFromWorkspacePaths`.
+  See #57.
+
 ## [1.10.1] - 2021-08-13
 
 ### Changed
