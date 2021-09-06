@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Perform variable substitution on each of the excluded directories listed
   in `excludeFromWorkspacePaths`.
   See #57.
+- Improved documentation of the cascading `includePaths` behavior.
+  See #136.
 
 ## [1.10.1] - 2021-08-13
 
