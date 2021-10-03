@@ -125,6 +125,21 @@ connection.onDidChangeConfiguration(change => {
     validateAllDocuments({ force: false });
 });
 
+connection.onNotification('begin', (_params: any) => {
+    didStart = true;
+
+    console.log(`Received a notification to enable and start processing.`);
+    // validateTextDocument(params.document ?? null, false);
+    validateAllDocuments({ force: false });
+});
+
+// NOTE: Does not exist for anything but unit-testing...
+connection.onNotification('end', () => {
+    didStart = false;
+
+    console.log(`Received a notification to disable and stop processing.`);
+});
+
 connection.onNotification('onBuild', async (params: any) => {
     console.log('Received a notification that a build has completed: ' + _.toString(params));
 
@@ -184,7 +199,7 @@ function getDocumentSettings(resource: string): Thenable<Settings> {
 }
 
 async function reconfigureExtension(settings: Settings, workspaceRoot: string): Promise<Linter[]> {
-    let currentSettings = getMergedSettings(settings, workspaceRoot);
+    let currentSettings = await getMergedSettings(settings, workspaceRoot);
 
     let linters: Linter[] = [];  // clear array
 
@@ -204,11 +219,12 @@ async function reconfigureExtension(settings: Settings, workspaceRoot: string): 
     return linters;
 }
 
-export function getCppProperties(cCppPropertiesPath: string, currentSettings: Settings, workspaceRoot: string) {
+export async function getCppProperties(cCppPropertiesPath: string, currentSettings: Settings, workspaceRoot: string) {
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
+            const matchOn: string = await getActiveConfigurationName(currentSettings);
             const cCppProperties: IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
-            const platformConfig = cCppProperties.configurations.find(el => el.name === propertiesPlatform());
+            const platformConfig = cCppProperties.configurations.find(el => el.name === matchOn);
 
             if (platformConfig !== undefined) {
                 // Found a configuration set; populate the currentSettings
@@ -283,7 +299,7 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
                             });
                         }
                         catch (err) {
-                            console.log(err);
+                            console.error(err);
                         }
                     });
                 }
@@ -295,9 +311,29 @@ export function getCppProperties(cCppPropertiesPath: string, currentSettings: Se
     }
     catch (err) {
         console.log('Could not find or parse the workspace c_cpp_properties.json file; continuing...');
+        console.error(err);
     }
 
     return currentSettings;
+}
+
+async function getActiveConfigurationName(currentSettings: Settings): Promise<string> {
+    if (process.env.TRAVIS || process.env.LOADED_MOCHA_OPTS)
+        return propertiesPlatform();
+
+    try {
+        if (currentSettings['c-cpp-flylint'].debug) {
+            console.debug("Proxying request for activeConfigName");
+        }
+        const activeConfigName: string = (await connection.sendRequest<string>('c-cpp-flylint.cpptools.activeConfigName'))!;
+        console.info("activeConfigName: " + activeConfigName);
+        return activeConfigName ?? propertiesPlatform();
+    }
+    catch (err) {
+        console.error(`Failed to send request for activeConfigName: ${err}`);
+    }
+
+    return propertiesPlatform();
 }
 
 function getMergedSettings(settings: Settings, workspaceRoot: string) {
@@ -362,12 +398,10 @@ documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
 });
 
 documents.onDidOpen(async (event: TextDocumentChangeEvent<TextDocument>) => {
-    console.log(`onDidOpen starting analysis.`);
-
-    // TODO: Always scan because we've not seen the document as of yet.
-    validateTextDocument(event.document, false);
-
-    didStart = true;
+    if (didStart) {
+        console.info(`onDidOpen starting analysis.`);
+        validateTextDocument(event.document, false);
+    }
 });
 
 async function validateAllDocuments(options: {force: boolean}) {

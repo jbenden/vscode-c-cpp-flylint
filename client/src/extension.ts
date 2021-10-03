@@ -136,15 +136,52 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
 
     client.onReady()
         .then(() => {
+            // Here we must watch for all extension dependencies to start and be ready.
+            var untilReadyRetries = 40; // 40x250 = 10 seconds maximum
+            const untilReady = async () => {
+                client.outputChannel.appendLine(`untilReady: checking...`);
+
+                try {
+                    await commands.executeCommand('cpptools.activeConfigName');
+                    client.sendNotification('begin', { document: window.activeTextEditor!.document });
+                }
+                catch (err) {
+                    client.outputChannel.appendLine(`untilReady: re-arm timer.`);
+                    if (--untilReadyRetries > 0) {
+                        setTimeout(untilReady, 250); // repeat
+                    } else {
+                        client.outputChannel.appendLine(`Failed to access "ms-vstools.cpptools"` +
+                                                        `extension's active workspace` +
+                                                        `configuration.`);
+                        client.sendNotification('begin');
+                    }
+                }
+            };
+            setTimeout(untilReady, 250); // primer
+
+            // ----------------------------------------------------------------
+
             client.onRequest('activeTextDocument', () => {
                 return window.activeTextEditor!.document;
             });
+
+            // ----------------------------------------------------------------
+
+            client.onRequest('c-cpp-flylint.cpptools.activeConfigName', async () => {
+                client.outputChannel.appendLine(`Sending request to "ms-vstools.cpptools" extension.`);
+
+                return commands.executeCommand('cpptools.activeConfigName');
+            });
+
+            // ----------------------------------------------------------------
 
             client.onRequest('isTrusted', () => {
                 client.outputChannel.appendLine(`Incoming request for isTrusted property. Have ${IS_TRUSTED}.`);
 
                 return IS_TRUSTED;
             });
+
+            // ----------------------------------------------------------------
 
             tasks.onDidEndTask((e: TaskEndEvent) => {
                 if (e.execution.task.group && e.execution.task.group === TaskGroup.Build) {

@@ -20,9 +20,9 @@ export class CcppPropertiesTests {
     }
 
     @test('should handle globbed includePath')
-    handleGlobbedIncludePath() {
+    async handleGlobbedIncludePath() {
         const filename = path.resolve(__dirname, '../../../../server/src/linters/tests/c_cpp_properties-glob.json');
-        const config : Settings = getCppProperties(filename, _.cloneDeep(defaultConfig), __dirname);
+        const config : Settings = await getCppProperties(filename, _.cloneDeep(defaultConfig), __dirname);
 
         chai.should().exist(config);
         chai.expect(config!['c-cpp-flylint'].includePaths[0]).to.not.match(/\/\*\*/);
