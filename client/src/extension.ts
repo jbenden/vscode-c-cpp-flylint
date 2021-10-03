@@ -128,7 +128,7 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
         synchronize: {
             // Synchronize the setting section "c-cpp-flylint" to the server.
             configurationSection: 'c-cpp-flylint',
-            fileEvents: workspace.createFileSystemWatcher('**/{c_cpp_properties.json,.clang_complete,.flexelint.lnt}')
+            fileEvents: workspace.createFileSystemWatcher('**/.vscode/c_cpp_properties.json')
         }
     };
 
