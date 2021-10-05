@@ -1,0 +1,19 @@
+{
+	"extends": "../tsconfig.base.json",
+	"compilerOptions": {
+		"target": "es2017",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"outDir": "out",
+		"rootDir": ".",
+		"lib": [ "es2017" ]
+	},
+	"include": [
+		".",
+		"typings.d.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
