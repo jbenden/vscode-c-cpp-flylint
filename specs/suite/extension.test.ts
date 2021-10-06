@@ -1,18 +1,29 @@
-import * as assert from 'assert';
+import * as chai from 'chai';
 import { after } from 'mocha';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
+import 'mocha-cakes-2';
 import * as vscode from 'vscode';
-// import * as myExtension from '../extension';
 
-suite('Extension Test Suite', () => {
-  after(() => {
-    vscode.window.showInformationMessage('All tests done!');
-  });
+const expect = chai.expect;
 
-  test('Sample test', () => {
-    assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-    assert.strictEqual(-1, [1, 2, 3].indexOf(0));
-  });
+Feature('Extension Test Suite', () => {
+    Scenario('Test Suite', () => {
+
+        after(() => {
+            vscode.window.showInformationMessage('All tests done!');
+        });
+
+        var subject: number[];
+
+        Given('a small list of integers', () => {
+            subject = [1, 2, 3];
+        })
+
+        When('an out-of-bound access is performed', () => {})
+
+        Then('it will return an error value of negative one', () => {
+            expect(subject.indexOf(5)).to.be.eq(-1)
+
+            expect(subject.indexOf(0)).to.be.eq(-1)
+        });
+    });
 });
