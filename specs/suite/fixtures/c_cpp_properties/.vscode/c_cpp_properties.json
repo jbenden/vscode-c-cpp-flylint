@@ -3,7 +3,7 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceRoot}/../../**/*",
+                "${workspaceRoot}/**/*",
                 "/usr/include",
                 "/usr/local/include"
             ],
@@ -21,12 +21,15 @@
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
-            ]
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++14"
         },
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceRoot}/../../**/*",
+                "${workspaceRoot}/**/*",
                 "/usr/lib/gcc/x86_64-linux-gnu/5/include",
                 "/usr/local/include",
                 "/usr/lib/gcc/x86_64-linux-gnu/5/include-fixed",
@@ -45,13 +48,16 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "intelliSenseMode": "clang-x64"
+            "intelliSenseMode": "clang-x64",
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++14"
         },
         {
             "name": "Win32",
             "intelliSenseMode": "clang-x64",
             "includePath": [
-                "${workspaceRoot}/../../**/*",
+                "${workspaceRoot}/**/*",
                 "C:/msys64/usr/lib/gcc/x86_64-pc-msys/6.3.0/include",
                 "C:/msys64/usr/include",
                 "C:/msys64/usr/include/sys",
@@ -76,8 +82,11 @@
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
-            }
+            },
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++14"
         }
     ],
-    "version": 3
+    "version": 4
 }

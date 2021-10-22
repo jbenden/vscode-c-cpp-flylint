@@ -1,65 +1,68 @@
-import { slow, suite, test, timeout } from '@testdeck/mocha';
-import { expect } from 'chai';
-import * as _ from 'lodash';
-import { Settings } from '../../settings';
-import { CppCheck } from '../cppcheck';
-import { before, after, defaultConfig } from './test_helpers';
+import { cloneDeep } from 'lodash';
+import { basename } from 'path';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
+import { CppCheck } from '../../server/src/linters/cppcheck';
+import { Linter } from '../../server/src/linters/linter';
+import { Settings } from '../../server/src/settings';
+import { defaultConfig } from '../mock-config';
+import { injectMockFileSystem } from '../mock-fs';
 
-@suite(timeout(3000), slow(1000))
-export class CppCheckTests {
-    private config: Settings;
-    private linter: CppCheck;
+describe("CppCheck parser", () => {
+    injectMockFileSystem();
 
-    public static before() {
-        before();
-    }
+    var config: Settings;
+    var linter: Linter;
 
-    public static after() {
-        after();
-    }
+    beforeEach(() => {
+        config = cloneDeep(defaultConfig);
+        linter = new CppCheck(config, process.cwd());
+    });
 
-    constructor() {
-        this.config = _.cloneDeep(defaultConfig);
-        this.linter = new CppCheck(this.config, process.cwd());
-    }
+    test("should find the actual CppCheck executable", async () => {
+        // FIXME: Apparently the result recv'd here doesn't mean much. Knowing the exec found is private information in the class. Might be incorrect, as it seems we need to know stuff works... Having additional questions API could work, eg: foundExe() and foundConfig() or haveExe, testExe, ...
+        // NOTE: Could also refactor the complex part out into other place, allowing testing; but the method in Linter could remain private and not tested.
+        await linter['maybeEnable']();
 
-    @test('should find the CppCheck executable linter')
-    executableIsFound() {
-        var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.fulfilled;
-    }
+        // access private member variable via JavaScript property access.
+        const exe = basename(linter['executable']);
 
-    @test('should not find a missing executable linter')
-    executableIsNotFound() {
-        this.linter['setExecutable']('nonexistent');
+        expect(linter.isActive()).toBeTruthy();
+        expect(exe).toBe('cppcheck');
+    });
 
-        var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.rejectedWith('', 'The executable was not found for CppCheck, disabling linter');
-    }
+    test("should NOT find a missing CppCheck executable", async () => {
+        // GIVEN
+        linter['setExecutable']('non-existent');
 
-    @test('should build a proper command-line for a C++ source file')
-    commandLine() {
+        // WHEN
+        await linter['maybeEnable']()
+            // THEN
+            .then(() => {
+                fail(new Error('Should not have gotten a result value'));
+            })
+            .catch((e: Error) => {
+                expect(e.message).toEqual('The executable was not found for CppCheck, disabling linter');
+            });
+    });
+
+    test('should build a proper command-line for a C++ source file', () => {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        var actual = this.linter['buildCommandLine']('main.cc', 'main.cc');
-        actual.should.have.length(8);
-    }
+        const actual = linter['buildCommandLine']('main.cc', 'main.cc');
+        expect(actual).toHaveLength(8);
+    });
 
-    @test('should build a proper command-line for a C++ header file')
-    commandLineWithHeaderFile() {
-        var actual = this.linter['buildCommandLine']('main.h', 'main.h');
-        actual.should.have.length(8);
-    }
+    test('should build a proper command-line for a C++ header file', () => {
+        const actual = linter['buildCommandLine']('main.h', 'main.h');
+        expect(actual).toHaveLength(8);
+    });
 
-    @test('should handle parsing an invalid line')
-    parsesUnknownLine() {
-        let actual = this.linter['parseLine']('should not parse!')!;
-        actual.should.have.property('parseError');
-    }
+    test('should handle parsing an invalid line', () => {
+        const actual = linter['parseLine']('should not parse!')!;
+        expect(actual).toHaveProperty('parseError');
+    });
 
-    @test('should skip over excluded patterns')
-    skipsOverExcludedPatterns() {
-        let test = [
+    test('should skip over excluded patterns', () => {
+        const test = [
             'Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1',
             'Includes: -I/Users/username/Documents/Unwired/contiki_ud_ng/ -I/Users/username/Documents/Unwired/contiki_ud_ng/lib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/sys/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ip/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ipv6/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/asuno-light/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/smarthome/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/common/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc26xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/serial-shell/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/shell/ -I/usr/local/lib/gcc/arm-none-eabi/6.2.1/include/',
             'Platform:Native',
@@ -76,23 +79,22 @@ export class CppCheckTests {
             `    information missingIncludeSystem: Cppcheck cannot find all the include files (use --check-config for details)`,
             `    information missingInclude: Cppcheck cannot find all the include files (use --check-config for details)`,
         ];
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(1);
+        expect(actual).toHaveLength(1);
 
         let result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 2836);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'unusedStructMember');
-        expect(result['message']).to.match(/^struct member \'Anonymous5::name_space\' is never used\./);
-    }
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 2836);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'unusedStructMember');
+        expect(result['message']).toMatch(/^struct member \'Anonymous5::name_space\' is never used\./);
+    });
 
-    @test('should correctly handle quoted lines')
-    handleQuotedLines() {
-        let test = [
+    test('should correctly handle quoted lines', () => {
+        const test = [
             '"Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1"',
             '"Includes: -I/Users/username/Documents/Unwired/contiki_ud_ng/ -I/Users/username/Documents/Unwired/contiki_ud_ng/lib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/sys/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ip/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ipv6/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/asuno-light/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/smarthome/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/common/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc26xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/serial-shell/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/shell/ -I/usr/local/lib/gcc/arm-none-eabi/6.2.1/include/"',
             '"Platform:Native"',
@@ -109,23 +111,22 @@ export class CppCheckTests {
             `"    information missingIncludeSystem: Cppcheck cannot find all the include files (use --check-config for details)"`,
             `"    information missingInclude: Cppcheck cannot find all the include files (use --check-config for details)"`,
         ];
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(1);
+        expect(actual).toHaveLength(1);
 
         let result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 2836);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'unusedStructMember');
-        expect(result['message']).to.match(/^struct member \'Anonymous5::name_space\' is never used\./);
-    }
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 2836);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'unusedStructMember');
+        expect(result['message']).toMatch(/^struct member \'Anonymous5::name_space\' is never used\./);
+    });
 
-    @test('Should handle output from misra addon')
-    handleMisra() {
-        let test = [
+    test('Should handle output from misra addon', () => {
+        const test = [
             'Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1',
             'Includes: -I/Users/username/Documents/Unwired/contiki_ud_ng/ -I/Users/username/Documents/Unwired/contiki_ud_ng/lib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/sys/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ip/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ipv6/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/asuno-light/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/smarthome/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/common/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc26xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/serial-shell/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/shell/ -I/usr/local/lib/gcc/arm-none-eabi/6.2.1/include/',
             'Platform:Native',
@@ -137,50 +138,49 @@ export class CppCheckTests {
             `"    information missingIncludeSystem: Cppcheck cannot find all the include files (use --check-config for details)"`,
             `"    information missingInclude: Cppcheck cannot find all the include files (use --check-config for details)"`,
         ];
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(4);
+        expect(actual).toHaveLength(4);
 
         let result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 1 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'misra-c2012-21.6');
-        expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 1 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'misra-c2012-21.6');
+        expect(result['message']).toBe('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 20 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'misra-c2012-18.8');
-        expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 20 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'misra-c2012-18.8');
+        expect(result['message']).toBe('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 11 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'misra-c2012-17.7');
-        expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 11 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'misra-c2012-17.7');
+        expect(result['message']).toBe('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 9 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'misra-c2012-10.4');
-        expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
-    }
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 9 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'misra-c2012-10.4');
+        expect(result['message']).toBe('misra violation (use --rule-texts=<file> to get proper output)');
+    });
 
-    @test('Should find identical errors on different lines')
-    handleIdenticalErrors() {
-        let test = [
+    test('Should find identical errors on different lines', () => {
+        const test = [
             'Defines: CURRENT_DEVICE_VERSION=1;BIG_VERSION=1;LITTLE_VERSION=1;CURRENT_DEVICE_GROUP=1;CURRENT_DEVICE_SLEEP_TYPE=1;CURRENT_ABILITY_1BYTE=1;CURRENT_ABILITY_2BYTE=1;CURRENT_ABILITY_3BYTE=1;CURRENT_ABILITY_4BYTE=1;CLASS=1;CLASS_B=1;CLASS_C=1;IF_UD_RELAY=1;PRIu32="u";PRIx32="x";PRIX32="X";PRIXX32="X";NETSTACK_CONF_WITH_IPV6=1',
             'Includes: -I/Users/username/Documents/Unwired/contiki_ud_ng/ -I/Users/username/Documents/Unwired/contiki_ud_ng/lib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/sys/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ip/ -I/Users/username/Documents/Unwired/contiki_ud_ng/core/net/ipv6/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/asuno-light/ -I/Users/username/Documents/Unwired/contiki_ud_ng/unwired/smarthome/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/common/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc26xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/platform/unwired/udboards/cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/dev/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/driverlib/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc13xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/cpu/cc26xx-cc13xx/lib/cc26xxware/inc/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/serial-shell/ -I/Users/username/Documents/Unwired/contiki_ud_ng/apps/shell/ -I/usr/local/lib/gcc/arm-none-eabi/6.2.1/include/',
             'Platform:Native',
@@ -192,67 +192,66 @@ export class CppCheckTests {
             `"    information missingIncludeSystem: Cppcheck cannot find all the include files (use --check-config for details)"`,
             `"    information missingInclude: Cppcheck cannot find all the include files (use --check-config for details)"`,
         ];
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(4);
+        expect(actual).toHaveLength(4);
 
         let result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 36 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'misra-c2012-10.4');
-        expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 36 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'misra-c2012-10.4');
+        expect(result['message']).toBe('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 15 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'misra-c2012-10.4');
-        expect(result['message']).to.equal('misra violation (use --rule-texts=<file> to get proper output)');
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 15 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'misra-c2012-10.4');
+        expect(result['message']).toBe('misra violation (use --rule-texts=<file> to get proper output)');
 
         result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 23 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Error);
-        result.should.have.property('code', 'zerodiv');
-        expect(result['message']).to.equal('Division by zero');
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 23 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Error);
+        expect(result).toHaveProperty('code', 'zerodiv');
+        expect(result['message']).toBe('Division by zero');
 
         result = actual.pop()!;
 
-        result.should.have.property('fileName', 'flist.c');
-        result.should.have.property('line', 9 - 1);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Error);
-        result.should.have.property('code', 'zerodiv');
-        expect(result['message']).to.equal('Division by zero');
-    }
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 9 - 1);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Error);
+        expect(result).toHaveProperty('code', 'zerodiv');
+        expect(result['message']).toBe('Division by zero');
+    });
 
-    @test('should properly map missingOverride warnings')
-    handleMissingOverrideWarnings110() {
-        let test = [
-	    `Checking example110.cpp ...`,
-	    `Checking example110.cpp: HAVE_CONFIG_H=1...`,
-	    `example110.cpp  6  style missingOverride: The function 'baz' overrides a function in a base class but is not marked with a 'override' specifier.`,
-	    `example110.cpp  2  style unusedFunction: The function 'baz' is never used.`,
+    test('should properly map missingOverride warnings', () => {
+        const test = [
+            `Checking example110.cpp ...`,
+            `Checking example110.cpp: HAVE_CONFIG_H=1...`,
+            `example110.cpp  6  style missingOverride: The function 'baz' overrides a function in a base class but is not marked with a 'override' specifier.`,
+            `example110.cpp  2  style unusedFunction: The function 'baz' is never used.`,
         ];
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(2);
+        expect(actual).toHaveLength(2);
 
         let result = actual.pop()!;
         result = actual.pop()!;
 
-        result.should.have.property('fileName', 'example110.cpp');
-        result.should.have.property('line', 5);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', 'missingOverride');
-        expect(result['message']).to.match(/^The function \'baz\' overrides a function in a base class/);
-    }
-}
+        expect(result).toHaveProperty('fileName', 'example110.cpp');
+        expect(result).toHaveProperty('line', 5);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'missingOverride');
+        expect(result['message']).toMatch(/^The function \'baz\' overrides a function in a base class/);
+    });
+});

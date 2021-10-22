@@ -1,0 +1,45 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "cSpell.enabled": false,
+    "editor.formatOnSave": true,
+    "c-cpp-flylint.clang.enable": true,
+    "c-cpp-flylint.clang.executable": "clang",
+    "c-cpp-flylint.cppcheck.enable": false,
+    "c-cpp-flylint.cppcheck.force": true,
+    // "c-cpp-flylint.cppcheck.extraArgs": ["-j", "6"],
+    "c-cpp-flylint.debug": true,
+    "c-cpp-flylint.flexelint.executable": "/home/jbenden/Source/FlexeLint_Workstation/flexelint8/src/flexelint",
+    "c-cpp-flylint.flexelint.enable": false,
+    "c-cpp-flylint.pclintplus.enable": true,
+    "files.associations": {
+        "*.rst": "restructuredtext",
+        "rsync.h": "c",
+        "deflate.h": "c",
+        "fileapi.h": "c",
+        "errhandlingapi.h": "c",
+        "winbase.h": "c",
+        "stat.h": "c",
+        "winnt.h": "c"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/*.o": true,
+        "**/*.exe": true,
+        "**/{configure,Makefile}": true,
+        "**/config.{guess,h,log,status,sub}": true,
+        "**/*-tstamp": true,
+        "**/{GPATH,GRTAGS,GTAGS}": true
+    },
+    "c-cpp-flylint.run": "onSave",
+    "c-cpp-flylint.pclintplus.enable": false,
+    "c-cpp-flylint.pclintplus.executable": "/bin/echo1",
+    "c-cpp-flylint.pclintplus.configFile": ".flexelint.lnt",
+    "c-cpp-flylint.excludeFromWorkspacePaths": [
+        ".git",
+        "${workspaceRoot}/include/hal"
+    ]
+}

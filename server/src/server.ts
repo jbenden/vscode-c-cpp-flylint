@@ -26,6 +26,7 @@ import * as glob from 'fast-glob';
 import { EntryItem } from 'fast-glob/out/types';
 import { Settings, IConfigurations, propertiesPlatform } from './settings';
 import { Linter, Lint, fromLint, toLint } from './linters/linter';
+import { RobustPromises } from './utils';
 
 import { Clang } from './linters/clang';
 import { CppCheck } from './linters/cppcheck';
@@ -186,21 +187,22 @@ async function getWorkspaceRoot(resource: string): Promise<string> {
     return result;
 }
 
-function getDocumentSettings(resource: string): Thenable<Settings> {
+async function getDocumentSettings(resource: string): Promise<Settings> {
     if (!hasConfigurationCapability) {
         return Promise.resolve(globalSettings);
     }
+
     let result = documentSettings.get(resource);
     if (!result) {
-        result = connection.workspace.getConfiguration({ scopeUri: resource });
+        let workspaceRoot = await getWorkspaceRoot(resource);
+        result = connection.workspace.getConfiguration({ scopeUri: resource }).then(s => getMergedSettings(s, workspaceRoot));
         documentSettings.set(resource, result);
     }
+
     return result;
 }
 
-async function reconfigureExtension(settings: Settings, workspaceRoot: string): Promise<Linter[]> {
-    let currentSettings = await getMergedSettings(settings, workspaceRoot);
-
+async function reconfigureExtension(currentSettings: Settings, workspaceRoot: string): Promise<Linter[]> {
     let linters: Linter[] = [];  // clear array
 
     if (currentSettings['c-cpp-flylint'].clang.enable) { linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang); }
@@ -228,8 +230,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
 
             if (platformConfig !== undefined) {
                 // Found a configuration set; populate the currentSettings
-                if (currentSettings['c-cpp-flylint'].includePaths.length === 0) {
-                    currentSettings['c-cpp-flylint'].includePaths = [];
+                if (platformConfig.includePath.length > 0) {
                     process.env.workspaceRoot = workspaceRoot;
                     process.env.workspaceFolder = workspaceRoot;
 
@@ -280,7 +281,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                         }
 
                                         currentSettings['c-cpp-flylint'].includePaths =
-                                            currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath);
+                                            _.uniq(currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath));
                                     }
                                 } else {
                                     // file is outside of workspace root, perhaps a system folder
@@ -294,7 +295,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                     }
 
                                     currentSettings['c-cpp-flylint'].includePaths =
-                                        currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath);
+                                        _.uniq(currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath));
                                 }
                             });
                         }
@@ -303,8 +304,10 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                         }
                     });
                 }
-                if (currentSettings['c-cpp-flylint'].defines.length === 0) {
-                    currentSettings['c-cpp-flylint'].defines = platformConfig.defines;
+
+                if (platformConfig.defines.length > 0) {
+                    currentSettings['c-cpp-flylint'].defines =
+                        _.uniq(currentSettings['c-cpp-flylint'].defines.concat(platformConfig.defines));
                 }
             }
         }
@@ -318,25 +321,16 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
 }
 
 async function getActiveConfigurationName(currentSettings: Settings): Promise<string> {
-    if (process.env.TRAVIS || process.env.LOADED_MOCHA_OPTS)
-        return propertiesPlatform();
-
-    try {
-        if (currentSettings['c-cpp-flylint'].debug) {
-            console.debug("Proxying request for activeConfigName");
-        }
-        const activeConfigName: string = (await connection.sendRequest<string>('c-cpp-flylint.cpptools.activeConfigName'))!;
-        console.info("activeConfigName: " + activeConfigName);
-        return activeConfigName ?? propertiesPlatform();
-    }
-    catch (err) {
-        console.error(`Failed to send request for activeConfigName: ${err}`);
+    if (currentSettings['c-cpp-flylint'].debug) {
+        console.debug("Proxying request for activeConfigName");
     }
 
-    return propertiesPlatform();
+    return RobustPromises.retry(40, 250, 1000, () => connection.sendRequest<string>('c-cpp-flylint.cpptools.activeConfigName')).then(r => {
+        if (!_.isArrayLike(r) || r.length === 0) return propertiesPlatform(); else return r;
+    });
 }
 
-function getMergedSettings(settings: Settings, workspaceRoot: string) {
+function getMergedSettings(settings: Settings, workspaceRoot: string): Promise<Settings> {
     let currentSettings = _.cloneDeep(settings);
     const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
 
@@ -404,8 +398,8 @@ documents.onDidOpen(async (event: TextDocumentChangeEvent<TextDocument>) => {
     }
 });
 
-async function validateAllDocuments(options: {force: boolean}) {
-    const {force} = options || {};
+async function validateAllDocuments(options: { force: boolean }) {
+    const { force } = options || {};
 
     if (didStart) {
         console.log(`validateAllDocuments is starting analysis.`);
@@ -527,7 +521,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
                     result.splice(i, 1);
                 }
 
-                diagnostics = _.uniqBy(diagnostics, function (e) { return e.range.start.line + ':::' + e.code + ':::' + e.message; });
+                diagnostics = _.uniqBy(diagnostics, function(e) { return e.range.start.line + ':::' + e.code + ':::' + e.message; });
 
                 if (allDiagnostics.has(currentFile)) {
                     allDiagnostics.set(currentFile, _.union(allDiagnostics.get(currentFile), diagnostics));
@@ -696,6 +690,30 @@ connection.onDidChangeWatchedFiles((params) => {
             validateAllDocuments({ force: true });
         }
     });
+});
+
+connection.onRequest('getLocalConfig', async (activeDocument: TextDocument) => {
+    const tracker = new ErrorMessageTracker();
+
+    if (activeDocument !== undefined && activeDocument !== null) {
+        let fileUri: URI = <URI>(<any>activeDocument.uri);
+
+        for (const document of documents.all()) {
+            try {
+                const documentUri = URI.parse(document.uri);
+
+                if (fileUri.fsPath === documentUri.fsPath) {
+                    return Promise.resolve((await getDocumentSettings(document.uri))['c-cpp-flylint']);
+                }
+            } catch (err) {
+                tracker.add(getErrorMessage(err, document));
+            }
+        }
+    }
+
+    tracker.sendErrors(connection);
+
+    return Promise.reject();
 });
 
 connection.onExecuteCommand((params: ExecuteCommandParams) => {

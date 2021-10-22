@@ -85,15 +85,59 @@ export interface FlawFinderSeverityMaps {
     '5': SeverityLevel;
 }
 
-// Settings as defined in VS Code.
-export interface Settings {
-    'c-cpp-flylint': {
-        enable: boolean;
-        debug: boolean;
-        run: 'onSave' | 'onType' | 'onBuild';
-        ignoreParseErrors: boolean;
+export interface FlylintSettings {
+    enable: boolean;
+    debug: boolean;
+    run: 'onSave' | 'onType' | 'onBuild';
+    ignoreParseErrors: boolean;
 
-        excludeFromWorkspacePaths: string[];
+    excludeFromWorkspacePaths: string[];
+
+    // common options, which may be overridden per syntax analyzer
+    standard: string[];
+    includePaths: string[];
+    defines: string[];
+    undefines: string[];
+    language: 'c' | 'c++';
+
+    flexelint: {
+        enable: boolean;
+        executable: string;
+        configFile: string;
+        headerArgs: string | string[];
+        severityLevels: FlexelintSeverityMaps;
+    }
+    pclintplus: {
+        enable: boolean;
+        executable: string;
+        configFile: string;
+        headerArgs: string | string[];
+        severityLevels: PclintPlusSeverityMaps;
+    }
+    cppcheck: {
+        enable: boolean;
+        executable: string;
+        configFile: string;
+        unusedFunctions: boolean;
+        verbose: boolean;
+        force: boolean;
+        inconclusive: boolean;
+        platform: 'avr8' | 'unix32' | 'unix64' | 'win32A' | 'win32W' | 'win64' | 'native';
+        standard: string[] | null;
+        includePaths: string[] | null;
+        defines: string[] | null;
+        undefines: string[] | null;
+        suppressions: string[];
+        addons: string[];
+        language: 'c' | 'c++' | null;
+        severityLevels: CppCheckSeverityMaps;
+        extraArgs: string[] | null;
+    }
+    clang: {
+        enable: boolean;
+        executable: string;
+        configFile: string;
+        severityLevels: ClangSeverityMaps;
 
         // common options, which may be overridden per syntax analyzer
         standard: string[];
@@ -102,72 +146,30 @@ export interface Settings {
         undefines: string[];
         language: 'c' | 'c++';
 
-        flexelint: {
-            enable: boolean;
-            executable: string;
-            configFile: string;
-            headerArgs: string | string[];
-            severityLevels: FlexelintSeverityMaps;
-        }
-        pclintplus: {
-            enable: boolean;
-            executable: string;
-            configFile: string;
-            headerArgs: string | string[];
-            severityLevels: PclintPlusSeverityMaps;
-        }
-        cppcheck: {
-            enable: boolean;
-            executable: string;
-            configFile: string;
-            unusedFunctions: boolean;
-            verbose: boolean;
-            force: boolean;
-            inconclusive: boolean;
-            platform: 'avr8' | 'unix32' | 'unix64' | 'win32A' | 'win32W' | 'win64' | 'native';
-            standard: string[] | null;
-            includePaths: string[] | null;
-            defines: string[] | null;
-            undefines: string[] | null;
-            suppressions: string[];
-            addons: string[];
-            language: 'c' | 'c++' | null;
-            severityLevels: CppCheckSeverityMaps;
-            extraArgs: string[] | null;
-        }
-        clang: {
-            enable: boolean;
-            executable: string;
-            configFile: string;
-            severityLevels: ClangSeverityMaps;
+        // special options
+        extraArgs: string[] | null;
+        warnings: string[] | null;
+        pedantic: boolean;
+        pedanticErrors: boolean;
+        msExtensions: boolean;
+        noExceptions: boolean;
+        noRtti: boolean;
+        blocks: boolean;
+        includes: string[] | null;
+        standardLibs: string[] | null;
+    }
+    flawfinder: {
+        enable: boolean;
+        executable: string;
+        severityLevels: FlawFinderSeverityMaps;
+    }
+    lizard: {
+        enable: boolean;
+        executable: string;
+    }
+};
 
-            // common options, which may be overridden per syntax analyzer
-            standard: string[];
-            includePaths: string[];
-            defines: string[];
-            undefines: string[];
-            language: 'c' | 'c++';
-
-            // special options
-            extraArgs: string[] | null;
-            warnings: string[] | null;
-            pedantic: boolean;
-            pedanticErrors: boolean;
-            msExtensions: boolean;
-            noExceptions: boolean;
-            noRtti: boolean;
-            blocks: boolean;
-            includes: string[] | null;
-            standardLibs: string[] | null;
-        }
-        flawfinder: {
-            enable: boolean;
-            executable: string;
-            severityLevels: FlawFinderSeverityMaps;
-        }
-        lizard: {
-            enable: boolean;
-            executable: string;
-        }
-    };
+// Settings as defined in VS Code.
+export interface Settings {
+    'c-cpp-flylint': FlylintSettings;
 }

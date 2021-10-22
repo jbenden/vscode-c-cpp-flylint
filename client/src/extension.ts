@@ -1,4 +1,4 @@
-import { commands, env, ExtensionContext, window, workspace, tasks, TaskEndEvent, TaskGroup, Uri, WorkspaceConfiguration } from 'vscode';
+import { TextDocument, commands, env, ExtensionContext, window, workspace, tasks, TaskEndEvent, TaskGroup, Uri, WorkspaceConfiguration } from 'vscode';
 import {
     LanguageClient,
     LanguageClientOptions,
@@ -136,6 +136,15 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
 
     client.onReady()
         .then(() => {
+
+            // ----------------------------------------------------------------
+
+            context.subscriptions.push(commands.registerCommand('c-cpp-flylint.getLocalConfig', async (d: TextDocument) => {
+                return client.sendRequest('getLocalConfig', d);
+            }));
+
+            // ----------------------------------------------------------------
+
             // Here we must watch for all extension dependencies to start and be ready.
             var untilReadyRetries = 40; // 40x250 = 10 seconds maximum
             const untilReady = async () => {
@@ -151,8 +160,8 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
                         setTimeout(untilReady, 250); // repeat
                     } else {
                         client.outputChannel.appendLine(`Failed to access "ms-vstools.cpptools"` +
-                                                        `extension's active workspace` +
-                                                        `configuration.`);
+                            `extension's active workspace` +
+                            `configuration.`);
                         client.sendNotification('begin');
                     }
                 }

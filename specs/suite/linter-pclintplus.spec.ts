@@ -1,126 +1,116 @@
-import { slow, suite, test, timeout } from '@testdeck/mocha';
-import { expect } from 'chai';
-import * as _ from 'lodash';
-import { PclintPlus } from '../pclintplus';
-import { Settings } from '../../settings';
-import { before, after, defaultConfig } from './test_helpers';
+import { cloneDeep } from 'lodash';
+import { basename } from 'path';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
+import { Linter } from '../../server/src/linters/linter';
+import { PclintPlus } from '../../server/src/linters/pclintplus';
+import { Settings } from '../../server/src/settings';
+import { defaultConfig } from '../mock-config';
+import { injectMockFileSystem } from '../mock-fs';
 
-@suite(timeout(3000), slow(1000))
-export class PclintPlusTests {
-    private config: Settings;
-    private linter: PclintPlus;
+describe("PCLint Plus parser", () => {
+    injectMockFileSystem();
 
-    public static before() {
-        before();
-    }
+    var config: Settings;
+    var linter: Linter;
 
-    public static after() {
-        after();
-    }
+    beforeEach(() => {
+        config = cloneDeep(defaultConfig);
+        linter = new PclintPlus(config, process.cwd());
+    });
 
-    constructor() {
-        this.config = _.cloneDeep(defaultConfig);
-        this.linter = new PclintPlus(this.config, process.cwd());
-    }
+    test("should find the actual PCLint Plus executable", async () => {
+        // FIXME: Apparently the result recv'd here doesn't mean much. Knowing the exec found is private information in the class. Might be incorrect, as it seems we need to know stuff works... Having additional questions API could work, eg: foundExe() and foundConfig() or haveExe, testExe, ...
+        // NOTE: Could also refactor the complex part out into other place, allowing testing; but the method in Linter could remain private and not tested.
+        await linter['maybeEnable']();
 
-    @test('should find the PC-lint Plus executable linter')
-    executableIsFound() {
+        // access private member variable via JavaScript property access.
+        const exe = basename(linter['executable']);
+
+        expect(linter.isActive()).toBeTruthy();
+        expect(exe).toBe('pclp');
+    });
+
+    test("should NOT find a missing PCLint Plus executable", async () => {
+        // GIVEN
+        linter['setExecutable']('non-existent');
+
+        // WHEN
+        await linter['maybeEnable']()
+            // THEN
+            .then(() => {
+                fail(new Error('Should not have gotten a result value'));
+            })
+            .catch((e: Error) => {
+                expect(e.message).toEqual('The executable was not found for PclintPlus, disabling linter');
+            });
+    });
+
+    test('should build a proper command-line for a C++ source file', () => {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.fulfilled;
-    }
+        const actual = linter['buildCommandLine']('main.cc', 'main.cc');
+        expect(actual).toHaveLength(9);
+    });
 
-    @test('should not find a missing executable linter')
-    executableIsNotFound() {
+    test('should build a proper command-line for a C++ header file', () => {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        this.linter['setExecutable']('nonexistent');
+        const actual = linter['buildCommandLine']('main.h', 'main.h');
+        expect(actual).toHaveLength(16);
+    });
 
-        var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.rejectedWith('', 'The executable was not found for PclintPlus, disabling linter');
-    }
-
-    @test('should disable itself when no configuration file is found')
-    configMissing() {
+    test('should handle parsing an invalid line', () => {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        this.linter['setConfigFile']('nonexistent');
+        const actual = linter['parseLine']('should not parse!')!;
+        expect(actual).toHaveProperty('parseError');
+    });
 
-        var result = this.linter['maybeEnable']();
-        return result.should.eventually.be.rejectedWith('', 'could not locate configuration file for PclintPlus, disabling linter');
-    }
-
-    @test('should build a proper command-line for a C++ source file')
-    commandLine() {
-        // this method call syntax permits protected/private method calling; due to JavaScript.
-        var actual = this.linter['buildCommandLine']('main.cc', 'main.cc');
-        actual.should.have.length(9);
-    }
-
-    @test('should build a proper command-line for a C++ header file')
-    commandLineWithHeaderFile() {
-        // this method call syntax permits protected/private method calling; due to JavaScript.
-        var actual = this.linter['buildCommandLine']('main.h', 'main.h');
-        actual.should.have.length(16);
-    }
-
-    @test('should handle parsing an invalid line')
-    parsesUnknownLine() {
-        // this method call syntax permits protected/private method calling; due to JavaScript.
-        let actual = this.linter['parseLine']('should not parse!')!;
-        actual.should.have.property('parseError');
-    }
-
-    @test('should skip over first excluded patterns')
-    skipsOverFirstExcludedPatterns() {
-        let test = [
+    test('should parse using first exclude pattern', () => {
+        const test = [
             'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt  164 0  error 307: cannot open indirect ',
             '    file \'me-project.lnt\'',
             'me-project.lnt',
             '^',
             ''
-          ];
+        ];
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(1);
+        expect(actual).toHaveLength(1);
 
         let result = actual.pop()!;
 
-        result.should.have.property('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
-        result.should.have.property('line', 163);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Error);
-        result.should.have.property('code', '307');
-        expect(result['message']).to.match(/^cannot open indirect/);
-    }
+        expect(result).toHaveProperty('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
+        expect(result).toHaveProperty('line', 163);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Error);
+        expect(result).toHaveProperty('code', '307');
+        expect(result['message']).toMatch(/^cannot open indirect/);
+    });
 
-    @test('should skip over second excluded patterns')
-    skipsOverSecondExcludedPatterns() {
-        let test = [
+    test('should parse using second exclude pattern', () => {
+        const test = [
             'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt:164:0: error 307: cannot open indirect ',
             '    file \'me-project.lnt\'',
             'me-project.lnt',
             '^',
             ''
-          ];
+        ];
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(1);
+        expect(actual).toHaveLength(1);
 
         let result = actual.pop()!;
 
-        result.should.have.property('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
-        result.should.have.property('line', 163);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Error);
-        result.should.have.property('code', '307');
-        expect(result['message']).to.match(/^cannot open indirect/);
-    }
+        expect(result).toHaveProperty('fileName', 'C:\\pclp-1.3.5\\windows\\config\\co-xc16.lnt');
+        expect(result).toHaveProperty('line', 163);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Error);
+        expect(result).toHaveProperty('code', '307');
+        expect(result['message']).toMatch(/^cannot open indirect/);
+    });
 
-    @test('should parse output')
-    parsesOutput() {
-        let test = [
+    test('should parse multiple lines of output', () => {
+        const test = [
             'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c:78:4: warning 534: ignoring return value of function \'printf\'',
             'c:\\program files (x86)\\microchip\\xc16\\v1.41\\bin\\bin\\../..\\include\\lega-c\\stdio.h:102:4: supplemental 891: declared here',
             'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c:79:4: warning 534: ignoring return value of function \'printf\'',
@@ -145,19 +135,19 @@ export class PclintPlusTests {
             'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c:30:5: info 714: external symbol \'init_uart\' was defined but not referenced',
             'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c:30:5: info 765: external symbol \'init_uart\' could be made static',
             ''
-          ];
+        ];
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        let actual = this.linter['parseLines'](test);
+        const actual = linter['parseLines'](test);
 
-        actual.should.have.length(23);
+        expect(actual).toHaveLength(23);
 
         let result = actual.pop()!;
 
-        result.should.have.property('fileName', 'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c');
-        result.should.have.property('line', 29);
-        result.should.have.property('column', 0);
-        result.should.have.property('severity', DiagnosticSeverity.Information);
-        result.should.have.property('code', '765');
-        expect(result['message']).to.match(/^external symbol \'init_uart\' could be made static/);
-    }
-}
+        expect(result).toHaveProperty('fileName', 'c:\\Users\\Username\\source\\repos\\Array\\mainXC16.c');
+        expect(result).toHaveProperty('line', 29);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', '765');
+        expect(result['message']).toMatch(/^external symbol \'init_uart\' could be made static/);
+    });
+});

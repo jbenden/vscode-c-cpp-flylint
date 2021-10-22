@@ -7,3 +7,5 @@ node_modules
 /cppcheck-*
 *.vsix
 *.pdf
+/.vscode-test
+/coverage
