@@ -204,6 +204,19 @@
           "default": [],
           "description": "Paths to search for include files. They may be relative or absolute. Cascades to all analyzers unless overridden in one or more analyzers. If not specified it uses \"C_Cpp.default.includePath\" or \"includePath\" from c_cpp_properties.json"
         },
+        "c-cpp-flylint.queryUrlBase": {
+          "type": "string",
+          "format": "uri",
+          "markdownDescription": "This option allows you to chose your preferred search engine for diagnostic code lookup. See also `#c-cpp-flylint.webQueryMatchSet#` to configure the keywords of the diagnostic code which will make it searchable on the web.",
+          "default": "https://www.google.com/search?q="
+        },
+        "c-cpp-flylint.webQueryMatchSet": {
+          "type": "array",
+          "default": [
+            "misra-"
+          ],
+          "markdownDescription": "The diagnostic code match set for which a web lookup will be proposed. Web search engine can be customized through `#c-cpp-flylint.queryUrlBase#`."
+        },
         "c-cpp-flylint.clang.enable": {
           "type": "boolean",
           "default": true,

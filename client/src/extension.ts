@@ -1,11 +1,12 @@
 import { TextDocument, commands, env, ExtensionContext, window, workspace, tasks, TaskEndEvent, TaskGroup, Uri, WorkspaceConfiguration } from 'vscode';
 import {
-    LanguageClient,
     LanguageClientOptions,
     ServerOptions,
     SettingMonitor,
     TransportKind,
 } from 'vscode-languageclient/node';
+import * as vscode from 'vscode';
+import { FlylintLanguageClient } from './flylintLanguageClient';
 import * as path from 'path';
 import { getFromWorkspaceState, resetWorkspaceState, setWorkspaceState, updateWorkspaceState } from './stateUtils';
 import { isBoolean } from 'lodash';
@@ -18,6 +19,7 @@ const SECURITY_SENSITIVE_CONFIG: string[] = [
     'flawfinder.executable',
     'lizard.executable',
     'pclintplus.executable',
+    'queryUrlBase'
 ];
 var IS_TRUSTED: boolean = false;
 
@@ -132,7 +134,19 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
         }
     };
 
-    const client = new LanguageClient('c-cpp-flylint', 'C/C++ Flylint', serverOptions, clientOptions);
+    let settings = vscode.workspace.getConfiguration('c-cpp-flylint');
+    let queryUrlBase = settings.get<string>('queryUrlBase');
+    let webQueryMatchSet = settings.get<Array<string>>('webQueryMatchSet');
+
+    if (queryUrlBase === undefined) {
+        queryUrlBase = 'https://www.google.com/search?q=';
+    }
+    if (webQueryMatchSet === undefined) {
+        webQueryMatchSet = [];
+    }
+
+    const client = new FlylintLanguageClient('c-cpp-flylint', 'C/C++ Flylint', serverOptions, clientOptions,
+        queryUrlBase, webQueryMatchSet);
 
     client.onReady()
         .then(() => {
