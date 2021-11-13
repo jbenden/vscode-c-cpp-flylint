@@ -1,5 +1,4 @@
 import { cloneDeep } from 'lodash';
-import { basename } from 'path';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
 import { Linter } from '../../server/src/linters/linter';
 import { Lizard } from '../../server/src/linters/lizard';
@@ -16,33 +15,6 @@ describe("Lizard parser", () => {
     beforeEach(() => {
         config = cloneDeep(defaultConfig);
         linter = new Lizard(config, process.cwd());
-    });
-
-    test("should find the actual Lizard executable", async () => {
-        // FIXME: Apparently the result recv'd here doesn't mean much. Knowing the exec found is private information in the class. Might be incorrect, as it seems we need to know stuff works... Having additional questions API could work, eg: foundExe() and foundConfig() or haveExe, testExe, ...
-        // NOTE: Could also refactor the complex part out into other place, allowing testing; but the method in Linter could remain private and not tested.
-        await linter['maybeEnable']();
-
-        // access private member variable via JavaScript property access.
-        const exe = basename(linter['executable']);
-
-        expect(linter.isActive()).toBeTruthy();
-        expect(exe).toBe('lizard');
-    });
-
-    test("should NOT find a missing Lizard executable", async () => {
-        // GIVEN
-        linter['setExecutable']('non-existent');
-
-        // WHEN
-        await linter['maybeEnable']()
-            // THEN
-            .then(() => {
-                fail(new Error('Should not have gotten a result value'));
-            })
-            .catch((e: Error) => {
-                expect(e.message).toEqual('The executable was not found for Lizard, disabling linter');
-            });
     });
 
     test('should build a proper command-line for a C++ source file', () => {
