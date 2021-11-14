@@ -141,7 +141,7 @@ export class Clang extends Linter {
                 severity: DiagnosticSeverity.Warning,
                 code: 0,
                 message: 'Issues in file included from here',
-                source: 'Clang'
+                source: this.name
             };
         }
 
@@ -153,7 +153,7 @@ export class Clang extends Linter {
                 severity: this.getSeverityCode(regexArray[4]),
                 code: 0,
                 message: regexArray[5],
-                source: 'Clang',
+                source: this.name,
             };
         } else {
             return {
@@ -164,7 +164,7 @@ export class Clang extends Linter {
                 severity: DiagnosticSeverity.Error,
                 code: 0,
                 message: '',
-                source: 'Clang'
+                source: this.name
             };
         }
     }

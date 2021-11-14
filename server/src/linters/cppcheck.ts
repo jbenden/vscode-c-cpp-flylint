@@ -89,7 +89,7 @@ export class CppCheck extends Linter {
                 severity: this.getSeverityCode(regexArray[4]),
                 code: regexArray[5],
                 message: regexArray[6],
-                source: 'CppCheck',
+                source: this.name,
             };
         } else {
             return {
@@ -100,7 +100,7 @@ export class CppCheck extends Linter {
                 severity: DiagnosticSeverity.Error,
                 code: 0,
                 message: '',
-                source: 'CppCheck'
+                source: this.name
             };
         }
     }

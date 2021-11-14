@@ -64,7 +64,7 @@ export class PclintPlus extends Linter {
                     severity: this.getSeverityCode(regexArray[5]),
                     code: regexArray[6],
                     message: regexArray[7],
-                    source: 'PclintPlus',
+                    source: this.name,
                 };
             } else {
                 return {
@@ -74,7 +74,7 @@ export class PclintPlus extends Linter {
                     severity: this.getSeverityCode(regexArray[11]),
                     code: regexArray[12],
                     message: regexArray[13],
-                    source: 'PclintPlus',
+                    source: this.name,
                 };
             }
         } else {
@@ -86,7 +86,7 @@ export class PclintPlus extends Linter {
                 severity: DiagnosticSeverity.Error,
                 code: 0,
                 message: '',
-                source: 'PclintPlus'
+                source: this.name
             };
         }
     }

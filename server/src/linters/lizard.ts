@@ -40,7 +40,7 @@ export class Lizard extends Linter {
                 severity: DiagnosticSeverity.Warning,
                 code: 'Cyclomatic complexity',
                 message: regexArray[3],
-                source: 'lizard',
+                source: this.name,
             };
         } else {
             return {
@@ -51,7 +51,7 @@ export class Lizard extends Linter {
                 severity: DiagnosticSeverity.Error,
                 code: 0,
                 message: '',
-                source: 'lizard'
+                source: this.name
             };
         }
     }
