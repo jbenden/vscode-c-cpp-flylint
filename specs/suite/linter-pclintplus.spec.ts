@@ -122,4 +122,41 @@ describe("PCLint Plus parser", () => {
         expect(result).toHaveProperty('code', '765');
         expect(result['message']).toMatch(/^external symbol \'init_uart\' could be made static/);
     });
+
+    test('should parse multi-line diagnostics', () => {
+        const test = [
+            "c:\\experiments\\VSCodeDemo\\src\\main.cpp  1 0  Warning 686: Option '-e*' is suspicious because of 'the likelihood of causing meaningless output'; receiving a syntax error inside a library file most likely means something is wrong with your Lint configuration",
+            "c:\\experiments\\VSCodeDemo\\src\\main.cpp  7 7  Note 1960: Violates MISRA C++ 2008 Required Rule 16-0-3, use of '#undef' is discouraged: 'SOMETHING' ",
+            "c:\\experiments\\VSCodeDemo\\src\\main.cpp  10 0  Note 1960: Violates MISRA C++ 2008 Required Rule 7-3-1, Global declaration of symbol 'avg' ",
+            '  0 0  Note 1960: Violates MISRA C++ 2008 Required Rule 0-1-8, Void return type for function without external side-effects: avg(void)',
+            "c:\\experiments\\VSCodeDemo\\src\\main.cpp  7 7  Note 1960: Violates MISRA C++ 2008 Required Rule 16-0-3, use of '#undef' is discouraged: 'SOMETHING' ",
+            "c:\\experiments\\VSCodeDemo\\src\\main.cpp  10 0  Note 1960: Violates MISRA C++ 2008 Required Rule 7-3-1, Global declaration of symbol 'avg' ",
+            "  0 0  Note 974: Worst case function for stack usage: 'avg' is finite, requires 12 bytes total stack in calling 'no function'. See +stack for a full report.",
+            '  0 0  Note 900: Successful completion, 7 messages produced',
+            ''
+        ];
+        // this method call syntax permits protected/private method calling; due to JavaScript.
+        const actual = linter['parseLines'](test);
+
+        expect(actual).toHaveLength(7);
+
+        actual.shift()!;
+        actual.shift()!;
+
+        let result = actual.shift()!;
+        expect(result).toHaveProperty('fileName', 'c:\\experiments\\VSCodeDemo\\src\\main.cpp');
+        expect(result).toHaveProperty('line', 9);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Hint);
+        expect(result).toHaveProperty('code', '1960');
+        expect(result['message']).toMatch(/Required Rule 7-3-1/);
+
+        result = actual.shift()!;
+        expect(result).toHaveProperty('fileName', 'c:\\experiments\\VSCodeDemo\\src\\main.cpp');
+        expect(result).toHaveProperty('line', 9);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Hint);
+        expect(result).toHaveProperty('code', '1960');
+        expect(result['message']).toMatch(/Required Rule 0-1-8/);
+    });
 });
