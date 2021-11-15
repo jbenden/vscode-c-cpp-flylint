@@ -13,7 +13,7 @@ async function main() {
 
         process.chdir(extensionDevelopmentPath);
 
-        var launchArgs: string[] = [];
+        var launchArgs: string[] = ['--use-gl=swiftshader'];
 
         if (process.env.CODE_DEBUG)
             launchArgs = launchArgs.concat('--log=debug');
