@@ -29,6 +29,7 @@ jobs:
     - run: npm ci
     - run: npm run lint --if-present
     - run: npm run compile --if-present
+    - run: xvfb-run -a npm test
+      if: runner.os == 'Linux'
     - run: npm test
-      env:
-        TRAVIS: true
+      if: runner.os != 'Linux'
