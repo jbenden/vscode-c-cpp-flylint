@@ -7,7 +7,7 @@ import * as path from 'path';
 import { run as runJest } from 'jest-cli';
 import { logger } from './debug-console/logger';
 
-const rootDir = path.resolve(process.cwd(), '..');
+const rootDir = path.resolve(process.cwd(), '.');
 
 export async function run(): Promise<void> {
     //process.stdout.write = (text: string) => !!logger(text);
