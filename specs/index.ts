@@ -5,7 +5,7 @@
 
 import * as path from 'path';
 import { run as runJest } from 'jest-cli';
-import { logger } from './debug-console/logger';
+import { didFailure, logger } from './debug-console/logger';
 
 const rootDir = path.resolve(process.cwd(), '.');
 
@@ -23,11 +23,12 @@ export async function run(): Promise<void> {
         '--useStderr',
         '--env=vscode',
         '--colors',
-        '--collectCoverage',
         '--watchman=false',
         `--roots=${rootDir}`,
         `--setupFilesAfterEnv=${path.resolve(__dirname, './setup.js')}`,
     );
 
-    return runJest(args, rootDir);
+    await runJest(args, rootDir);
+
+    if (didFailure) process.exit(1);
 }

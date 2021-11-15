@@ -5,6 +5,8 @@
 
 import { bold, black, green, purple, red, yellow, darkGray, greenBg, redBg } from './colorize';
 
+export var didFailure: boolean = false;
+
 export function logger(text: string): string | boolean {
 	text = text.replace(/\n$/, '');
 
@@ -44,6 +46,7 @@ function formatTestHeader(text: string): string {
 	}
 
 	if (text.startsWith('FAIL')) {
+		didFailure = true;
 		return `${bold(redBg(black(' FAIL ')))} ${darkGray(`${testPath}/`)}${bold(testFilename)}`;
 	}
 

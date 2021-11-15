@@ -13,7 +13,7 @@ async function main() {
 
         process.chdir(extensionDevelopmentPath);
 
-        var launchArgs: string[] = ['--disable-extensions'];
+        var launchArgs: string[] = [];
 
         if (process.env.CODE_DEBUG)
             launchArgs = launchArgs.concat('--log=debug');
@@ -24,7 +24,7 @@ async function main() {
             launchArgs = launchArgs.concat(`--nolazy`, `--inspect='${process.env.INSPECT_PORT}'`);
 
         // Download VS Code, unzip it and run the integration test
-        await runTests({ extensionDevelopmentPath, extensionTestsPath, launchArgs });
+        process.exit(await runTests({ version: '1.62.2', extensionDevelopmentPath, extensionTestsPath, launchArgs }));
     } catch (err) {
         console.error(err);
         console.error('Failed to run tests');
