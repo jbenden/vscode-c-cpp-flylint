@@ -17,6 +17,8 @@ import { RobustPromises } from '../../server/src/utils';
 
 const currentDir = __dirname;
 
+jest.setTimeout(60000);
+
 describe("c_cpp_properties.json unit-tests", () => {
     test('should find the fixture file', () => {
         var propertiesData: IConfigurations = JSON.parse(readFileSync(resolve(currentDir, './fixtures/c_cpp_properties.json'), 'utf8'));
