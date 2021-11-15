@@ -53,8 +53,8 @@
     "lint": "npm run lint:client && npm run lint:server",
     "lint:client": "eslint --config ./client/.eslintrc.json ./client/src/*.ts",
     "lint:server": "eslint --config ./server/.eslintrc.json ./server/src/**/*.ts",
-    "clean": "rimraf client/out && rimraf server/out && rimraf spec/out",
     "spec": "npm run compile && node specs/out/runSpecs.js",
+    "clean": "rimraf client/out && rimraf server/out && rimraf specs/out",
     "test": "npm run clean && npm run spec",
     "postinstall": "cd client && npm install && cd ../server && npm install && cd .."
   },
