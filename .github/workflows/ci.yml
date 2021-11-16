@@ -29,7 +29,9 @@ jobs:
     - run: npm ci
     - run: npm run lint --if-present
     - run: npm run compile --if-present
-    - run: xvfb-run -a npm test
+    - run: xvfb-run "--server-args=-screen 0 1024x768x24" -a npm test
       if: runner.os == 'Linux'
+      env:
+        DBUS_SESSION_BUS_ADDRESS: /dev/null
     - run: npm test
       if: runner.os != 'Linux'
