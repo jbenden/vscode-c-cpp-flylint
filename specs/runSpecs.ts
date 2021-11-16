@@ -1,4 +1,5 @@
-import { runTests } from '@vscode/test-electron';
+import { downloadAndUnzipVSCode, resolveCliPathFromVSCodeExecutablePath, runTests } from '@vscode/test-electron';
+import * as cp from 'child_process';
 import * as path from 'path';
 
 async function main() {
@@ -11,9 +12,18 @@ async function main() {
         // Passed to --extensionTestsPath
         const extensionTestsPath = path.resolve(__dirname, './index');
 
+        const vscodeExecutablePath = await downloadAndUnzipVSCode('1.62.2');
+        const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+
+        // Install the C/C++ base tools
+        cp.spawnSync(cliPath, ['--install-extension', 'ms-vscode.cpptools'], {
+            encoding: 'utf-8',
+            stdio: 'inherit'
+        });
+
         process.chdir(extensionDevelopmentPath);
 
-        var launchArgs: string[] = ['--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--unlimited-storage', '--window-size=1280,800'];
+        var launchArgs: string[] = ['--disable-gpu'];
 
         if (process.env.CODE_DEBUG)
             launchArgs = launchArgs.concat('--log=debug');
@@ -23,8 +33,14 @@ async function main() {
         if (process.env.INSPECT_PORT)
             launchArgs = launchArgs.concat(`--nolazy`, `--inspect='${process.env.INSPECT_PORT}'`);
 
-        // Download VS Code, unzip it and run the integration test
-        process.exit(await runTests({ version: '1.62.2', extensionDevelopmentPath, extensionTestsPath, launchArgs }));
+        // Run the extension test
+        process.exit(await runTests({
+            // Use the specified `code` executable
+            vscodeExecutablePath,
+            extensionDevelopmentPath,
+            extensionTestsPath,
+            launchArgs
+        }));
     } catch (err) {
         console.error(err);
         console.error('Failed to run tests');
