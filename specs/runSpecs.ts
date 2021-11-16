@@ -13,7 +13,7 @@ async function main() {
 
         process.chdir(extensionDevelopmentPath);
 
-        var launchArgs: string[] = ['--disable-gpu'];
+        var launchArgs: string[] = ['--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--unlimited-storage', '--window-size=1280,800'];
 
         if (process.env.CODE_DEBUG)
             launchArgs = launchArgs.concat('--log=debug');
