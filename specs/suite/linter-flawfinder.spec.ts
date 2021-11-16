@@ -6,7 +6,7 @@ import { Settings } from '../../server/src/settings';
 import { defaultConfig } from '../mock-config';
 import { injectMockFileSystem } from '../mock-fs';
 
-describe("FlawFinder parser", () => {
+describe('FlawFinder parser', () => {
     injectMockFileSystem();
 
     var config: Settings;

@@ -11,7 +11,7 @@ import { Settings } from '../../server/src/settings';
 import { defaultConfig } from '../mock-config';
 import { injectMockFileSystem } from '../mock-fs';
 
-describe("Analyser executables", () => {
+describe('Analyser executables', () => {
     injectMockFileSystem();
 
     var config: Settings;
@@ -21,27 +21,27 @@ describe("Analyser executables", () => {
         {
             formal_name: 'Clang',
             binary_name: 'clang',
-            claz: (c: Settings, p: string) => { return new Clang(c, p) }
+            claz: (c: Settings, p: string) => { return new Clang(c, p); }
         }, {
             formal_name: 'CppCheck',
             binary_name: 'cppcheck',
-            claz: (c: Settings, p: string) => { return new CppCheck(c, p) }
+            claz: (c: Settings, p: string) => { return new CppCheck(c, p); }
         }, {
             formal_name: 'FlawFinder',
             binary_name: 'flawfinder',
-            claz: (c: Settings, p: string) => { return new FlawFinder(c, p) }
+            claz: (c: Settings, p: string) => { return new FlawFinder(c, p); }
         }, {
             formal_name: 'Flexelint',
             binary_name: 'flexelint',
-            claz: (c: Settings, p: string) => { return new Flexelint(c, p) }
+            claz: (c: Settings, p: string) => { return new Flexelint(c, p); }
         }, {
             formal_name: 'Lizard',
             binary_name: 'lizard',
-            claz: (c: Settings, p: string) => { return new Lizard(c, p) }
+            claz: (c: Settings, p: string) => { return new Lizard(c, p); }
         }, {
             formal_name: 'PclintPlus',
             binary_name: 'pclp',
-            claz: (c: Settings, p: string) => { return new PclintPlus(c, p) }
+            claz: (c: Settings, p: string) => { return new PclintPlus(c, p); }
         }
     ])('.analyser($formal_name, $binary_name)', ({ formal_name, binary_name, claz }) => {
 

@@ -19,7 +19,7 @@ const currentDir = __dirname;
 
 jest.setTimeout(300000);
 
-describe("c_cpp_properties.json unit-tests", () => {
+describe('c_cpp_properties.json unit-tests', () => {
     test('should find the fixture file', () => {
         var propertiesData: IConfigurations = JSON.parse(readFileSync(resolve(currentDir, './fixtures/c_cpp_properties.json'), 'utf8'));
 
@@ -29,7 +29,7 @@ describe("c_cpp_properties.json unit-tests", () => {
         expect(config).toHaveProperty('includePath');
     });
 
-    describe("GIVEN an opened workspace", () => {
+    describe('GIVEN an opened workspace', () => {
         const workspaceFolder = resolve(currentDir, './fixtures/c_cpp_properties');
         const filePath = resolve(workspaceFolder, 'c_cpp_properties.c');
 
@@ -45,7 +45,7 @@ describe("c_cpp_properties.json unit-tests", () => {
 
         afterAll(async () => {
             await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-        })
+        });
 
         test.todo('it should handle plain includePaths setting');
 

@@ -155,7 +155,7 @@ export class Linter {
             let paths = [path.resolve(__dirname, '../../..')];
 
             if (process.env.PATH) {
-                paths = paths.concat(process.env.PATH.split(path.delimiter));
+                paths = paths.concat(...process.env.PATH.split(path.delimiter));
             }
 
             which(this.executable, { path: paths.join(path.delimiter) }, (err: any, result: any) => {

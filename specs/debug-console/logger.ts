@@ -32,6 +32,7 @@ export function logger(text: string): string | boolean {
 		return message || text;
 	}
 
+	/* eslint-disable no-console */
 	console.log(message || text);
 	return true;
 }

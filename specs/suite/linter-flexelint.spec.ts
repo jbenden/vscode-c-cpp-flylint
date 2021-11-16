@@ -6,7 +6,7 @@ import { Settings } from '../../server/src/settings';
 import { defaultConfig } from '../mock-config';
 import { injectMockFileSystem } from '../mock-fs';
 
-describe("Flexelint parser", () => {
+describe('Flexelint parser', () => {
     injectMockFileSystem();
 
     var config: Settings;
