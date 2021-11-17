@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.11.0] - 2021-11-16
+
+### Added
+
+- Support for Microsoft(TM) cpptools's active configuration name.
+  See #121.
+
+### Changed
+
+- Entirely switched from `Mocha` to the `Jest` unit-testing framework.
+- Improved searching of linter exe's; always uses `PATH` from the
+  environment. Also respects the `PATHEXT` environment variable on
+  Windows.
+- PSLint Plus: Improved multi-line parsing of diagnostics. See #138.
+- Ensure the use of UTF-8 encoding with all IO performed. It should
+  be noted that this /MAY NOT/ ensure that external tools use UTF-8
+  as well. See #140 for more. PS: If using a console/terminal, ensure
+  it is using UTF-8 too!
+
 ## [1.10.2] - 2021-09-05
 
 ### Changed
