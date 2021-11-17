@@ -73,16 +73,16 @@ if (!fs.existsSync(extensionServerDirectory)) {
 
 const dest = path.join(extensionServerDirectory, 'package.json');
 console.log("Copying package.json to extension's server location...");
-fs.writeFileSync(dest, fs.readFileSync(packageFile));
+fs.writeFileSync(dest, fs.readFileSync(packageFile, 'utf8'), 0, 'utf8');
 
 let packageLockFile = process.argv[5];
 if (fs.existsSync(packageLockFile)) {
     const packageLockFileDest = path.join(extensionServerDirectory, 'package-lock.json');
     packageLockFile = path.resolve(packageLockFile);
     console.log("Copying package-lock.json to extension's server location...");
-    fs.writeFileSync(packageLockFileDest, fs.readFileSync(packageLockFile));
+    fs.writeFileSync(packageLockFileDest, fs.readFileSync(packageLockFile, 'utf8'), 0, 'utf8');
 }
 
 console.log("Installing server npm modules into extension's server location...");
 process.chdir(extensionServerDirectory);
-cp.execSync('npm install --production');
+cp.execSync('npm install --production', 'utf8');

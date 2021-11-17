@@ -286,22 +286,22 @@ export class Linter {
         return [this.executable, fileName, tmpFileName];
     }
 
-    protected runLinter(params: string[], workspaceDir: string): child_process.SpawnSyncReturns<Buffer> {
+    protected runLinter(params: string[], workspaceDir: string): child_process.SpawnSyncReturns<string> {
         let cmd = params.shift() || this.executable;
 
         if (this.settings['c-cpp-flylint'].debug) {
             console.log('executing: ', cmd, params.join(' '));
         }
 
-        return cross_spawn.sync(cmd, params, { 'cwd': workspaceDir });
+        return cross_spawn.sync(cmd, params, { 'cwd': workspaceDir, encoding: 'utf8' });
     }
 
     public lint(fileName: string, directory: null | string, tmpFileName: string): InternalDiagnostic[] {
         if (!this.enabled) { return []; }
 
         let result = this.runLinter(this.buildCommandLine(fileName, tmpFileName), directory || this.workspaceRoot);
-        let stdout = result.stdout !== null ? result.stdout.toString('utf-8').replace(/\r/g, '').split('\n') : [];
-        let stderr = result.stderr !== null ? result.stderr.toString('utf-8').replace(/\r/g, '').split('\n') : [];
+        let stdout = result.stdout !== null ? result.stdout.replace(/\r/g, '').split('\n') : [];
+        let stderr = result.stderr !== null ? result.stderr.replace(/\r/g, '').split('\n') : [];
 
         if (this.settings['c-cpp-flylint'].debug) {
             console.log(stdout);

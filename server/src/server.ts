@@ -472,7 +472,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     }
 
     var tmpDocument = tmp.fileSync();
-    fs.writeSync(tmpDocument.fd, textDocument.getText());
+    fs.writeSync(tmpDocument.fd, textDocument.getText(), 0, 'utf8');
 
     const documentLines: string[] = textDocument.getText().replace(/\r/g, '').split('\n');
 
