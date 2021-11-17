@@ -5,7 +5,7 @@ export namespace RobustPromises {
         return new Promise((resolve, reject) => {
             const until = async () => {
                 const failed = async () => {
-                    console.log(`Try timed out. Retrying...`);
+                    // console.log(`Try timed out. Retrying...`);
                     if (--retries > 0)
                         setTimeout(until, delay);
                     else
@@ -14,10 +14,10 @@ export namespace RobustPromises {
 
                 var t = setTimeout(failed, timeout);
                 try {
-                    console.log(`Try attempts are at ${retries}.`);
+                    // console.log(`Try attempts are at ${retries}.`);
                     const result = await executor();
                     clearTimeout(t);
-                    console.log(`Try succeeded!`);
+                    // console.log(`Try succeeded!`);
                     resolve(result);
                 } catch (err) {
                     clearTimeout(t);
