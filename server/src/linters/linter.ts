@@ -44,6 +44,38 @@ export function fromLint(lint: Lint): string {
     }
 }
 
+export class PathEnv {
+    private paths: Array<string> = [];
+
+    constructor() {
+        if (process.env.PATH) { this.paths = process.env.PATH.split(path.delimiter); }
+    }
+
+    append(p: string | Array<string>) {
+        // assert(p.includes(path.delimiter) !== true);
+
+        this.paths = this.deduplicate(this.paths.concat(...p));
+    }
+
+    prepend(p: string | Array<string>) {
+        // assert(p.includes(path.delimiter) !== true);
+
+        if (typeof p === 'string') {
+            p = [p];
+        }
+
+        this.paths = this.deduplicate(p.concat(...this.paths));
+    }
+
+    protected deduplicate(array: ReadonlyArray<string>) {
+        return Array.from(new Set(array));
+    }
+
+    toString() {
+        return this.paths.join(path.delimiter);
+    }
+}
+
 export class Linter {
     protected name: string;
     protected settings: Settings;
@@ -152,13 +184,11 @@ export class Linter {
 
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
-            let paths = [path.resolve(__dirname, '../../..')];
+            let paths = new PathEnv();
 
-            if (process.env.PATH) {
-                paths = paths.concat(...process.env.PATH.split(path.delimiter));
-            }
+            paths.prepend(path.resolve(__dirname, '../../..'));
 
-            which(this.executable, { path: paths.join(path.delimiter) }, (err: any, result: any) => {
+            which(this.executable, { path: paths.toString() }, (err: any, result: any) => {
                 if (err) {
                     this.disable();
 
