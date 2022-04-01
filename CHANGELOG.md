@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- chore(deps): Bump minimist from 1.2.5 to 1.2.6
+
 ## [1.11.0] - 2021-11-16
 
 ### Added
