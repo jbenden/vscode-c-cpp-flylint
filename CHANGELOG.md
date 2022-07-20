@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - chore(deps): Bump minimist from 1.2.5 to 1.2.6
+- chore(deps): Bump terser from 5.5.1 to 5.14.2
 
 ## [1.11.0] - 2021-11-16
 
