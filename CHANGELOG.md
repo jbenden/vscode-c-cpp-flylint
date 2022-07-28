@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Allow diagnostic code lookup via the web. See #143.
+
 ### Changed
 
 - chore(deps): Bump minimist from 1.2.5 to 1.2.6
