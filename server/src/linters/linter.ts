@@ -400,6 +400,9 @@ export class Linter {
 
         if (values) {
             _.each(values, (element: string) => {
+                if (element === '') {
+                    return;
+                }
                 let value = this.expandVariables(element);
                 if (value.error) {
                     console.log(`Error expanding '${element}': ${value.error.message}`);
