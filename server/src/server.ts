@@ -236,6 +236,10 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                     process.env.workspaceFolder = workspaceRoot;
 
                     _.forEach(platformConfig.includePath, (ipath: string) => {
+                        //skip empty paths
+                        if (ipath === '') {
+                            return;
+                        }
                         try {
                             let { value } = substituteVariables(ipath, { env: process.env });
                             let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: false, onlyDirectories: true, unique: true, absolute: true });
