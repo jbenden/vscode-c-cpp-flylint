@@ -225,7 +225,8 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
             const matchOn: string = await getActiveConfigurationName(currentSettings);
-            const cCppProperties: IConfigurations = JSON.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
+            const JSON5 = require('json5');
+            const cCppProperties: IConfigurations = JSON5.parse((fs.readFileSync(cCppPropertiesPath, 'utf8')));
             const platformConfig = cCppProperties.configurations.find(el => el.name === matchOn);
 
             if (platformConfig !== undefined) {
