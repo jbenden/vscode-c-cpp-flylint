@@ -21,7 +21,7 @@ jest.setTimeout(300000);
 
 describe('c_cpp_properties.json unit-tests', () => {
     test('should find the fixture file', () => {
-        var propertiesData: IConfigurations = JSON.parse(readFileSync(resolve(currentDir, './fixtures/c_cpp_properties.json'), 'utf8'));
+        let propertiesData: IConfigurations = JSON.parse(readFileSync(resolve(currentDir, './fixtures/c_cpp_properties.json'), 'utf8'));
 
         const config = propertiesData.configurations.find(el => el.name === propertiesPlatform());
 
@@ -33,7 +33,7 @@ describe('c_cpp_properties.json unit-tests', () => {
         const workspaceFolder = resolve(currentDir, './fixtures/c_cpp_properties');
         const filePath = resolve(workspaceFolder, 'c_cpp_properties.c');
 
-        var document: vscode.TextDocument;
+        let document: vscode.TextDocument;
 
         beforeAll(async () => {
             await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceFolder));

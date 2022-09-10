@@ -31,7 +31,7 @@ export function getWorkspaceState(): vscode.Memento {
 }
 
 export function resetWorkspaceState() {
-    resetStateQuickPick(workspaceState, updateWorkspaceState);
+    return resetStateQuickPick(workspaceState, updateWorkspaceState);
 }
 
 export function getMementoKeys(state: vscode.Memento): string[] {

@@ -167,7 +167,7 @@ export interface FlylintSettings {
         enable: boolean;
         executable: string;
     }
-};
+}
 
 // Settings as defined in VS Code.
 export interface Settings {

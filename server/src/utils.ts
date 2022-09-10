@@ -5,29 +5,35 @@ export namespace RobustPromises {
         return new Promise((resolve, reject) => {
             const until = async () => {
                 const failed = async () => {
+                    // eslint-disable-next-line no-console
                     // console.log(`Try timed out. Retrying...`);
-                    if (--retries > 0)
+                    if (--retries > 0) {
                         setTimeout(until, delay);
-                    else
+                    } else {
                         reject();
+                    }
                 };
 
                 var t = setTimeout(failed, timeout);
                 try {
+                    // eslint-disable-next-line no-console
                     // console.log(`Try attempts are at ${retries}.`);
                     const result = await executor();
                     clearTimeout(t);
+                    // eslint-disable-next-line no-console
                     // console.log(`Try succeeded!`);
                     resolve(result);
                 } catch (err) {
                     clearTimeout(t);
+                    // eslint-disable-next-line no-console
                     console.log(`Try caught an error. ${err}\nRetrying...`);
-                    if (--retries > 0)
+                    if (--retries > 0) {
                         setTimeout(until, delay);
-                    else
+                    } else {
                         reject();
+                    }
                 }
-            }
+            };
             setTimeout(until, delay); // primer
         });
     }
@@ -35,6 +41,6 @@ export namespace RobustPromises {
 
 export function sleep(ms: number): Promise<void> {
     return new Promise(resolve => {
-        setTimeout(resolve, ms)
-    })
+        setTimeout(resolve, ms);
+    });
 }

@@ -78,7 +78,7 @@ connection.onInitialize((params): InitializeResult => {
 
     hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
 
-    let result: InitializeResult = {
+    return {
         capabilities: {
             textDocumentSync: {
                 openClose: true,
@@ -101,13 +101,11 @@ connection.onInitialize((params): InitializeResult => {
             }
         }
     };
-
-    return result;
 });
 
-connection.onInitialized(() => {
+connection.onInitialized(async () => {
     if (hasConfigurationCapability) {
-        connection.client.register(
+        await connection.client.register(
             DidChangeConfigurationNotification.type,
             undefined
         );
@@ -116,22 +114,22 @@ connection.onInitialized(() => {
 
 let didStart = false;
 
-connection.onDidChangeConfiguration(change => {
+connection.onDidChangeConfiguration(async change => {
     if (hasConfigurationCapability) {
         flushCache();
     } else {
         globalSettings = <Settings>(change.settings['c-cpp-flylint'] || defaultSettings);
     }
 
-    validateAllDocuments({ force: false });
+    await validateAllDocuments({ force: false });
 });
 
-connection.onNotification('begin', (_params: any) => {
+connection.onNotification('begin', async (_params: any) => {
     didStart = true;
 
     console.log(`Received a notification to enable and start processing.`);
     // validateTextDocument(params.document ?? null, false);
-    validateAllDocuments({ force: false });
+    await validateAllDocuments({ force: false });
 });
 
 // NOTE: Does not exist for anything but unit-testing...
@@ -152,7 +150,7 @@ connection.onNotification('onBuild', async (params: any) => {
         return;
     }
 
-    validateAllDocuments({ force: false });
+    await validateAllDocuments({ force: false });
 });
 
 async function getWorkspaceRoot(resource: string): Promise<string> {
@@ -249,15 +247,15 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                             }
 
                             _.each(globbed_path, (gpath: string | EntryItem) => {
-                                var currentFilePath = path.resolve(gpath as string).replace(/\\/g, '/');
+                                let currentFilePath = path.resolve(gpath as string).replace(/\\/g, '/');
 
                                 if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!))) {
-                                    var acceptFile: boolean = true;
+                                    let acceptFile: boolean = true;
 
                                     // see if we are to accept the diagnostics upon this file.
                                     _.each(currentSettings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath: string) => {
-                                        var substExcludedPath = substituteVariables(excludedPath, { env: process.env, ignoreErrors: true });
-                                        var normalizedExcludedPath = path.normalize(substExcludedPath.value || '');
+                                        let substExcludedPath = substituteVariables(excludedPath, { env: process.env, ignoreErrors: true });
+                                        let normalizedExcludedPath = path.normalize(substExcludedPath.value || '');
 
                                         if (currentSettings['c-cpp-flylint'].debug) {
                                             console.log('Exclude Path: ' + excludedPath + '  VALUE: ' + substExcludedPath.value + '  Normalized: ' + normalizedExcludedPath);
@@ -327,11 +325,11 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
 
 async function getActiveConfigurationName(currentSettings: Settings): Promise<string> {
     if (currentSettings['c-cpp-flylint'].debug) {
-        console.debug("Proxying request for activeConfigName");
+        console.debug('Proxying request for activeConfigName');
     }
 
     return RobustPromises.retry(40, 250, 1000, () => connection.sendRequest<string>('c-cpp-flylint.cpptools.activeConfigName')).then(r => {
-        if (!_.isArrayLike(r) || r.length === 0) return propertiesPlatform(); else return r;
+        if (!_.isArrayLike(r) || r.length === 0) { return propertiesPlatform(); } else { return r; }
     });
 }
 
@@ -375,7 +373,7 @@ async function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): P
         }
 
         console.log(`onDidChangeContent starting analysis.`);
-        validateTextDocument(event.document, false);
+        await validateTextDocument(event.document, false);
     }
 }
 
@@ -393,13 +391,13 @@ documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
     }
 
     console.log(`onDidSave starting analysis.`);
-    validateTextDocument(event.document, false);
+    await validateTextDocument(event.document, false);
 });
 
 documents.onDidOpen(async (event: TextDocumentChangeEvent<TextDocument>) => {
     if (didStart) {
         console.info(`onDidOpen starting analysis.`);
-        validateTextDocument(event.document, false);
+        await validateTextDocument(event.document, false);
     }
 });
 
@@ -476,7 +474,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
         console.log(`${filePath} is now at version number ${documentVersion}.`);
     }
 
-    var tmpDocument = tmp.fileSync();
+    let tmpDocument = tmp.fileSync();
     fs.writeSync(tmpDocument.fd, textDocument.getText(), 0, 'utf8');
 
     const documentLines: string[] = textDocument.getText().replace(/\r/g, '').split('\n');
@@ -490,7 +488,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
 
     console.log(`Performing lint scan of ${filePath}...`);
 
-    var hasSkipLinter = false;
+    let hasSkipLinter = false;
 
     lintersCopy.forEach(linter => {
         try {
@@ -502,7 +500,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
                 let i = result.length;
 
                 while (i-- >= 0) {
-                    var msg: InternalDiagnostic = result[i];
+                    let msg: InternalDiagnostic = result[i];
 
                     if (msg === null || msg === undefined || msg.parseError || !msg.hasOwnProperty('line') || msg.source === '') {
                         result.splice(i, 1);
@@ -534,7 +532,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
                     allDiagnostics.set(currentFile, diagnostics);
                 }
             }
-        } catch (e) {
+        } catch (e: any) {
             tracker.add(getErrorMessage(e, textDocument));
         }
     });
@@ -542,14 +540,14 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     tmpDocument.removeCallback();
 
     let sendDiagnosticsToEditor = (diagnostics: Diagnostic[], currentFile: string) => {
-        var currentFilePath = path.resolve(currentFile).replace(/\\/g, '/');
+        let currentFilePath = path.resolve(currentFile).replace(/\\/g, '/');
 
         if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!))) {
-            var acceptFile: boolean = true;
+            let acceptFile: boolean = true;
 
             // see if we are to accept the diagnostics upon this file.
             _.each(settings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath) => {
-                var normalizedExcludedPath = path.normalize(excludedPath);
+                let normalizedExcludedPath = path.normalize(excludedPath);
 
                 if (!path.isAbsolute(normalizedExcludedPath)) {
                     // prepend the workspace path and renormalize the path.
@@ -678,9 +676,7 @@ function getErrorMessage(err: Error, document: TextDocument): string {
     }
 
     const fsPathUri = URI.parse(document.uri);
-    const message = `vscode-c-cpp-flylint: '${errorMessage}' while validating: ${fsPathUri.fsPath}. Please analyze the 'C/C++ FlyLint' Output console. Stacktrace: ${err.stack}`;
-
-    return message;
+    return `vscode-c-cpp-flylint: '${errorMessage}' while validating: ${fsPathUri.fsPath}. Please analyze the 'C/C++ FlyLint' Output console. Stacktrace: ${err.stack}`;
 }
 
 connection.onDidChangeWatchedFiles((params) => {
@@ -692,7 +688,7 @@ connection.onDidChangeWatchedFiles((params) => {
         if (path.basename(configFilePath.fsPath) === 'c_cpp_properties.json') {
             flushCache();
 
-            validateAllDocuments({ force: true });
+            await validateAllDocuments({ force: true });
         }
     });
 });
@@ -710,7 +706,7 @@ connection.onRequest('getLocalConfig', async (activeDocument: TextDocument) => {
                 if (fileUri.fsPath === documentUri.fsPath) {
                     return Promise.resolve((await getDocumentSettings(document.uri))['c-cpp-flylint']);
                 }
-            } catch (err) {
+            } catch (err: any) {
                 tracker.add(getErrorMessage(err, document));
             }
         }
@@ -721,12 +717,12 @@ connection.onRequest('getLocalConfig', async (activeDocument: TextDocument) => {
     return Promise.reject();
 });
 
-connection.onExecuteCommand((params: ExecuteCommandParams) => {
+connection.onExecuteCommand(async (params: ExecuteCommandParams) => {
     const tracker = new ErrorMessageTracker();
 
     if (params.command === CommandIds.analyzeActiveDocument) {
         (connection.sendRequest('activeTextDocument') as Thenable<TextDocument>)
-            .then((activeDocument) => {
+            .then(async (activeDocument) => {
                 if (activeDocument !== undefined && activeDocument !== null) {
                     let fileUri: URI = <URI>(<any>activeDocument.uri);
 
@@ -735,16 +731,16 @@ connection.onExecuteCommand((params: ExecuteCommandParams) => {
                             const documentUri = URI.parse(document.uri);
 
                             if (fileUri.fsPath === documentUri.fsPath) {
-                                validateTextDocument(document, true);
+                                await validateTextDocument(document, true);
                             }
-                        } catch (err) {
+                        } catch (err: any) {
                             tracker.add(getErrorMessage(err, document));
                         }
                     }
                 }
             });
     } else if (params.command === CommandIds.analyzeWorkspace) {
-        validateAllDocuments({ force: true });
+        await validateAllDocuments({ force: true });
     }
 
     tracker.sendErrors(connection);

@@ -1,4 +1,4 @@
-import {LanguageClient, LanguageClientOptions, ServerOptions} from 'vscode-languageclient/node';
+import { LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
 import * as ls from 'vscode-languageserver';
 import * as code from 'vscode';
 

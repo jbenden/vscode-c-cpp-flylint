@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as _ from 'lodash';
 import { ClangSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter, Lint } from './linter';
 import { InternalDiagnostic } from '../server';

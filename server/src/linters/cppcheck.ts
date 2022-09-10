@@ -53,7 +53,7 @@ export class CppCheck extends Linter {
             .concat([`--template="{file}  {line}  {severity} {id}: {message}"`])
             .concat(this.settings['c-cpp-flylint'].cppcheck.extraArgs || []);
 
-        if (this.settings['c-cpp-flylint'].cppcheck.verbose === true) {
+        if (this.settings['c-cpp-flylint'].cppcheck.verbose) {
             args.push('--verbose');
         }
 
@@ -61,7 +61,7 @@ export class CppCheck extends Linter {
             args.push('--force');
         }
 
-        if (this.settings['c-cpp-flylint'].cppcheck.inconclusive === true) {
+        if (this.settings['c-cpp-flylint'].cppcheck.inconclusive) {
             args.push('--inconclusive');
         }
 

@@ -24,7 +24,7 @@ export class PclintPlus extends Linter {
     }
 
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
-        var args = [
+        let args = [
             this.executable,
             this.configFile,
             '-v',                            // turn off verbosity
@@ -36,7 +36,7 @@ export class PclintPlus extends Linter {
         ];
 
         if (headerExts.indexOf(path.extname(fileName)) !== -1) {
-            var hArgs = this.settings['c-cpp-flylint'].pclintplus.headerArgs;
+            let hArgs = this.settings['c-cpp-flylint'].pclintplus.headerArgs;
 
             if (typeof hArgs === 'string') {
                 args.push(hArgs);
@@ -56,7 +56,7 @@ export class PclintPlus extends Linter {
         let regex = /^(([^ ]+)?\s\s([0-9]+)\s([0-9]+\s)?\s([iI]nfo|[wW]arning|[eE]rror|[nN]ote|[sS]upplemental)\s([0-9]+):\s(.*)|(.+?):([0-9]+):([0-9]+:)?\s([iI]nfo|[wW]arning|[eE]rror|[nN]ote|[sS]upplemental)\s([0-9]+):\s(.*))$/;
         let regexArray: RegExpExecArray | null;
 
-        let excludeRegex = /^(\s+file \'.*\'|[^ \t]+|)$/;
+        let excludeRegex = /^(\s+file '.*'|[^ \t]+|)$/;
         if (excludeRegex.exec(line) !== null) {
             // skip this line
             return null;

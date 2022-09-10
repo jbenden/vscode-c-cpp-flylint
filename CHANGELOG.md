@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - chore(deps): Bump terser from 5.5.1 to 5.14.2
 - Improved support for parsing `c_cpp_properties.json` files containing
   comments and blanks. See #165 for more detail.
+- Fix ESLint warnings.
 
 ## [1.11.0] - 2021-11-16
 

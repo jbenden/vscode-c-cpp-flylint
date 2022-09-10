@@ -143,11 +143,11 @@ export class Linter {
     }
 
     public isEnabled(): boolean {
-        return this.enabled === true;
+        return this.enabled;
     }
 
     public isActive(): boolean {
-        return this.active === true;
+        return this.active;
     }
 
     public enable() {
@@ -156,10 +156,6 @@ export class Linter {
 
     public disable() {
         this.enabled = false;
-    }
-
-    public lintOn(): Lint[] {
-        return [Lint.ON_SAVE, Lint.ON_BUILD];
     }
 
     public async initialize() {
@@ -256,18 +252,6 @@ export class Linter {
         });
     }
 
-    protected locateFiles(directory: string, fileName: string[]): Promise<string[]> {
-        var locates: Array<Promise<string>>;
-
-        locates = [];
-
-        fileName.forEach(element => {
-            locates.push(this.locateFile(directory, element));
-        });
-
-        return Promise.all(locates);
-    }
-
     protected expandVariables(str: string): IExpansionResult {
         process.env.workspaceRoot = this.workspaceRoot;
         process.env.workspaceFolder = this.workspaceRoot;
@@ -325,10 +309,10 @@ export class Linter {
 
         lines.forEach(line => {
             if (this.isQuote(line.charAt(0))) {
-                line = line.substr(1);
+                line = line.substring(1);
 
                 if (this.isQuote(line.charAt(line.length - 1))) {
-                    line = line.substr(0, line.length - 1);
+                    line = line.substring(0, line.length - 1);
                 }
             }
 
@@ -397,39 +381,24 @@ export class Linter {
 
     protected expandedArgsFor(key: string, joined: boolean, values: string[] | null, defaults: string[] | null): string[] {
         let params: string[] = [];
+        let elaborateArguments = (element: string) => {
+            if (element === '') {
+                return;
+            }
+            let value = this.expandVariables(element);
+            if (value.error) {
+                console.log(`Error expanding '${element}': ${value.error.message}`);
+            } else {
+                if (joined) {
+                    params.push(`${key}${value.result}`);
+                } else {
+                    params.push(key);
+                    params.push(`${value.result}`);
+                }
+            }
+        };
 
-        if (values) {
-            _.each(values, (element: string) => {
-                if (element === '') {
-                    return;
-                }
-                let value = this.expandVariables(element);
-                if (value.error) {
-                    console.log(`Error expanding '${element}': ${value.error.message}`);
-                } else {
-                    if (joined) {
-                        params.push(`${key}${value.result}`);
-                    } else {
-                        params.push(key);
-                        params.push(`${value.result}`);
-                    }
-                }
-            });
-        } else if (defaults) {
-            _.each(defaults, (element: string) => {
-                let value = this.expandVariables(element);
-                if (value.error) {
-                    console.log(`Error expanding '${element}': ${value.error.message}`);
-                } else {
-                    if (joined) {
-                        params.push(`${key}${value.result}`);
-                    } else {
-                        params.push(key);
-                        params.push(`${value.result}`);
-                    }
-                }
-            });
-        }
+        _.each(values ? values : defaults, elaborateArguments);
 
         return params;
     }

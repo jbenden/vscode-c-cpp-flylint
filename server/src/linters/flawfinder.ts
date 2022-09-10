@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { FlawFinderSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter } from './linter';
 import { InternalDiagnostic } from '../server';
@@ -26,7 +25,7 @@ export class FlawFinder extends Linter {
     }
 
     protected parseLine(line: string): InternalDiagnostic | null {
-        let regex = /^([a-zA-Z]?:?[^:]+):(\d+):(\d+)?:?  \[([0-5])\] ([^:]+):(.+)$/;
+        let regex = /^([a-zA-Z]?:?[^:]+):(\d+):(\d+)?:?\s\s\[([0-5])] ([^:]+):(.+)$/;
         let regexArray: RegExpExecArray | null;
 
         let excludeRegex = /^((Examining ).*|)$/;

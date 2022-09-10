@@ -21,7 +21,7 @@ const SECURITY_SENSITIVE_CONFIG: string[] = [
     'pclintplus.executable',
     'queryUrlBase'
 ];
-var IS_TRUSTED: boolean = false;
+let IS_TRUSTED: boolean = false;
 
 export async function maybeWorkspaceIsTrusted(ctx: ExtensionContext) {
     if (workspace.hasOwnProperty('isTrusted') && workspace.hasOwnProperty('isTrusted') !== null) {
