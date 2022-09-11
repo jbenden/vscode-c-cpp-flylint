@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - Allow diagnostic code lookup via the web. See #143.
+- Implemented the missing tests involving `c_cpp_properties.json`.
 
 ### Changed
 

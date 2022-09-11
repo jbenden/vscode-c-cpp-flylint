@@ -35,7 +35,7 @@ describe('c_cpp_properties.json unit-tests', () => {
 
         let document: vscode.TextDocument;
 
-        beforeAll(async () => {
+        beforeEach(async () => {
             await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(workspaceFolder));
 
             document = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
@@ -43,20 +43,59 @@ describe('c_cpp_properties.json unit-tests', () => {
             await vscode.window.showTextDocument(document);
         });
 
-        afterAll(async () => {
+        afterEach(async () => {
             await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
         });
 
-        test.todo('it should handle plain includePaths setting');
-
-        test.todo('it should handle non-existing includePaths setting');
-
-        test('it should handle glob expansion of includePaths setting', async () => {
-            // WHEN
-            let config: FlylintSettings = (await RobustPromises.retry(42, // # of attempts
+        async function getDocumentSettings(document: vscode.TextDocument): Promise<FlylintSettings> {
+            return (await RobustPromises.retry(42, // # of attempts
                 1000, // delay between retries
                 1000, // timeout for a try
                 () => vscode.commands.executeCommand('c-cpp-flylint.getLocalConfig', document))) as FlylintSettings;
+        }
+
+        test('it should handle non-existing includePaths setting', async () => {
+            // WHEN
+            let config: FlylintSettings = await getDocumentSettings(document);
+
+            // THEN: simple checks against the set of includePaths
+            expect(config).toBeDefined();
+            expect(config.includePaths.length).toBeGreaterThan(2);
+
+            // and then: a known set of directories are in the set of all includePaths
+            expect(config.includePaths).not.toEqual(
+                expect.arrayContaining(
+                    [
+                        expect.stringMatching(/\/usr\/lib\/gcc\/x86_64-linux-gnu\/5\/include/),
+                        expect.stringMatching(/\$\{workspaceRoot}/),
+                        expect.stringMatching(/^$/)
+                    ]
+                )
+            );
+        });
+
+        test('it should handle plain includePaths setting', async () => {
+            // WHEN
+            let config: FlylintSettings = await getDocumentSettings(document);
+
+            // THEN: simple checks against the set of includePaths
+            expect(config).toBeDefined();
+            expect(config.includePaths.length).toBeGreaterThan(2);
+
+            // and then: a known set of directories are in the set of all includePaths
+            expect(config.includePaths).toEqual(
+                expect.arrayContaining(
+                    [
+                        expect.stringMatching(/a$/),
+                        expect.stringMatching(/\/usr\/include$/)
+                    ]
+                )
+            );
+        });
+
+        test('it should handle glob expansion of includePaths setting', async () => {
+            // WHEN
+            let config: FlylintSettings = await getDocumentSettings(document);
 
             // THEN: simple checks against the set of includePaths
             expect(config).toBeDefined();
