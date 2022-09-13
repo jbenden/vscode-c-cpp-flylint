@@ -35,6 +35,12 @@ import { Flexelint } from './linters/flexelint';
 import { PclintPlus } from './linters/pclintplus';
 import { Lizard } from './linters/lizard';
 
+/** Identifier that is used to associate diagnostic entries with code actions. */
+export const FLYLINT_ID = 'c-cpp-flylint';
+
+/** Code that is used to associate diagnostic entries with code actions. */
+export const FLYLINT_MATCH = /c-cpp-flylint/;
+
 const substituteVariables = require('var-expansion').substituteVariables; // no types available
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
@@ -118,7 +124,7 @@ connection.onDidChangeConfiguration(async change => {
     if (hasConfigurationCapability) {
         flushCache();
     } else {
-        globalSettings = <Settings>(change.settings['c-cpp-flylint'] || defaultSettings);
+        globalSettings = <Settings>(change.settings[FLYLINT_ID] || defaultSettings);
     }
 
     await validateAllDocuments({ force: false });
@@ -144,7 +150,7 @@ connection.onNotification('onBuild', async (params: any) => {
 
     let settings = await getDocumentSettings(params.document ?? null);
 
-    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+    const userLintOn: Lint = toLint(settings[FLYLINT_ID].run);
     if (userLintOn !== Lint.ON_BUILD) {
         console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_BUILD.`);
         return;
@@ -203,12 +209,12 @@ async function getDocumentSettings(resource: string): Promise<Settings> {
 async function reconfigureExtension(currentSettings: Settings, workspaceRoot: string): Promise<Linter[]> {
     let linters: Linter[] = [];  // clear array
 
-    if (currentSettings['c-cpp-flylint'].clang.enable) { linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang); }
-    if (currentSettings['c-cpp-flylint'].cppcheck.enable) { linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck); }
-    if (currentSettings['c-cpp-flylint'].flexelint.enable) { linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint); }
-    if (currentSettings['c-cpp-flylint'].pclintplus.enable) { linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus); }
-    if (currentSettings['c-cpp-flylint'].flawfinder.enable) { linters.push(await (new FlawFinder(currentSettings, workspaceRoot).initialize()) as FlawFinder); }
-    if (currentSettings['c-cpp-flylint'].lizard.enable) { linters.push(await (new Lizard(currentSettings, workspaceRoot).initialize()) as Lizard); }
+    if (currentSettings[FLYLINT_ID].clang.enable) { linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang); }
+    if (currentSettings[FLYLINT_ID].cppcheck.enable) { linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck); }
+    if (currentSettings[FLYLINT_ID].flexelint.enable) { linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint); }
+    if (currentSettings[FLYLINT_ID].pclintplus.enable) { linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus); }
+    if (currentSettings[FLYLINT_ID].flawfinder.enable) { linters.push(await (new FlawFinder(currentSettings, workspaceRoot).initialize()) as FlawFinder); }
+    if (currentSettings[FLYLINT_ID].lizard.enable) { linters.push(await (new Lizard(currentSettings, workspaceRoot).initialize()) as Lizard); }
 
     _.forEach(linters, (linter) => {
         if (linter.isActive() && !linter.isEnabled()) {
@@ -242,7 +248,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                             let { value } = substituteVariables(ipath, { env: process.env });
                             let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: false, onlyDirectories: true, unique: true, absolute: true });
 
-                            if (currentSettings['c-cpp-flylint'].debug) {
+                            if (currentSettings[FLYLINT_ID].debug) {
                                 console.log('Path: ' + ipath + '  VALUE: ' + value + '  Globbed is: ' + globbed_path.toString());
                             }
 
@@ -253,11 +259,11 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                     let acceptFile: boolean = true;
 
                                     // see if we are to accept the diagnostics upon this file.
-                                    _.each(currentSettings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath: string) => {
+                                    _.each(currentSettings[FLYLINT_ID].excludeFromWorkspacePaths, (excludedPath: string) => {
                                         let substExcludedPath = substituteVariables(excludedPath, { env: process.env, ignoreErrors: true });
                                         let normalizedExcludedPath = path.normalize(substExcludedPath.value || '');
 
-                                        if (currentSettings['c-cpp-flylint'].debug) {
+                                        if (currentSettings[FLYLINT_ID].debug) {
                                             console.log('Exclude Path: ' + excludedPath + '  VALUE: ' + substExcludedPath.value + '  Normalized: ' + normalizedExcludedPath);
                                         }
 
@@ -279,12 +285,12 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                             currentFilePath = '/' + currentFilePath;
                                         }
 
-                                        if (currentSettings['c-cpp-flylint'].debug) {
+                                        if (currentSettings[FLYLINT_ID].debug) {
                                             console.log('Adding path: ' + currentFilePath);
                                         }
 
-                                        currentSettings['c-cpp-flylint'].includePaths =
-                                            _.uniq(currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath));
+                                        currentSettings[FLYLINT_ID].includePaths =
+                                            _.uniq(currentSettings[FLYLINT_ID].includePaths.concat(currentFilePath));
                                     }
                                 } else {
                                     // file is outside of workspace root, perhaps a system folder
@@ -293,12 +299,12 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                         currentFilePath = '/' + currentFilePath;
                                     }
 
-                                    if (currentSettings['c-cpp-flylint'].debug) {
+                                    if (currentSettings[FLYLINT_ID].debug) {
                                         console.log('Adding system path: ' + currentFilePath);
                                     }
 
-                                    currentSettings['c-cpp-flylint'].includePaths =
-                                        _.uniq(currentSettings['c-cpp-flylint'].includePaths.concat(currentFilePath));
+                                    currentSettings[FLYLINT_ID].includePaths =
+                                        _.uniq(currentSettings[FLYLINT_ID].includePaths.concat(currentFilePath));
                                 }
                             });
                         }
@@ -309,8 +315,8 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                 }
 
                 if (platformConfig.defines.length > 0) {
-                    currentSettings['c-cpp-flylint'].defines =
-                        _.uniq(currentSettings['c-cpp-flylint'].defines.concat(platformConfig.defines));
+                    currentSettings[FLYLINT_ID].defines =
+                        _.uniq(currentSettings[FLYLINT_ID].defines.concat(platformConfig.defines));
                 }
             }
         }
@@ -324,7 +330,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
 }
 
 async function getActiveConfigurationName(currentSettings: Settings): Promise<string> {
-    if (currentSettings['c-cpp-flylint'].debug) {
+    if (currentSettings[FLYLINT_ID].debug) {
         console.debug('Proxying request for activeConfigName');
     }
 
@@ -366,7 +372,7 @@ async function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): P
         // get the settings for the current file.
         let settings = await getDocumentSettings(event.document.uri);
 
-        const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+        const userLintOn: Lint = toLint(settings[FLYLINT_ID].run);
         if (userLintOn !== Lint.ON_TYPE) {
             console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_TYPE.`);
             return;
@@ -384,7 +390,7 @@ documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
     // get the settings for the current file.
     let settings = await getDocumentSettings(event.document.uri);
 
-    const userLintOn: Lint = toLint(settings['c-cpp-flylint'].run);
+    const userLintOn: Lint = toLint(settings[FLYLINT_ID].run);
     if (userLintOn !== Lint.ON_SAVE && userLintOn !== Lint.ON_TYPE) {
         console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_SAVE|ON_TYPE.`);
         return;
@@ -456,12 +462,12 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     let documentVersion = textDocument.version;
     let lastVersion = documentVersions.get(textDocument.uri);
     if (lastVersion) {
-        if (settings['c-cpp-flylint'].debug) {
+        if (settings[FLYLINT_ID].debug) {
             console.log(`${filePath} is currently version number ${documentVersion} and ${lastVersion} was already been scanned.`);
         }
 
         if (documentVersion <= lastVersion && !force) {
-            if (settings['c-cpp-flylint'].debug) {
+            if (settings[FLYLINT_ID].debug) {
                 console.log(`Skipping scan of ${filePath} because this file version number ${documentVersion} has already been scanned.`);
             }
 
@@ -469,7 +475,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
         }
     }
 
-    if (settings['c-cpp-flylint'].debug) {
+    if (settings[FLYLINT_ID].debug) {
         console.log(`${filePath} force = ${force}.`);
         console.log(`${filePath} is now at version number ${documentVersion}.`);
     }
@@ -546,7 +552,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
             let acceptFile: boolean = true;
 
             // see if we are to accept the diagnostics upon this file.
-            _.each(settings['c-cpp-flylint'].excludeFromWorkspacePaths, (excludedPath) => {
+            _.each(settings[FLYLINT_ID].excludeFromWorkspacePaths, (excludedPath) => {
                 let normalizedExcludedPath = path.normalize(excludedPath);
 
                 if (!path.isAbsolute(normalizedExcludedPath)) {
@@ -612,34 +618,10 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
     }
 
     // 0 <= n
-    let column: number;
-    if (msg.column) {
-        column = msg.column;
-    } else {
-        column = 0;
-    }
-
-    let message: string;
-    if (msg.message) {
-        message = msg.message;
-    } else {
-        message = 'Unknown error';
-    }
-
-    let code: undefined | number | string;
-    if (msg.code) {
-        code = msg.code;
-    } else {
-        code = undefined;
-    }
-
-    let source: string;
-    if (msg.source) {
-        source = msg.source;
-    } else {
-        source = 'c-cpp-flylint';
-    }
-
+    const column: number = msg.column ? msg.column : 0;
+    const message: string = msg.message ? msg.message : 'Unknown error';
+    const code: undefined | number | string = msg.code ? msg.code : undefined;
+    const source: string = msg.source ? `${msg.source} (${FLYLINT_ID})` : FLYLINT_ID;
     let startColumn: number = column;
     let endColumn: number = column + 1;
 
@@ -704,7 +686,7 @@ connection.onRequest('getLocalConfig', async (activeDocument: TextDocument) => {
                 const documentUri = URI.parse(document.uri);
 
                 if (fileUri.fsPath === documentUri.fsPath) {
-                    return Promise.resolve((await getDocumentSettings(document.uri))['c-cpp-flylint']);
+                    return Promise.resolve((await getDocumentSettings(document.uri))[FLYLINT_ID]);
                 }
             } catch (err: any) {
                 tracker.add(getErrorMessage(err, document));
