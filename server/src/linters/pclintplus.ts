@@ -18,9 +18,9 @@ export class PclintPlus extends Linter {
         super('PclintPlus', settings, workspaceRoot, true);
         this.cascadeCommonSettings('pclintplus');
 
-        this.setExecutable(settings['c-cpp-flylint'].pclintplus.executable);
-        this.setConfigFile(settings['c-cpp-flylint'].pclintplus.configFile);
-        this.active = this.enabled = settings['c-cpp-flylint'].pclintplus.enable;
+        this.setExecutable(settings.pclintplus.executable);
+        this.setConfigFile(settings.pclintplus.configFile);
+        this.active = this.enabled = settings.pclintplus.enable;
     }
 
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
@@ -36,7 +36,7 @@ export class PclintPlus extends Linter {
         ];
 
         if (headerExts.indexOf(path.extname(fileName)) !== -1) {
-            let hArgs = this.settings['c-cpp-flylint'].pclintplus.headerArgs;
+            let hArgs = this.settings.pclintplus.headerArgs;
 
             if (typeof hArgs === 'string') {
                 args.push(hArgs);
@@ -128,7 +128,7 @@ export class PclintPlus extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        let output = this.settings['c-cpp-flylint'].pclintplus.severityLevels[severity as keyof PclintPlusSeverityMaps];
+        let output = this.settings.pclintplus.severityLevels[severity as keyof PclintPlusSeverityMaps];
         return VS_DiagnosticSeverity.from(output);
     }
 }

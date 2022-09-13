@@ -12,9 +12,9 @@ export class Clang extends Linter {
         super('Clang', settings, workspaceRoot, false);
         this.cascadeCommonSettings('clang');
 
-        this.executable = settings['c-cpp-flylint'].clang.executable;
-        this.configFile = settings['c-cpp-flylint'].clang.configFile;
-        this.active = this.enabled = settings['c-cpp-flylint'].clang.enable;
+        this.executable = settings.clang.executable;
+        this.configFile = settings.clang.configFile;
+        this.active = this.enabled = settings.clang.enable;
     }
 
     public lintOn(): Lint[] {
@@ -26,7 +26,7 @@ export class Clang extends Linter {
         let languageParam = this.getLanguageParam();
         let iquoteParams: string[];
 
-        if (this.settings['c-cpp-flylint'].run === 'onType') {
+        if (this.settings.run === 'onType') {
             iquoteParams = this.expandedArgsFor(
                 '-iquote',
                 false,
@@ -38,23 +38,23 @@ export class Clang extends Linter {
         }
 
         let pedanticParams = this.getPedanticParams();
-        let msExtensions = this.settings['c-cpp-flylint'].clang.msExtensions ?
+        let msExtensions = this.settings.clang.msExtensions ?
             ['-fms-extensions'] : [];
-        let noExceptions = this.settings['c-cpp-flylint'].clang.noExceptions ?
+        let noExceptions = this.settings.clang.noExceptions ?
             ['-fno-exceptions'] : [];
-        let noRtti = this.settings['c-cpp-flylint'].clang.noRtti ?
+        let noRtti = this.settings.clang.noRtti ?
             ['-fno-rtti'] : [];
-        let blocks = this.settings['c-cpp-flylint'].clang.blocks ?
+        let blocks = this.settings.clang.blocks ?
             ['-fblocks'] : [];
         let includeArgParams = this.expandedArgsFor(
             '-include',
             false,
-            this.settings['c-cpp-flylint'].clang.includes,
+            this.settings.clang.includes,
             null);
         let warningsParams = this.expandedArgsFor(
             '-W',
             true,
-            this.settings['c-cpp-flylint'].clang.warnings,
+            this.settings.clang.warnings,
             null);
         let standardParams = this.expandedArgsFor(
             '--std=',
@@ -64,7 +64,7 @@ export class Clang extends Linter {
         let standardLibParams = this.expandedArgsFor(
             '--stdlib=',
             true,
-            this.settings['c-cpp-flylint'].clang.standardLibs,
+            this.settings.clang.standardLibs,
             null);
         let defineParams = this.expandedArgsFor(
             '-D',
@@ -100,9 +100,9 @@ export class Clang extends Linter {
             .concat(undefineParams)
             .concat(includePathParams)
             .concat(languageParam)
-            .concat(this.settings['c-cpp-flylint'].clang.extraArgs || []);
+            .concat(this.settings.clang.extraArgs || []);
 
-        if (this.settings['c-cpp-flylint'].run === 'onType') {
+        if (this.settings.run === 'onType') {
             args.push(tmpFileName);
         } else {
             args.push(fileName);
@@ -169,18 +169,18 @@ export class Clang extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        let output = this.settings['c-cpp-flylint'].clang.severityLevels[severity as keyof ClangSeverityMaps];
+        let output = this.settings.clang.severityLevels[severity as keyof ClangSeverityMaps];
         return VS_DiagnosticSeverity.from(output);
     }
 
     private getPedanticParams(): string[] {
         let params: string[] = [];
 
-        if (this.settings['c-cpp-flylint'].clang.pedantic) {
+        if (this.settings.clang.pedantic) {
             params.push(`-pedantic`);
         }
 
-        if (this.settings['c-cpp-flylint'].clang.pedanticErrors) {
+        if (this.settings.clang.pedanticErrors) {
             params.push(`-pedantic-errors`);
         }
 

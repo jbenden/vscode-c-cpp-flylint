@@ -11,6 +11,8 @@ import * as path from 'path';
 import { getFromWorkspaceState, resetWorkspaceState, setWorkspaceState, updateWorkspaceState } from './stateUtils';
 import { isBoolean } from 'lodash';
 
+const FLYLINT_ID: string = 'c-cpp-flylint';
+
 const WORKSPACE_IS_TRUSTED_KEY = 'WORKSPACE_IS_TRUSTED_KEY';
 const SECURITY_SENSITIVE_CONFIG: string[] = [
     'clang.executable',
@@ -52,11 +54,11 @@ export async function maybeWorkspaceIsTrusted(ctx: ExtensionContext) {
         return;
     }
 
-    const ignored = ignoredWorkspaceConfig(workspace.getConfiguration('c-cpp-flylint'), SECURITY_SENSITIVE_CONFIG);
+    const ignored = ignoredWorkspaceConfig(workspace.getConfiguration(FLYLINT_ID), SECURITY_SENSITIVE_CONFIG);
     if (ignored.length === 0) {
         return;
     }
-    const ignoredSettings = ignored.map((x) => `"c-cpp-flylint.${x}"`).join(',');
+    const ignoredSettings = ignored.map((x) => `"${FLYLINT_ID}.${x}"`).join(',');
     const val = await window.showWarningMessage(
         `Some workspace/folder-level settings (${ignoredSettings}) from the untrusted workspace are disabled ` +
         'by default. If this workspace is trusted, explicitly enable the workspace/folder-level settings ' +
@@ -129,12 +131,12 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
         documentSelector: [{ scheme: 'file', language: 'c' }, { scheme: 'file', language: 'cpp' }],
         synchronize: {
             // Synchronize the setting section "c-cpp-flylint" to the server.
-            configurationSection: 'c-cpp-flylint',
+            configurationSection: FLYLINT_ID,
             fileEvents: workspace.createFileSystemWatcher('**/.vscode/c_cpp_properties.json')
         }
     };
 
-    let settings = vscode.workspace.getConfiguration('c-cpp-flylint');
+    let settings = vscode.workspace.getConfiguration(FLYLINT_ID);
     let queryUrlBase = settings.get<string>('queryUrlBase');
     let webQueryMatchSet = settings.get<Array<string>>('webQueryMatchSet');
 
@@ -145,7 +147,7 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
         webQueryMatchSet = [];
     }
 
-    const client = new FlylintLanguageClient('c-cpp-flylint', 'C/C++ Flylint', serverOptions, clientOptions,
+    const client = new FlylintLanguageClient(FLYLINT_ID, 'C/C++ Flylint', serverOptions, clientOptions,
         queryUrlBase, webQueryMatchSet);
 
     client.onReady()
@@ -162,14 +164,11 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
             // Here we must watch for all extension dependencies to start and be ready.
             var untilReadyRetries = 40; // 40x250 = 10 seconds maximum
             const untilReady = async () => {
-                client.outputChannel.appendLine(`untilReady: checking...`);
-
                 try {
                     await commands.executeCommand('cpptools.activeConfigName');
                     client.sendNotification('begin', { document: window.activeTextEditor!.document });
                 }
                 catch (err) {
-                    client.outputChannel.appendLine(`untilReady: re-arm timer.`);
                     if (--untilReadyRetries > 0) {
                         setTimeout(untilReady, 250); // repeat
                     } else {
@@ -191,16 +190,12 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
             // ----------------------------------------------------------------
 
             client.onRequest('c-cpp-flylint.cpptools.activeConfigName', async () => {
-                client.outputChannel.appendLine(`Sending request to "ms-vstools.cpptools" extension.`);
-
                 return commands.executeCommand('cpptools.activeConfigName');
             });
 
             // ----------------------------------------------------------------
 
             client.onRequest('isTrusted', () => {
-                client.outputChannel.appendLine(`Incoming request for isTrusted property. Have ${IS_TRUSTED}.`);
-
                 return IS_TRUSTED;
             });
 
@@ -219,5 +214,5 @@ function startLSClient(serverOptions: ServerOptions, context: ExtensionContext) 
             });
         });
 
-    context.subscriptions.push(new SettingMonitor(client, 'c-cpp-flylint.enable').start());
+    context.subscriptions.push(new SettingMonitor(client, `${FLYLINT_ID}.enable`).start());
 }

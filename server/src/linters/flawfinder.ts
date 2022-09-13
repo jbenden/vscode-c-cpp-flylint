@@ -8,8 +8,8 @@ export class FlawFinder extends Linter {
         super('FlawFinder', settings, workspaceRoot, false);
         this.cascadeCommonSettings('flawfinder');
 
-        this.setExecutable(settings['c-cpp-flylint'].flawfinder.executable);
-        this.active = this.enabled = settings['c-cpp-flylint'].flawfinder.enable;
+        this.setExecutable(settings.flawfinder.executable);
+        this.active = this.enabled = settings.flawfinder.enable;
     }
 
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
@@ -60,7 +60,7 @@ export class FlawFinder extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        let output = this.settings['c-cpp-flylint'].flawfinder.severityLevels[severity as keyof FlawFinderSeverityMaps];
+        let output = this.settings.flawfinder.severityLevels[severity as keyof FlawFinderSeverityMaps];
         return VS_DiagnosticSeverity.from(output);
     }
 }

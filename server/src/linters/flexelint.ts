@@ -10,9 +10,9 @@ export class Flexelint extends Linter {
         super('Flexelint', settings, workspaceRoot, true);
         this.cascadeCommonSettings('flexelint');
 
-        this.executable = settings['c-cpp-flylint'].flexelint.executable;
-        this.configFile = settings['c-cpp-flylint'].flexelint.configFile;
-        this.active = this.enabled = settings['c-cpp-flylint'].flexelint.enable;
+        this.executable = settings.flexelint.executable;
+        this.configFile = settings.flexelint.configFile;
+        this.active = this.enabled = settings.flexelint.enable;
     }
 
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
@@ -28,7 +28,7 @@ export class Flexelint extends Linter {
         ];
 
         if (headerExts.indexOf(path.extname(fileName)) !== -1) {
-            var hArgs = this.settings['c-cpp-flylint'].flexelint.headerArgs;
+            var hArgs = this.settings.flexelint.headerArgs;
 
             if (_.isString(hArgs)) {
                 args.push(hArgs);
@@ -94,7 +94,7 @@ export class Flexelint extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        let output = this.settings['c-cpp-flylint'].flexelint.severityLevels[severity as keyof FlexelintSeverityMaps];
+        let output = this.settings.flexelint.severityLevels[severity as keyof FlexelintSeverityMaps];
         return VS_DiagnosticSeverity.from(output);
     }
 }

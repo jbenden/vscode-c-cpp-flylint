@@ -1,11 +1,11 @@
-import { Settings } from '../server/src/settings';
+import { GlobalSettings } from '../server/src/settings';
 
 export const isWindows =
     process.platform === 'win32' ||
     process.env.OSTYPE === 'cygwin' ||
     process.env.OSTYPE === 'msys';
 
-export const defaultConfig: Settings = {
+export const defaultConfig: GlobalSettings = {
     'c-cpp-flylint': {
         enable: true,
         debug: false,

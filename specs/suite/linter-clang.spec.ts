@@ -5,15 +5,16 @@ import { Linter } from '../../server/src/linters/linter';
 import { Settings } from '../../server/src/settings';
 import { defaultConfig } from '../mock-config';
 import { injectMockFileSystem } from '../mock-fs';
+import { FLYLINT_ID } from '../../server/src/server';
 
 describe('Clang parser', () => {
     injectMockFileSystem();
 
-    var config: Settings;
-    var linter: Linter;
+    let config: Settings;
+    let linter: Linter;
 
     beforeEach(() => {
-        config = cloneDeep(defaultConfig);
+        config = cloneDeep(defaultConfig[FLYLINT_ID]);
         linter = new Clang(config, process.cwd());
     });
 

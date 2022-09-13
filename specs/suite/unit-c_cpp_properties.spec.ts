@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import * as vscode from 'vscode';
-import { FlylintSettings, IConfigurations, propertiesPlatform } from '../../server/src/settings';
+import { Settings, IConfigurations, propertiesPlatform } from '../../server/src/settings';
 import { RobustPromises } from '../../server/src/utils';
 
 // ------------------------------  Critical  -------------------------------
@@ -47,16 +47,16 @@ describe('c_cpp_properties.json unit-tests', () => {
             await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
         });
 
-        async function getDocumentSettings(document: vscode.TextDocument): Promise<FlylintSettings> {
+        async function getDocumentSettings(document: vscode.TextDocument): Promise<Settings> {
             return (await RobustPromises.retry(42, // # of attempts
                 1000, // delay between retries
                 1000, // timeout for a try
-                () => vscode.commands.executeCommand('c-cpp-flylint.getLocalConfig', document))) as FlylintSettings;
+                () => vscode.commands.executeCommand('c-cpp-flylint.getLocalConfig', document))) as Settings;
         }
 
         test('it should handle non-existing includePaths setting', async () => {
             // WHEN
-            let config: FlylintSettings = await getDocumentSettings(document);
+            let config: Settings = await getDocumentSettings(document);
 
             // THEN: simple checks against the set of includePaths
             expect(config).toBeDefined();
@@ -76,7 +76,7 @@ describe('c_cpp_properties.json unit-tests', () => {
 
         test('it should handle plain includePaths setting', async () => {
             // WHEN
-            let config: FlylintSettings = await getDocumentSettings(document);
+            let config: Settings = await getDocumentSettings(document);
 
             // THEN: simple checks against the set of includePaths
             expect(config).toBeDefined();
@@ -95,7 +95,7 @@ describe('c_cpp_properties.json unit-tests', () => {
 
         test('it should handle glob expansion of includePaths setting', async () => {
             // WHEN
-            let config: FlylintSettings = await getDocumentSettings(document);
+            let config: Settings = await getDocumentSettings(document);
 
             // THEN: simple checks against the set of includePaths
             expect(config).toBeDefined();

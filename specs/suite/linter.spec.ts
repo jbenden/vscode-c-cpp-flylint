@@ -10,12 +10,13 @@ import { PclintPlus } from '../../server/src/linters/pclintplus';
 import { Settings } from '../../server/src/settings';
 import { defaultConfig } from '../mock-config';
 import { injectMockFileSystem } from '../mock-fs';
+import { FLYLINT_ID } from '../../server/src/server';
 
 describe('Analyser executables', () => {
     injectMockFileSystem();
 
-    var config: Settings;
-    var linter: Linter;
+    let config: Settings;
+    let linter: Linter;
 
     describe.each([
         {
@@ -46,7 +47,7 @@ describe('Analyser executables', () => {
     ])('.analyser($formal_name, $binary_name)', ({ formal_name, binary_name, claz }) => {
 
         beforeEach(() => {
-            config = cloneDeep(defaultConfig);
+            config = cloneDeep(defaultConfig[FLYLINT_ID]);
             linter = claz(config, process.cwd());
         });
 

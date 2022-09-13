@@ -85,7 +85,7 @@ export interface FlawFinderSeverityMaps {
     '5': SeverityLevel;
 }
 
-export interface FlylintSettings {
+export interface Settings {
     enable: boolean;
     debug: boolean;
     run: 'onSave' | 'onType' | 'onBuild';
@@ -171,6 +171,6 @@ export interface FlylintSettings {
 }
 
 // Settings as defined in VS Code.
-export interface Settings {
-    'c-cpp-flylint': FlylintSettings;
+export interface GlobalSettings {
+    'c-cpp-flylint': Settings;
 }

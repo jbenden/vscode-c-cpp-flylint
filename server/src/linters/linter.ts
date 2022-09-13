@@ -98,31 +98,30 @@ export class Linter {
         this.requireConfig = requireConfig;
         this.enabled = true;
         this.active = true;
-        this.language = settings['c-cpp-flylint'].language;
-        this.standard = settings['c-cpp-flylint'].standard;
-        this.defines = settings['c-cpp-flylint'].defines;
-        this.undefines = settings['c-cpp-flylint'].undefines;
-        this.includePaths = settings['c-cpp-flylint'].includePaths;
+        this.language = settings.language;
+        this.standard = settings.standard;
+        this.defines = settings.defines;
+        this.undefines = settings.undefines;
+        this.includePaths = settings.includePaths;
     }
 
     protected cascadeCommonSettings(key: string) {
         let checkKey = (item: string): boolean => {
-            return this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']].hasOwnProperty(item) &&
-                this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']].hasOwnProperty(item) !== null &&
-                (this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']] as any)[item] !== null;
+            return this.settings[key as keyof Settings].hasOwnProperty(item) &&
+                this.settings[key as keyof Settings].hasOwnProperty(item) !== null &&
+                (this.settings[key as keyof Settings] as any)[item] !== null;
         };
 
         let maybe = (orig: string[] | string, maybeKey: string) => {
             if (checkKey(maybeKey)) {
-                if (_.isArray(orig)) {
-                    return (this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']] as any)[maybeKey];
-                } else if (_.isString(orig)) {
-                    return (this.settings['c-cpp-flylint'][key as keyof Settings['c-cpp-flylint']] as any)[maybeKey];
+                if (_.isArray(orig) || _.isString(orig)) {
+                    return (this.settings[key as keyof Settings] as any)[maybeKey];
                 }
             }
 
             return orig;
         };
+
         this.language = maybe(this.language, 'language');
         this.standard = maybe(this.standard, 'standard');
         this.defines = maybe(this.defines, 'defines');
@@ -188,7 +187,7 @@ export class Linter {
                 if (err) {
                     this.disable();
 
-                    if (this.settings['c-cpp-flylint'].debug) {
+                    if (this.settings.debug) {
                         console.log(`The executable was not found for ${this.name}; looked for ${this.executable}`);
                     }
 
@@ -273,7 +272,7 @@ export class Linter {
     protected runLinter(params: string[], workspaceDir: string): child_process.SpawnSyncReturns<string> {
         let cmd = params.shift() || this.executable;
 
-        if (this.settings['c-cpp-flylint'].debug) {
+        if (this.settings.debug) {
             console.log('executing: ', cmd, params.join(' '));
         }
 
@@ -287,7 +286,7 @@ export class Linter {
         let stdout = result.stdout !== null ? result.stdout.replace(/\r/g, '').split('\n') : [];
         let stderr = result.stderr !== null ? result.stderr.replace(/\r/g, '').split('\n') : [];
 
-        if (this.settings['c-cpp-flylint'].debug) {
+        if (this.settings.debug) {
             console.log(stdout);
             console.log(stderr);
         }
@@ -320,7 +319,7 @@ export class Linter {
             if (parsed) {
                 // check for parse error
                 if (parsed.parseError) {
-                    if (this.settings['c-cpp-flylint'].ignoreParseErrors) {
+                    if (this.settings.ignoreParseErrors) {
                         console.log(parsed.parseError);
                         return;
                     } else {

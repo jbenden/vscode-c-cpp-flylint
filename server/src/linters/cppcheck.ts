@@ -9,13 +9,13 @@ export class CppCheck extends Linter {
         super('CppCheck', settings, workspaceRoot, false);
         this.cascadeCommonSettings('cppcheck');
 
-        this.executable = settings['c-cpp-flylint'].cppcheck.executable;
-        this.configFile = settings['c-cpp-flylint'].cppcheck.configFile;
-        this.active = this.enabled = settings['c-cpp-flylint'].cppcheck.enable;
+        this.executable = settings.cppcheck.executable;
+        this.configFile = settings.cppcheck.configFile;
+        this.active = this.enabled = settings.cppcheck.enable;
     }
 
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
-        let enableParams = this.settings['c-cpp-flylint'].cppcheck.unusedFunctions
+        let enableParams = this.settings.cppcheck.unusedFunctions
             ? ['--enable=warning,style,performance,portability,information,unusedFunction']
             : ['--enable=warning,style,performance,portability,information'];
         let addonParams = this.getAddonParams();
@@ -51,17 +51,17 @@ export class CppCheck extends Linter {
             .concat(languageParam)
             .concat([platformParams])
             .concat([`--template="{file}  {line}  {severity} {id}: {message}"`])
-            .concat(this.settings['c-cpp-flylint'].cppcheck.extraArgs || []);
+            .concat(this.settings.cppcheck.extraArgs || []);
 
-        if (this.settings['c-cpp-flylint'].cppcheck.verbose) {
+        if (this.settings.cppcheck.verbose) {
             args.push('--verbose');
         }
 
-        if (this.settings['c-cpp-flylint'].cppcheck.force) {
+        if (this.settings.cppcheck.force) {
             args.push('--force');
         }
 
-        if (this.settings['c-cpp-flylint'].cppcheck.inconclusive) {
+        if (this.settings.cppcheck.inconclusive) {
             args.push('--inconclusive');
         }
 
@@ -106,7 +106,7 @@ export class CppCheck extends Linter {
     }
 
     private getSeverityCode(severity: string): DiagnosticSeverity {
-        let output = this.settings['c-cpp-flylint'].cppcheck.severityLevels[severity as keyof CppCheckSeverityMaps];
+        let output = this.settings.cppcheck.severityLevels[severity as keyof CppCheckSeverityMaps];
         return VS_DiagnosticSeverity.from(output);
     }
 
@@ -116,7 +116,7 @@ export class CppCheck extends Linter {
     }
 
     private getPlatformParams(): string {
-        let platform = this.settings['c-cpp-flylint'].cppcheck.platform;
+        let platform = this.settings.cppcheck.platform;
 
         if (platform) {
             if (!this.isValidPlatform(platform)) {
@@ -130,7 +130,7 @@ export class CppCheck extends Linter {
     }
 
     private getSuppressionParams(): string[] {
-        let suppressions = this.settings['c-cpp-flylint'].cppcheck.suppressions;
+        let suppressions = this.settings.cppcheck.suppressions;
         let params: string[] = [];
 
         if (suppressions) {
@@ -154,7 +154,7 @@ export class CppCheck extends Linter {
     }
 
     private getAddonParams(): string[] {
-        let addons = this.settings['c-cpp-flylint'].cppcheck.addons;
+        let addons = this.settings.cppcheck.addons;
         let params: string[] = [];
 
         if (addons) {

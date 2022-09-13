@@ -24,7 +24,7 @@ import * as tmp from 'tmp';
 import * as _ from 'lodash';
 import * as glob from 'fast-glob';
 import { EntryItem } from 'fast-glob/out/types';
-import { Settings, IConfigurations, propertiesPlatform } from './settings';
+import { GlobalSettings, Settings, IConfigurations, propertiesPlatform } from './settings';
 import { Linter, Lint, fromLint, toLint } from './linters/linter';
 import { RobustPromises } from './utils';
 
@@ -150,7 +150,7 @@ connection.onNotification('onBuild', async (params: any) => {
 
     let settings = await getDocumentSettings(params.document ?? null);
 
-    const userLintOn: Lint = toLint(settings[FLYLINT_ID].run);
+    const userLintOn: Lint = toLint(settings.run);
     if (userLintOn !== Lint.ON_BUILD) {
         console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_BUILD.`);
         return;
@@ -196,25 +196,26 @@ async function getDocumentSettings(resource: string): Promise<Settings> {
         return Promise.resolve(globalSettings);
     }
 
-    let result = documentSettings.get(resource);
+    let result: Thenable<Settings> | undefined = documentSettings.get(resource);
     if (!result) {
-        let workspaceRoot = await getWorkspaceRoot(resource);
-        result = connection.workspace.getConfiguration({ scopeUri: resource }).then(s => getMergedSettings(s, workspaceRoot));
+        let workspaceRoot: string = await getWorkspaceRoot(resource);
+        let globalSettings: Thenable<GlobalSettings> = connection.workspace.getConfiguration({ scopeUri: resource }).then(s => getMergedSettings(s, workspaceRoot));
+        result = globalSettings.then(v => v[FLYLINT_ID]);
         documentSettings.set(resource, result);
     }
 
-    return result;
+    return result!;
 }
 
 async function reconfigureExtension(currentSettings: Settings, workspaceRoot: string): Promise<Linter[]> {
     let linters: Linter[] = [];  // clear array
 
-    if (currentSettings[FLYLINT_ID].clang.enable) { linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang); }
-    if (currentSettings[FLYLINT_ID].cppcheck.enable) { linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck); }
-    if (currentSettings[FLYLINT_ID].flexelint.enable) { linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint); }
-    if (currentSettings[FLYLINT_ID].pclintplus.enable) { linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus); }
-    if (currentSettings[FLYLINT_ID].flawfinder.enable) { linters.push(await (new FlawFinder(currentSettings, workspaceRoot).initialize()) as FlawFinder); }
-    if (currentSettings[FLYLINT_ID].lizard.enable) { linters.push(await (new Lizard(currentSettings, workspaceRoot).initialize()) as Lizard); }
+    if (currentSettings.clang.enable) { linters.push(await (new Clang(currentSettings, workspaceRoot).initialize()) as Clang); }
+    if (currentSettings.cppcheck.enable) { linters.push(await (new CppCheck(currentSettings, workspaceRoot).initialize()) as CppCheck); }
+    if (currentSettings.flexelint.enable) { linters.push(await (new Flexelint(currentSettings, workspaceRoot).initialize()) as Flexelint); }
+    if (currentSettings.pclintplus.enable) { linters.push(await (new PclintPlus(currentSettings, workspaceRoot).initialize()) as PclintPlus); }
+    if (currentSettings.flawfinder.enable) { linters.push(await (new FlawFinder(currentSettings, workspaceRoot).initialize()) as FlawFinder); }
+    if (currentSettings.lizard.enable) { linters.push(await (new Lizard(currentSettings, workspaceRoot).initialize()) as Lizard); }
 
     _.forEach(linters, (linter) => {
         if (linter.isActive() && !linter.isEnabled()) {
@@ -225,10 +226,10 @@ async function reconfigureExtension(currentSettings: Settings, workspaceRoot: st
     return linters;
 }
 
-export async function getCppProperties(cCppPropertiesPath: string, currentSettings: Settings, workspaceRoot: string) {
+export async function getCppProperties(cCppPropertiesPath: string, currentSettings: GlobalSettings, workspaceRoot: string) {
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
-            const matchOn: string = await getActiveConfigurationName(currentSettings);
+            const matchOn: string = await getActiveConfigurationName(currentSettings[FLYLINT_ID]);
             const JSON5 = require('json5');
             const cCppProperties: IConfigurations = JSON5.parse((fs.readFileSync(cCppPropertiesPath, 'utf8')));
             const platformConfig = cCppProperties.configurations.find(el => el.name === matchOn);
@@ -330,7 +331,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
 }
 
 async function getActiveConfigurationName(currentSettings: Settings): Promise<string> {
-    if (currentSettings[FLYLINT_ID].debug) {
+    if (currentSettings.debug) {
         console.debug('Proxying request for activeConfigName');
     }
 
@@ -339,7 +340,7 @@ async function getActiveConfigurationName(currentSettings: Settings): Promise<st
     });
 }
 
-function getMergedSettings(settings: Settings, workspaceRoot: string): Promise<Settings> {
+function getMergedSettings(settings: GlobalSettings, workspaceRoot: string): Promise<GlobalSettings> {
     let currentSettings = _.cloneDeep(settings);
     const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
 
@@ -372,7 +373,7 @@ async function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): P
         // get the settings for the current file.
         let settings = await getDocumentSettings(event.document.uri);
 
-        const userLintOn: Lint = toLint(settings[FLYLINT_ID].run);
+        const userLintOn: Lint = toLint(settings.run);
         if (userLintOn !== Lint.ON_TYPE) {
             console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_TYPE.`);
             return;
@@ -390,7 +391,7 @@ documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
     // get the settings for the current file.
     let settings = await getDocumentSettings(event.document.uri);
 
-    const userLintOn: Lint = toLint(settings[FLYLINT_ID].run);
+    const userLintOn: Lint = toLint(settings.run);
     if (userLintOn !== Lint.ON_SAVE && userLintOn !== Lint.ON_TYPE) {
         console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_SAVE|ON_TYPE.`);
         return;
@@ -450,7 +451,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     let linters = await getDocumentLinters(textDocument.uri);
     if (linters === undefined || linters === null) {
         // cannot perform lint without active configuration!
-        tracker.add(`c-cpp-flylint: A problem was encountered; the global list of analyzers is null or undefined.`);
+        tracker.add(`A problem was encountered; the global list of analyzers is null or undefined.`);
 
         // Send any exceptions encountered during processing to VSCode.
         tracker.sendErrors(connection);
@@ -462,12 +463,12 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     let documentVersion = textDocument.version;
     let lastVersion = documentVersions.get(textDocument.uri);
     if (lastVersion) {
-        if (settings[FLYLINT_ID].debug) {
+        if (settings.debug) {
             console.log(`${filePath} is currently version number ${documentVersion} and ${lastVersion} was already been scanned.`);
         }
 
         if (documentVersion <= lastVersion && !force) {
-            if (settings[FLYLINT_ID].debug) {
+            if (settings.debug) {
                 console.log(`Skipping scan of ${filePath} because this file version number ${documentVersion} has already been scanned.`);
             }
 
@@ -475,7 +476,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
         }
     }
 
-    if (settings[FLYLINT_ID].debug) {
+    if (settings.debug) {
         console.log(`${filePath} force = ${force}.`);
         console.log(`${filePath} is now at version number ${documentVersion}.`);
     }
@@ -552,7 +553,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
             let acceptFile: boolean = true;
 
             // see if we are to accept the diagnostics upon this file.
-            _.each(settings[FLYLINT_ID].excludeFromWorkspacePaths, (excludedPath) => {
+            _.each(settings.excludeFromWorkspacePaths, (excludedPath) => {
                 let normalizedExcludedPath = path.normalize(excludedPath);
 
                 if (!path.isAbsolute(normalizedExcludedPath)) {
@@ -658,7 +659,7 @@ function getErrorMessage(err: Error, document: TextDocument): string {
     }
 
     const fsPathUri = URI.parse(document.uri);
-    return `vscode-c-cpp-flylint: '${errorMessage}' while validating: ${fsPathUri.fsPath}. Please analyze the 'C/C++ FlyLint' Output console. Stacktrace: ${err.stack}`;
+    return `'${errorMessage}' while validating: ${fsPathUri.fsPath}. Please analyze the 'C/C++ FlyLint' Output console. Stacktrace: ${err.stack}`;
 }
 
 connection.onDidChangeWatchedFiles((params) => {
@@ -686,7 +687,7 @@ connection.onRequest('getLocalConfig', async (activeDocument: TextDocument) => {
                 const documentUri = URI.parse(document.uri);
 
                 if (fileUri.fsPath === documentUri.fsPath) {
-                    return Promise.resolve((await getDocumentSettings(document.uri))[FLYLINT_ID]);
+                    return Promise.resolve(await getDocumentSettings(document.uri));
                 }
             } catch (err: any) {
                 tracker.add(getErrorMessage(err, document));

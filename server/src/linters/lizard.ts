@@ -8,14 +8,14 @@ export class Lizard extends Linter {
         super('Lizard', settings, workspaceRoot, false);
         this.cascadeCommonSettings('lizard');
 
-        this.setExecutable(settings['c-cpp-flylint'].lizard.executable);
-        this.active = this.enabled = settings['c-cpp-flylint'].lizard.enable;
+        this.setExecutable(settings.lizard.executable);
+        this.active = this.enabled = settings.lizard.enable;
     }
 
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
         let args = [this.executable]
             .concat(['--warnings_only'])
-            .concat(this.settings['c-cpp-flylint'].lizard.extraArgs || []);
+            .concat(this.settings.lizard.extraArgs || []);
 
         args.push(fileName);
 
