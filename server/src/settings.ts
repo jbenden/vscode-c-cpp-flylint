@@ -166,6 +166,7 @@ export interface FlylintSettings {
     lizard: {
         enable: boolean;
         executable: string;
+        extraArgs: string[] | null;
     }
 }
 
