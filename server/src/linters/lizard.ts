@@ -15,7 +15,7 @@ export class Lizard extends Linter {
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
         let args = [this.executable]
             .concat(['--warnings_only'])
-            .concat([]);
+            .concat(this.settings['c-cpp-flylint'].lizard.extraArgs || []);
 
         args.push(fileName);
 

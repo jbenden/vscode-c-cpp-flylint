@@ -131,7 +131,8 @@ export const defaultConfig: Settings = {
 
         lizard: {
             enable: true,
-            executable: 'lizard'
+            executable: 'lizard',
+            extraArgs: null,
         }
     }
 };

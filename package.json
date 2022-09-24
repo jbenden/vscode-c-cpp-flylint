@@ -871,6 +871,14 @@
           "type": "string",
           "description": "This option allows you to override the executable called when using lizard",
           "default": "lizard"
+        },
+        "c-cpp-flylint.lizard.extraArgs": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "default": null,
+          "description": "Extra verbatim command-line arguments to include on the lizard command-line invocation."
         }
       }
     }
