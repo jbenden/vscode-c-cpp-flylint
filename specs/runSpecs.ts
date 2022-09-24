@@ -25,13 +25,15 @@ async function main() {
 
         var launchArgs: string[] = ['--disable-gpu'];
 
-        if (process.env.CODE_DEBUG)
+        if (process.env.CODE_DEBUG) {
             launchArgs = launchArgs.concat('--log=debug');
-        else if (process.env.CODE_VERBOSE)
+        } else if (process.env.CODE_VERBOSE) {
             launchArgs = launchArgs.concat('--verbose');
+        }
 
-        if (process.env.INSPECT_PORT)
+        if (process.env.INSPECT_PORT) {
             launchArgs = launchArgs.concat(`--nolazy`, `--inspect='${process.env.INSPECT_PORT}'`);
+        }
 
         // Run the extension test
         process.exit(await runTests({
@@ -42,7 +44,9 @@ async function main() {
             launchArgs
         }));
     } catch (err) {
+        /* eslint-disable no-console */
         console.error(err);
+        /* eslint-disable no-console */
         console.error('Failed to run tests');
         process.exit(1);
     }

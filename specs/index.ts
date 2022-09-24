@@ -28,7 +28,13 @@ export async function run(): Promise<void> {
         `--setupFilesAfterEnv=${path.resolve(__dirname, './setup.js')}`,
     );
 
-    await runJest(args, rootDir);
+    try {
+        await runJest(args, rootDir);
+    } catch (e) {
+        /* eslint-disable no-console */
+        console.error(e);
+        process.exit(1);
+    }
 
-    if (didFailure) process.exit(1);
+    if (didFailure) { process.exit(1); }
 }
