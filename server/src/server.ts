@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {
     Connection,
     createConnection,
@@ -133,7 +132,6 @@ connection.onDidChangeConfiguration(async change => {
 connection.onNotification('begin', async (_params: any) => {
     didStart = true;
 
-    console.log(`Received a notification to enable and start processing.`);
     // validateTextDocument(params.document ?? null, false);
     await validateAllDocuments({ force: false });
 });
@@ -141,17 +139,17 @@ connection.onNotification('begin', async (_params: any) => {
 // NOTE: Does not exist for anything but unit-testing...
 connection.onNotification('end', () => {
     didStart = false;
-
-    console.log(`Received a notification to disable and stop processing.`);
 });
 
 connection.onNotification('onBuild', async (params: any) => {
+    // eslint-disable-next-line no-console
     console.log('Received a notification that a build has completed: ' + _.toString(params));
 
     let settings = await getDocumentSettings(params.document ?? null);
 
     const userLintOn: Lint = toLint(settings.run);
     if (userLintOn !== Lint.ON_BUILD) {
+        // eslint-disable-next-line no-console
         console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_BUILD.`);
         return;
     }
@@ -250,6 +248,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                             let globbed_path = glob.sync(value, { cwd: workspaceRoot, dot: false, onlyDirectories: true, unique: true, absolute: true });
 
                             if (currentSettings[FLYLINT_ID].debug) {
+                                // eslint-disable-next-line no-console
                                 console.log('Path: ' + ipath + '  VALUE: ' + value + '  Globbed is: ' + globbed_path.toString());
                             }
 
@@ -265,6 +264,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                         let normalizedExcludedPath = path.normalize(substExcludedPath.value || '');
 
                                         if (currentSettings[FLYLINT_ID].debug) {
+                                            // eslint-disable-next-line no-console
                                             console.log('Exclude Path: ' + excludedPath + '  VALUE: ' + substExcludedPath.value + '  Normalized: ' + normalizedExcludedPath);
                                         }
 
@@ -287,6 +287,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                         }
 
                                         if (currentSettings[FLYLINT_ID].debug) {
+                                            // eslint-disable-next-line no-console
                                             console.log('Adding path: ' + currentFilePath);
                                         }
 
@@ -301,6 +302,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                     }
 
                                     if (currentSettings[FLYLINT_ID].debug) {
+                                        // eslint-disable-next-line no-console
                                         console.log('Adding system path: ' + currentFilePath);
                                     }
 
@@ -310,6 +312,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                             });
                         }
                         catch (err) {
+                            // eslint-disable-next-line no-console
                             console.error(err);
                         }
                     });
@@ -323,18 +326,16 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
         }
     }
     catch (err) {
+        // eslint-disable-next-line no-console
         console.log('Could not find or parse the workspace c_cpp_properties.json file; continuing...');
+        // eslint-disable-next-line no-console
         console.error(err);
     }
 
     return currentSettings;
 }
 
-async function getActiveConfigurationName(currentSettings: Settings): Promise<string> {
-    if (currentSettings.debug) {
-        console.debug('Proxying request for activeConfigName');
-    }
-
+async function getActiveConfigurationName(_currentSettings: Settings): Promise<string> {
     return RobustPromises.retry(40, 250, 1000, () => connection.sendRequest<string>('c-cpp-flylint.cpptools.activeConfigName')).then(r => {
         if (!_.isArrayLike(r) || r.length === 0) { return propertiesPlatform(); } else { return r; }
     });
@@ -375,11 +376,11 @@ async function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): P
 
         const userLintOn: Lint = toLint(settings.run);
         if (userLintOn !== Lint.ON_TYPE) {
+            // eslint-disable-next-line no-console
             console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_TYPE.`);
             return;
         }
 
-        console.log(`onDidChangeContent starting analysis.`);
         await validateTextDocument(event.document, false);
     }
 }
@@ -393,17 +394,16 @@ documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
 
     const userLintOn: Lint = toLint(settings.run);
     if (userLintOn !== Lint.ON_SAVE && userLintOn !== Lint.ON_TYPE) {
+        // eslint-disable-next-line no-console
         console.log(`Skipping analysis because ${fromLint(userLintOn)} !== ON_SAVE|ON_TYPE.`);
         return;
     }
 
-    console.log(`onDidSave starting analysis.`);
     await validateTextDocument(event.document, false);
 });
 
 documents.onDidOpen(async (event: TextDocumentChangeEvent<TextDocument>) => {
     if (didStart) {
-        console.info(`onDidOpen starting analysis.`);
         await validateTextDocument(event.document, false);
     }
 });
@@ -412,7 +412,6 @@ async function validateAllDocuments(options: { force: boolean }) {
     const { force } = options || {};
 
     if (didStart) {
-        console.log(`validateAllDocuments is starting analysis.`);
         documents.all().forEach(_.bind(validateTextDocument, _, _, force));
     }
 }
@@ -425,6 +424,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
 
     const isTrusted: boolean = await connection.sendRequest('isTrusted');
     if (!isTrusted) {
+        // eslint-disable-next-line no-console
         console.log('Will not analyze an untrusted workspace.');
         return;
     }
@@ -434,12 +434,14 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
         filePath === undefined ||
         filePath === null) {
         // lint can only successfully happen in a workspace, not per-file basis
+        // eslint-disable-next-line no-console
         console.log('Will not analyze a lone file; must open a folder workspace.');
         return;
     }
 
     if (fileUri.scheme !== 'file') {
         // lint can only lint files on disk.
+        // eslint-disable-next-line no-console
         console.log(`Skipping scan of non-local content at ${fileUri.toString()}`);
         return;
     }
@@ -464,11 +466,13 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     let lastVersion = documentVersions.get(textDocument.uri);
     if (lastVersion) {
         if (settings.debug) {
+            // eslint-disable-next-line no-console
             console.log(`${filePath} is currently version number ${documentVersion} and ${lastVersion} was already been scanned.`);
         }
 
         if (documentVersion <= lastVersion && !force) {
             if (settings.debug) {
+                // eslint-disable-next-line no-console
                 console.log(`Skipping scan of ${filePath} because this file version number ${documentVersion} has already been scanned.`);
             }
 
@@ -477,7 +481,9 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     }
 
     if (settings.debug) {
+        // eslint-disable-next-line no-console
         console.log(`${filePath} force = ${force}.`);
+        // eslint-disable-next-line no-console
         console.log(`${filePath} is now at version number ${documentVersion}.`);
     }
 
@@ -493,6 +499,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     // deep-copy current items, so mid-stream configuration change doesn't spoil the party
     const lintersCopy: Linter[] = _.cloneDeep(linters);
 
+    // eslint-disable-next-line no-console
     console.log(`Performing lint scan of ${filePath}...`);
 
     let hasSkipLinter = false;
@@ -598,6 +605,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
         connection.sendDiagnostics({ uri: 'file://' + currentFilePath, diagnostics: [] });
     }
 
+    // eslint-disable-next-line no-console
     console.log('Completed lint scans...');
 
     if (!hasSkipLinter) {
@@ -653,7 +661,6 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
 
 function getErrorMessage(err: Error, document: TextDocument): string {
     let errorMessage = 'unknown error';
-
     if (_.isString(err.message)) {
         errorMessage = (err.message as string);
     }
@@ -663,8 +670,6 @@ function getErrorMessage(err: Error, document: TextDocument): string {
 }
 
 connection.onDidChangeWatchedFiles((params) => {
-    console.log('FS change notification occurred; re-linting all opened documents.');
-
     params.changes.forEach(async element => {
         let configFilePath = URI.parse(element.uri);
 

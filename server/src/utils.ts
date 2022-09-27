@@ -14,7 +14,7 @@ export namespace RobustPromises {
                     }
                 };
 
-                var t = setTimeout(failed, timeout);
+                let t = setTimeout(failed, timeout);
                 try {
                     // eslint-disable-next-line no-console
                     // console.log(`Try attempts are at ${retries}.`);
