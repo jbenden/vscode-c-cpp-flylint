@@ -627,9 +627,9 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
     }
 
     // 0 <= n
-    const column: number = msg.column ? msg.column : 0;
-    const message: string = msg.message ? msg.message : 'Unknown error';
-    const code: undefined | number | string = msg.code ? msg.code : undefined;
+    const column: number = msg.column ?? 0;
+    const message: string = msg.message ?? 'Unknown error';
+    const code: undefined | number | string = msg.code ?? undefined;
     const source: string = msg.source ? `${msg.source} (${FLYLINT_ID})` : FLYLINT_ID;
     let startColumn: number = column;
     let endColumn: number = column + 1;
