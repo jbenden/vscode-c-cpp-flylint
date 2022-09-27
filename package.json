@@ -70,7 +70,8 @@
       "out",
       "sample",
       "dist",
-      ".vscode-test"
+      ".vscode-test",
+      "ex1"
     ]
   },
   "devDependencies": {
