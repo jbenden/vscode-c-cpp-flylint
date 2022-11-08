@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.12.1] - 2022-11-08
 
+### Added
+
+- Added CI automation for future GitHub ran Depend-a-bot
+  pull-requests.
+
 ### Changed
 
 - chore(deps): Bump loader-utils from 2.0.0 to 2.0.3
+- chore(deps): Bump minimatch from 3.0.4 to 3.1.2
 
 ## [1.12.0] - 2022-09-24
 
