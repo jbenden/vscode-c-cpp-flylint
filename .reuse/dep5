@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: C/C++ Flylint
 Upstream-Contact: Joseph Benden <joe@benden.us>
-Source: https://github.com/jbenden/vscode-flylint
+Source: https://github.com/jbenden/vscode-flylint.git
 
 Files: C-Cpp-FlyLint_icon.svg
        C-Cpp-FlyLint_icon.png
@@ -27,5 +27,5 @@ Files: C-Cpp-FlyLint_icon.svg
        specs/suite/fixtures/c_cpp_properties.json
        */webpack* shared.webpack.config.js
        server/src/linters/*
-Copyright: 2017-2022 The C/C++ Flylint Authors
+Copyright: 2017-2022 The VSCode C/C++ Flylint Authors
 License: MIT

@@ -189,6 +189,7 @@ from the Issue and/or Pull Request areas.
 
 ## License
 
-Copyright (C) 2017-2021 [Joseph Benden](mailto:joe@benden.us).
+Copyright (C) 2017-2022 The VSCode C/C++ Flylint Authors.
 
-Licensed under the [MIT License](https://opensource.org/licenses/MIT).
+Licensed under the [MIT License](https://opensource.org/licenses/MIT). We check
+with support for the [REUSE](https://reuse.software/spec/) specification!
