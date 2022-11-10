@@ -1,7 +1,8 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+/*
+ * SPDX-FileCopyrightText: The Microsoft Corporation
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
 import * as path from 'path';
 import { run as runJest } from 'jest-cli';

@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/*---------------------------------------------------------
- * Copyright (C) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See LICENSE in the project root for license information.
- *--------------------------------------------------------*/
+/*
+ * SPDX-FileCopyrightText: The Microsoft Corporation
+ *
+ * SPDX-License-Identifier: MIT
+ */
 
 import vscode = require('vscode');
 

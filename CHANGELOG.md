@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+### Changed
+
+- Project-wide compliance with the REUSE[^reuse] specification has been
+  implemented.
+
 ## [1.12.1] - 2022-11-08
 
 ### Added
@@ -564,3 +571,5 @@ The Git branch where development takes place has been renamed to "main".
 ## [0.0.1] - 2017-06-18
 
 - Initial release.
+
+[^reuse]: https://reuse.software/spec/

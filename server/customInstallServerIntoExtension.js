@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+
+// SPDX-FileCopyrightText: The Microsoft Corporation
+//
+// SPDX-License-Identifier: MIT
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 // This file is based on the "installServerIntoExtension" that ships with the

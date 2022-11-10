@@ -1,0 +1,31 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: C/C++ Flylint
+Upstream-Contact: Joseph Benden <joe@benden.us>
+Source: https://github.com/jbenden/vscode-flylint
+
+Files: C-Cpp-FlyLint_icon.svg
+       C-Cpp-FlyLint_icon.png
+       package.json package-lock.json */package.json */package-lock.json
+       */.eslintignore
+       */.gitignore
+       */tsconfig.json tsconfig.json tsconfig.base.json
+       CHANGELOG.md
+       .gitignore
+       .mdlrc
+       .codeclimate.yml
+       .editorconfig
+       .eslintignore
+       .eslintrc.yml
+       .github/workflows/*
+       .vscode/*
+       .eslintrc.base.json
+       .vscodeignore
+       README.md
+       */.eslintrc.json
+       */.vscode/*.json
+       */README.md
+       specs/suite/fixtures/c_cpp_properties.json
+       */webpack* shared.webpack.config.js
+       server/src/linters/*
+Copyright: 2017-2022 The C/C++ Flylint Authors
+License: MIT

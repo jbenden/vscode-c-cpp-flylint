@@ -1,3 +1,7 @@
+// Copyright (c) 2017-2022 The VSCode C/C++ Flylint Authors
+//
+// SPDX-License-Identifier: MIT
+
 import { downloadAndUnzipVSCode, resolveCliPathFromVSCodeExecutablePath, runTests } from '@vscode/test-electron';
 import * as cp from 'child_process';
 import * as path from 'path';

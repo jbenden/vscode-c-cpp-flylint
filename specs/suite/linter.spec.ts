@@ -1,3 +1,7 @@
+// Copyright (c) 2017-2022 The VSCode C/C++ Flylint Authors
+//
+// SPDX-License-Identifier: MIT
+
 import { cloneDeep } from 'lodash';
 import { basename } from 'path';
 import { Clang } from '../../server/src/linters/clang';

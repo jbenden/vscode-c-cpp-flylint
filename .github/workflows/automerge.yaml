@@ -12,6 +12,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
+      - name: REUSE Compliance Check
+        uses: fsfe/reuse-action@v1
       - run: npm ci
       - run: make
       - run: git diff --exit-code

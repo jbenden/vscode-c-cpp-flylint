@@ -1,3 +1,7 @@
+// Copyright (c) 2017-2022 The VSCode C/C++ Flylint Authors
+//
+// SPDX-License-Identifier: MIT
+
 /* eslint-disable no-console */
 import * as which from 'which';
 import * as fs from 'fs';

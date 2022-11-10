@@ -1,3 +1,7 @@
+// Copyright (c) 2017-2022 The VSCode C/C++ Flylint Authors
+//
+// SPDX-License-Identifier: MIT
+
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import * as vscode from 'vscode';

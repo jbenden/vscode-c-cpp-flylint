@@ -1,3 +1,7 @@
+// Copyright (c) 2017-2022 The VSCode C/C++ Flylint Authors
+//
+// SPDX-License-Identifier: MIT
+
 export namespace RobustPromises {
     type thenableExecutor<T> = () => Thenable<T>;
 
