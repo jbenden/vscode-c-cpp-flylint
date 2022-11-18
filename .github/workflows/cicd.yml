@@ -11,7 +11,7 @@ on:
     types:
       - published
   schedule:
-    cron: "30 5 * * 1"
+    - cron: "30 5 * * 1"
 
 jobs:
   build-lint-test:
