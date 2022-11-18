@@ -33,7 +33,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          - windows-latest
+          # - windows-latest
         node:
           - 16
           - 18
