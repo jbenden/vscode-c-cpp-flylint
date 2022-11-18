@@ -27,5 +27,7 @@ Files: C-Cpp-FlyLint_icon.svg
        specs/suite/fixtures/c_cpp_properties.json
        */webpack* shared.webpack.config.js
        server/src/linters/*
+       .github/CODEOWNERS
+       .github/release.yml
 Copyright: 2017-2022 The VSCode C/C++ Flylint Authors
 License: MIT
