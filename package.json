@@ -62,6 +62,7 @@
   "jest": {
     "preset": "ts-jest",
     "verbose": true,
+    "collectCoverage": true,
     "testEnvironment": "vscode",
     "testMatch": [
       "**/*.spec.ts"
