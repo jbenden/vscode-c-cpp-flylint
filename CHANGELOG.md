@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Project-wide compliance with the REUSE[^reuse] specification has been
   implemented.
 - chore(deps): Bump loader-utils from 2.0.3 to 2.0.4.
+- Improved overall CICD pipeline.
 
 ## [1.12.1] - 2022-11-08
 
