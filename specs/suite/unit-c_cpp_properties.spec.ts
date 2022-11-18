@@ -8,6 +8,13 @@ import * as vscode from 'vscode';
 import { Settings, IConfigurations, propertiesPlatform } from '../../server/src/settings';
 import { RobustPromises } from '../../server/src/utils';
 
+// inspired by: https://stackoverflow.com/a/69396619
+const testIf = (condition:any, param1:any, ...args:Array<any>) =>
+    condition ? test(param1, ...args) : test.skip(param1, ...args);
+
+const testIfLinux = (param1:any, ...args:Array<any>) =>
+    testIf(process.platform === 'linux', param1, ...args);
+
 // ------------------------------  Critical  -------------------------------
 // One CANNOT test across IPC channels to the server, as the test is NOT the
 // same Node.js process!
@@ -78,7 +85,7 @@ describe('c_cpp_properties.json unit-tests', () => {
             );
         });
 
-        test('it should handle plain includePaths setting', async () => {
+        testIfLinux('it should handle plain includePaths setting', async () => {
             // WHEN
             let config: Settings = await getDocumentSettings(document);
 
@@ -90,8 +97,8 @@ describe('c_cpp_properties.json unit-tests', () => {
             expect(config.includePaths).toEqual(
                 expect.arrayContaining(
                     [
-                        expect.stringMatching(/a$/),
-                        expect.stringMatching(/\/usr\/include$/)
+                        expect.stringMatching(/\/usr\/include$/),
+                        expect.stringMatching(/\/usr\/local\/include$/)
                     ]
                 )
             );
