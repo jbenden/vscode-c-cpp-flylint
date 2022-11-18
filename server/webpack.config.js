@@ -13,5 +13,6 @@ module.exports = withDefaults({
 		filename: 'server.js',
 		path: path.join(__dirname, 'out'),
 		devtoolModuleFilenameTemplate: "../[resource-path]",
+		hashFunction: 'xxhash64'
 	}
 });

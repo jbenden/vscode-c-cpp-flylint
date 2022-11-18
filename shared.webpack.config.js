@@ -49,6 +49,7 @@ module.exports = function withDefaults(/**@type WebpackConfig*/extConfig) {
 			filename: '[name].js',
 			path: path.join(extConfig.context, 'out'),
 			libraryTarget: "commonjs",
+            hashFunction: 'xxhash64'
 		},
 		// yes, really source maps
 		devtool: 'source-map'
