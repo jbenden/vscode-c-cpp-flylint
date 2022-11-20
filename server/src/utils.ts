@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
+import * as unixify from 'unixify';
+
 export namespace RobustPromises {
     type thenableExecutor<T> = () => Thenable<T>;
 
@@ -47,4 +49,25 @@ export function sleep(ms: number): Promise<void> {
     return new Promise(resolve => {
         setTimeout(resolve, ms);
     });
+}
+
+// Reference: https://learn.microsoft.com/en-us/dotnet/standard/io/file-path-formats
+export function path(path: string): string {
+    let lc = path.slice(0, 1).toLowerCase();
+    if (lc >= 'a' && lc <= 'z' && path.slice(1, 2) === ':') {
+        if (path.slice(2, 3) === '\\' || path.slice(2, 3) === '/') {
+            var segs = path.split(/[/\\]+/);
+            if (segs[segs.length - 1] === '') {
+                segs.pop();
+            }
+            return segs.join('/');
+        } else {
+            // Windows: Make a relative MSYS-compatible path
+            path = path.slice(2);
+        }
+    } else if (path.slice(0, 2) === '\\\\') {
+        // Windows: Ensure UNC paths keep initial slashes
+        return '/' + unixify(path);
+    }
+    return unixify(path);
 }

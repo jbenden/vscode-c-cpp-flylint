@@ -5,6 +5,7 @@
 import { Settings } from '../settings';
 import { Linter } from './linter';
 import { InternalDiagnostic } from '../server';
+import { path as sysPath } from '../utils';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class Lizard extends Linter {
@@ -21,7 +22,7 @@ export class Lizard extends Linter {
             .concat(['--warnings_only'])
             .concat(this.settings.lizard.extraArgs || []);
 
-        args.push(fileName);
+        args.push(sysPath(fileName));
 
         return args;
     }

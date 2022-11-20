@@ -22,10 +22,18 @@ describe('Clang parser', () => {
         linter = new Clang(config, process.cwd());
     });
 
-    test('should build a proper command-line for a C++ source file', () => {
+    test('should build a proper DOS command-line for a C++ source file', () => {
         // this method call syntax permits protected/private method calling; due to JavaScript.
-        const actual = linter['buildCommandLine']('main.cc', 'main.cc');
+        const actual = linter['buildCommandLine']('C:\\Project\\main.cc', 'C:\\Project\\main.cc');
         expect(actual).toHaveLength(17);
+        expect(actual.slice(-1)).toStrictEqual(['C:/Project/main.cc']);
+    });
+
+    test('should build a proper POSIX command-line for a C++ source file', () => {
+        // this method call syntax permits protected/private method calling; due to JavaScript.
+        const actual = linter['buildCommandLine']('/usr/src/main.cc', '/usr/src/main.cc');
+        expect(actual).toHaveLength(17);
+        expect(actual.slice(-1)).toStrictEqual(['/usr/src/main.cc']);
     });
 
     test('should build a proper command-line for a C++ header file', () => {

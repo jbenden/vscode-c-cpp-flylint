@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   implemented.
 - chore(deps): Bump loader-utils from 2.0.3 to 2.0.4.
 - Improved overall CICD pipeline.
+- Added file-system normalization throughout all analyzers.
 
 ## [1.12.1] - 2022-11-08
 

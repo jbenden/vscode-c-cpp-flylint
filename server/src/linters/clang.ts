@@ -6,6 +6,7 @@ import * as path from 'path';
 import { ClangSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter, Lint } from './linter';
 import { InternalDiagnostic } from '../server';
+import { path as sysPath } from '../utils';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class Clang extends Linter {
@@ -107,9 +108,9 @@ export class Clang extends Linter {
             .concat(this.settings.clang.extraArgs || []);
 
         if (this.settings.run === 'onType') {
-            args.push(tmpFileName);
+            args.push(sysPath(tmpFileName));
         } else {
-            args.push(fileName);
+            args.push(sysPath(fileName));
         }
 
         this.actualFileName = fileName;

@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as _ from 'lodash';
 import { InternalDiagnostic } from '../server';
 import { Settings } from '../settings';
+import { path as sysPath } from '../utils';
 import * as cross_spawn from 'cross-spawn';
 import * as child_process from 'child_process';
 
@@ -374,7 +375,7 @@ export class Linter {
                     console.log(`Error expanding include path '${element}': ${value.error.message}`);
                 } else {
                     params.push(`-I`);
-                    params.push(`${value.result}`);
+                    params.push(`${sysPath(value.result!)}`);
                 }
             });
         }

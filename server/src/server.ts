@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: MIT
 
+import { parse as jsonParse } from 'json5';
 import {
     Connection,
     createConnection,
@@ -29,7 +30,7 @@ import * as glob from 'fast-glob';
 import { EntryItem } from 'fast-glob/out/types';
 import { GlobalSettings, Settings, IConfigurations, propertiesPlatform } from './settings';
 import { Linter, Lint, fromLint, toLint } from './linters/linter';
-import { RobustPromises } from './utils';
+import { RobustPromises, path as sysPath } from './utils';
 
 import { Clang } from './linters/clang';
 import { CppCheck } from './linters/cppcheck';
@@ -232,8 +233,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
             const matchOn: string = await getActiveConfigurationName(currentSettings[FLYLINT_ID]);
-            const JSON5 = require('json5');
-            const cCppProperties: IConfigurations = JSON5.parse((fs.readFileSync(cCppPropertiesPath, 'utf8')));
+            const cCppProperties: IConfigurations = jsonParse((fs.readFileSync(cCppPropertiesPath, 'utf8')));
             const platformConfig = cCppProperties.configurations.find(el => el.name === matchOn);
 
             if (platformConfig !== undefined) {
@@ -257,7 +257,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                             }
 
                             _.each(globbed_path, (gpath: string | EntryItem) => {
-                                let currentFilePath = path.resolve(gpath as string).replace(/\\/g, '/');
+                                let currentFilePath = sysPath(path.resolve(gpath as string));
 
                                 if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!))) {
                                     let acceptFile: boolean = true;
@@ -285,11 +285,6 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                     });
 
                                     if (acceptFile) {
-                                        // Windows drive letter must be prefixed with a slash
-                                        if (currentFilePath[0] !== '/') {
-                                            currentFilePath = '/' + currentFilePath;
-                                        }
-
                                         if (currentSettings[FLYLINT_ID].debug) {
                                             // eslint-disable-next-line no-console
                                             console.log('Adding path: ' + currentFilePath);
@@ -300,11 +295,6 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
                                     }
                                 } else {
                                     // file is outside of workspace root, perhaps a system folder
-                                    // Windows drive letter must be prefixed with a slash
-                                    if (currentFilePath[0] !== '/') {
-                                        currentFilePath = '/' + currentFilePath;
-                                    }
-
                                     if (currentSettings[FLYLINT_ID].debug) {
                                         // eslint-disable-next-line no-console
                                         console.log('Adding system path: ' + currentFilePath);
@@ -424,6 +414,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
     const fileUri: URI = URI.parse(textDocument.uri);
     const filePath: string = fileUri.fsPath;
+    const normalizedFilePath = sysPath(path.normalize(filePath as string));
     const workspaceRoot: string = await getWorkspaceRoot(textDocument.uri);
 
     const isTrusted: boolean = await connection.sendRequest('isTrusted');
@@ -499,6 +490,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     const allDiagnostics: Map<String, Diagnostic[]> = new Map<String, Diagnostic[]>();
 
     const relativePath = path.relative(workspaceRoot, filePath);
+    const normalizedRelativePath = sysPath(path.normalize(relativePath));
 
     // deep-copy current items, so mid-stream configuration change doesn't spoil the party
     const lintersCopy: Linter[] = _.cloneDeep(linters);
@@ -510,7 +502,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
 
     lintersCopy.forEach(linter => {
         try {
-            let result = linter.lint(filePath as string, workspaceRoot, tmpDocument.name);
+            let result = linter.lint(normalizedFilePath, workspaceRoot, tmpDocument.name);
 
             while (result.length > 0) {
                 let diagnostics: Diagnostic[] = [];
@@ -525,15 +517,17 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
                         continue;
                     }
 
+                    let normalizedFileName = sysPath(path.normalize(path.resolve(msg.fileName)));
+
                     if (currentFile === '') {
-                        currentFile = msg.fileName;
+                        currentFile = normalizedFileName;
                     }
 
-                    if (currentFile !== msg.fileName) {
+                    if (currentFile !== normalizedFileName) {
                         continue;
                     }
 
-                    if (relativePath === msg.fileName || (path.isAbsolute(msg.fileName) && filePath === msg.fileName)) {
+                    if (normalizedRelativePath === normalizedFileName || (path.isAbsolute(normalizedFileName) && normalizedFilePath === normalizedFileName)) {
                         diagnostics.push(makeDiagnostic(documentLines, msg));
                     } else {
                         diagnostics.push(makeDiagnostic(null, msg));
@@ -542,12 +536,13 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
                     result.splice(i, 1);
                 }
 
+                let currentFileUri = URI.file(currentFile).toString();
                 diagnostics = _.uniqBy(diagnostics, function(e) { return e.range.start.line + ':::' + e.code + ':::' + e.message; });
 
-                if (allDiagnostics.has(currentFile)) {
-                    allDiagnostics.set(currentFile, _.union(allDiagnostics.get(currentFile), diagnostics));
+                if (allDiagnostics.has(currentFileUri)) {
+                    allDiagnostics.set(currentFileUri, _.union(allDiagnostics.get(currentFileUri), diagnostics));
                 } else {
-                    allDiagnostics.set(currentFile, diagnostics);
+                    allDiagnostics.set(currentFileUri, diagnostics);
                 }
             }
         } catch (e: any) {
@@ -558,9 +553,11 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     tmpDocument.removeCallback();
 
     let sendDiagnosticsToEditor = (diagnostics: Diagnostic[], currentFile: string) => {
-        let currentFilePath = path.resolve(currentFile).replace(/\\/g, '/');
+        let currentFilePath = sysPath(URI.parse(currentFile).fsPath);
+        let normalizedCurrentFilePath = currentFilePath;
+        let normalizedWorkspaceRoot = sysPath(path.normalize(workspaceRoot!));
 
-        if (path.normalize(currentFilePath).startsWith(path.normalize(workspaceRoot!))) {
+        if (normalizedCurrentFilePath.startsWith(normalizedWorkspaceRoot)) {
             let acceptFile: boolean = true;
 
             // see if we are to accept the diagnostics upon this file.
@@ -573,40 +570,30 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
                 }
 
                 // does the document match our excluded path?
-                if (path.normalize(currentFilePath).startsWith(normalizedExcludedPath)) {
+                if (normalizedCurrentFilePath.startsWith(sysPath(normalizedExcludedPath))) {
                     // it did; so do not accept diagnostics from this file.
                     acceptFile = false;
                 }
             });
 
             if (acceptFile) {
-                // Windows drive letter must be prefixed with a slash
-                if (currentFilePath[0] !== '/') {
-                    currentFilePath = '/' + currentFilePath;
-                }
+                let uri = URI.file(currentFilePath);
 
-                connection.sendDiagnostics({ uri: 'file://' + currentFilePath, diagnostics: [] });
-                connection.sendDiagnostics({ uri: 'file://' + currentFilePath, diagnostics });
+                connection.sendDiagnostics({ uri: uri.toString(), diagnostics: [] });
+                connection.sendDiagnostics({ uri: uri.toString(), diagnostics });
             }
         }
     };
 
     // Send diagnostics to VSCode
     for (let diagnosticEntry of allDiagnostics) {
-        let [fileName, fileDiagnostics] = diagnosticEntry;
-
-        sendDiagnosticsToEditor(fileDiagnostics, fileName.toString());
+        sendDiagnosticsToEditor(diagnosticEntry[1], diagnosticEntry[0].toString());
     }
 
     // Remove all previous problem reports, when no further exist
-    if (!allDiagnostics.has(relativePath) && !allDiagnostics.has(filePath)) {
-        let currentFilePath = path.resolve(filePath).replace(/\\/g, '/');
-        // Windows drive letter must be prefixed with a slash
-        if (currentFilePath[0] !== '/') {
-            currentFilePath = '/' + currentFilePath;
-        }
-
-        connection.sendDiagnostics({ uri: 'file://' + currentFilePath, diagnostics: [] });
+    let filePathUri = URI.file(filePath).toString();
+    if (!allDiagnostics.has(filePathUri)) {
+        connection.sendDiagnostics({ uri: filePathUri, diagnostics: [] });
     }
 
     // eslint-disable-next-line no-console

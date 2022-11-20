@@ -27,8 +27,17 @@ async function main() {
 
         process.chdir(extensionDevelopmentPath);
 
-        var launchArgs: string[] = ['--disable-gpu'];
+        var launchArgs: string[] = [
+            '--disable-gpu',
+            '--disable-updates',
+            '--disable-keytar',
+            '--disable-workspace-trust',
+            '--logExtensionHostCommunication',
+            '--sync=off',
+            '--disable-user-env'
+        ];
 
+        // TODO(jbenden): `process.env.CODE_DEBUG` fails to work under Windows.
         if (process.env.CODE_DEBUG) {
             launchArgs = launchArgs.concat('--log=debug');
         } else if (process.env.CODE_VERBOSE) {
