@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import { PclintPlusSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { headerExts, Linter } from './linter';
 import { InternalDiagnostic } from '../server';
+import { path as sysPath } from '../utils';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 type ParseData = {
@@ -51,7 +52,7 @@ export class PclintPlus extends Linter {
             }
         }
 
-        args.push(fileName);
+        args.push(sysPath(fileName));
 
         return args;
     }

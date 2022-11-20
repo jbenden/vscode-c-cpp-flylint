@@ -34,14 +34,14 @@ module.exports = function withDefaults(/**@type WebpackConfig*/extConfig) {
 					loader: 'ts-loader',
 					options: {
 						compilerOptions: {
-							"sourceMap": true,
+							"sourceMap": true
 						}
 					}
 				}]
 			}]
 		},
 		externals: {
-			'vscode': 'commonjs vscode', // ignored because it doesn't exist
+			'vscode': 'commonjs vscode' // ignored because it doesn't exist
 		},
 		output: {
 			// all output goes into `dist`.

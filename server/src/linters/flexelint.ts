@@ -7,6 +7,7 @@ import * as _ from 'lodash';
 import { FlexelintSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { headerExts, Linter } from './linter';
 import { InternalDiagnostic } from '../server';
+import { path as sysPath } from '../utils';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class Flexelint extends Linter {
@@ -43,7 +44,7 @@ export class Flexelint extends Linter {
             }
         }
 
-        args.push(fileName);
+        args.push(sysPath(fileName));
 
         return args;
     }

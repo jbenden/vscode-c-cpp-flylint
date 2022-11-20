@@ -6,6 +6,7 @@ import * as _ from 'lodash';
 import { CppCheckSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter } from './linter';
 import { InternalDiagnostic } from '../server';
+import { path as sysPath } from '../utils';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class CppCheck extends Linter {
@@ -69,7 +70,7 @@ export class CppCheck extends Linter {
             args.push('--inconclusive');
         }
 
-        args.push(fileName);
+        args.push(sysPath(fileName));
 
         return args;
     }

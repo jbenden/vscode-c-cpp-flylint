@@ -5,6 +5,7 @@
 import { FlawFinderSeverityMaps, Settings, VS_DiagnosticSeverity } from '../settings';
 import { Linter } from './linter';
 import { InternalDiagnostic } from '../server';
+import { path as sysPath } from '../utils';
 import { DiagnosticSeverity } from 'vscode-languageserver/node';
 
 export class FlawFinder extends Linter {
@@ -23,7 +24,7 @@ export class FlawFinder extends Linter {
             .concat(['--singleline'])
             .concat([]);
 
-        args.push(fileName);
+        args.push(sysPath(fileName));
 
         return args;
     }
