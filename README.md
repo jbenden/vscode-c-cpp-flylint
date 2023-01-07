@@ -4,10 +4,6 @@
 
 <div>
 
-[![Version](https://vsmarketplacebadge.apphb.com/version-short/jbenden.c-cpp-flylint.png)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jbenden.c-cpp-flylint.png)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
-[![Rating](https://vsmarketplacebadge.apphb.com/rating-short/jbenden.c-cpp-flylint.png)](https://marketplace.visualstudio.com/items?itemName=jbenden.c-cpp-flylint)
-[![Build Status](https://github.com/jbenden/vscode-c-cpp-flylint/workflows/CI/badge.png?branch=main)](https://github.com/jbenden/vscode-c-cpp-flylint/actions)
 [![Code Climate](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint/badges/gpa.png)](https://codeclimate.com/github/jbenden/vscode-c-cpp-flylint)
 
 </div>
