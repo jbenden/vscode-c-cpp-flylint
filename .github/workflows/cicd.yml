@@ -67,11 +67,11 @@ jobs:
         run: xvfb-run "--server-args=-screen 0 1024x768x24" -a npm test
         if: runner.os == 'Linux'
       - name: Upload Coverage Report
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@1.2.5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel: true
-          flag-name: Test on ${{ matrix.os }}
+          flag-name: Test node ${{ matrix.node }} on ${{ matrix.os }}
       - name: Package Extension
         id: packageExtension
         uses: HaaLeo/publish-vscode-extension@v1
@@ -91,7 +91,7 @@ jobs:
     needs: build-lint-test
     steps:
       - name: Let Coveralls know that all tests have finished
-        uses: coverallsapp/github-action@1.1.3
+        uses: coverallsapp/github-action@1.2.5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
