@@ -231,4 +231,28 @@ describe('CppCheck parser', () => {
         expect(result).toHaveProperty('code', 'missingOverride');
         expect(result['message']).toMatch(/^The function \'baz\' overrides a function in a base class/);
     });
+
+    test('should function with CppCheck version 2.11 and greater', () => {
+        const test = [
+            `cppcheck: '--enable=information' will no longer implicitly enable 'missingInclude' starting with 2.16. Please enable it explicitly if you require it.`,
+            `"--enable=information" will no longer implicitly enable "missingInclude" starting with 2.16. Please enable it explicitly if you require it.`,
+            `flist.c  2837  style unusedStructMember: struct member 'Anonymous5::name_space' is never used.`,
+            `Checking flist.c: iconv_t...`,
+            `    information missingIncludeSystem: Cppcheck cannot find all the include files (use --check-config for details)`,
+            `    information missingInclude: Cppcheck cannot find all the include files (use --check-config for details)`,
+        ];
+        const actual = linter['parseLines'](test);
+
+        expect(actual).toHaveLength(1);
+
+        let result = actual.pop()!;
+
+        expect(result).toHaveProperty('fileName', 'flist.c');
+        expect(result).toHaveProperty('line', 2836);
+        expect(result).toHaveProperty('column', 0);
+        expect(result).toHaveProperty('severity', DiagnosticSeverity.Information);
+        expect(result).toHaveProperty('code', 'unusedStructMember');
+        expect(result['message']).toMatch(/^struct member \'Anonymous5::name_space\' is never used\./);
+    });
+
 });
