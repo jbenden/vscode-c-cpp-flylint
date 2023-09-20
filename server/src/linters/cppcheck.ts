@@ -79,7 +79,7 @@ export class CppCheck extends Linter {
         let regex = /^(.+?)\s\s([0-9]+)\s([0-9]+\s)?\s(style|information|portability|performance|warning|error)\s(.+?):\s(.*)$/;
         let regexArray: RegExpExecArray | null;
 
-        let excludeRegex = /^((Checking |Defines:|Undefines:|Includes:|Platform:|.*information.*missingInclude.*).*|cppcheck: .*. Disabling .* check.|)$/;
+        let excludeRegex = /^((Checking |Active checkers:|Defines:|Undefines:|Includes:|Platform:|.*information.*missingInclude.*).*|cppcheck: .*. Disabling .* check.|)$/;
 
         if (excludeRegex.exec(line) !== null) {
             // skip this line
