@@ -20,7 +20,7 @@ async function main() {
         const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
 
         // Install the C/C++ base tools
-        cp.spawnSync(cliPath, ['--install-extension', 'ms-vscode.cpptools'], {
+        cp.spawnSync(cliPath, ['--install-extension', 'ms-vscode.cpptools@1.7.1'], {
             encoding: 'utf-8',
             stdio: 'inherit'
         });
@@ -30,16 +30,22 @@ async function main() {
         var launchArgs: string[] = [
             '--disable-gpu',
             '--disable-updates',
-            '--disable-keytar',
             '--disable-workspace-trust',
-            '--logExtensionHostCommunication',
+            '--disable-crash-reporter',
+            '--disable-telemetry',
+            '--skip-welcome',
+            '--skip-release-notes',
+            '--no-sandbox',
+            '--ms-enable-electron-run-as-node',
+            '--disable-keytar',
             '--sync=off',
-            '--disable-user-env'
+            '--disable-user-env',
+            '--logExtensionHostCommunication'
         ];
 
         // TODO(jbenden): `process.env.CODE_DEBUG` fails to work under Windows.
         if (process.env.CODE_DEBUG) {
-            launchArgs = launchArgs.concat('--log=debug');
+            launchArgs = launchArgs.concat('--log=debug').concat('--verbose');
         } else if (process.env.CODE_VERBOSE) {
             launchArgs = launchArgs.concat('--verbose');
         }
