@@ -1,6 +1,8 @@
 // Copyright (c) 2017-2022 The VSCode C/C++ Flylint Authors
 //
 // SPDX-License-Identifier: MIT
+//
+// istanbul ignore file
 
 import { GlobalSettings } from '../server/src/settings';
 

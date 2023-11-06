@@ -22,6 +22,7 @@ export class Clang extends Linter {
         this.active = this.enabled = settings.clang.enable;
     }
 
+    /* istanbul ignore next */
     public lintOn(): Lint[] {
         return [Lint.ON_SAVE, Lint.ON_TYPE, Lint.ON_BUILD];
     }

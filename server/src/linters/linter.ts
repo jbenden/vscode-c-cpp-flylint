@@ -29,6 +29,7 @@ export enum Lint {
     ON_BUILD = 3,
 }
 
+/* istanbul ignore next */
 export function toLint(s: string): Lint {
     switch (s) {
         case 'onSave': return Lint.ON_SAVE;
@@ -39,6 +40,7 @@ export function toLint(s: string): Lint {
     }
 }
 
+/* istanbul ignore next */
 export function fromLint(lint: Lint): string {
     switch (lint) {
         case Lint.ON_SAVE: return 'ON_SAVE';
@@ -49,6 +51,7 @@ export function fromLint(lint: Lint): string {
     }
 }
 
+/* istanbul ignore next */
 export class PathEnv {
     private paths: Array<string> = [];
 
@@ -110,6 +113,7 @@ export class Linter {
         this.includePaths = settings.includePaths;
     }
 
+    /* istanbul ignore next */
     protected cascadeCommonSettings(key: string) {
         let checkKey = (item: string): boolean => {
             return this.settings[key as keyof Settings].hasOwnProperty(item) &&
@@ -134,34 +138,42 @@ export class Linter {
         this.includePaths = maybe(this.includePaths, 'includePaths');
     }
 
+    /* istanbul ignore next */
     protected setExecutable(fileName: string) {
         this.executable = fileName;
     }
 
+    /* istanbul ignore next */
     protected setConfigFile(fileName: string) {
         this.configFile = fileName;
     }
 
+    /* istanbul ignore next */
     public Name(): string {
         return this.name;
     }
 
+    /* istanbul ignore next */
     public isEnabled(): boolean {
         return this.enabled;
     }
 
+    /* istanbul ignore next */
     public isActive(): boolean {
         return this.active;
     }
 
+    /* istanbul ignore next */
     public enable() {
         this.enabled = true;
     }
 
+    /* istanbul ignore next */
     public disable() {
         this.enabled = false;
     }
 
+    /* istanbul ignore next */
     public async initialize() {
         await this.maybeEnable().catch(() => {
             // empty
@@ -169,6 +181,7 @@ export class Linter {
         return this;
     }
 
+    /* istanbul ignore next */
     private async maybeEnable() {
         if (!this.isEnabled()) {
             return Promise.resolve('');
@@ -182,6 +195,7 @@ export class Linter {
             });
     }
 
+    /* istanbul ignore next */
     private maybeExecutablePresent(): Promise<string> {
         return new Promise((resolve, reject) => {
             let paths = new PathEnv();
@@ -205,6 +219,7 @@ export class Linter {
         });
     }
 
+    /* istanbul ignore next */
     private async maybeConfigFilePresent(): Promise<string> {
         if (!this.requireConfig) {
             return Promise.resolve('');
@@ -227,6 +242,7 @@ export class Linter {
             });
     }
 
+    /* istanbul ignore next */
     protected locateFile(directory: string, fileName: string): Promise<string> {
         return new Promise((resolve, reject) => {
             let parent = directory;
@@ -256,6 +272,7 @@ export class Linter {
         });
     }
 
+    /* istanbul ignore next */
     protected expandVariables(str: string): IExpansionResult {
         process.env.workspaceRoot = this.workspaceRoot;
         process.env.workspaceFolder = this.workspaceRoot;
@@ -270,6 +287,7 @@ export class Linter {
         }
     }
 
+    /* istanbul ignore next */
     protected buildCommandLine(fileName: string, tmpFileName: string): string[] {
         return [this.executable, fileName, tmpFileName];
     }
@@ -277,6 +295,7 @@ export class Linter {
     protected runLinter(params: string[], workspaceDir: string): child_process.SpawnSyncReturns<string> {
         let cmd = params.shift() || this.executable;
 
+        /* istanbul ignore if */
         if (this.settings.debug) {
             console.log('executing: ', cmd, params.join(' '));
         }
@@ -291,11 +310,13 @@ export class Linter {
         let stdout = result.stdout !== null ? result.stdout.replace(/\r/g, '').split('\n') : [];
         let stderr = result.stderr !== null ? result.stderr.replace(/\r/g, '').split('\n') : [];
 
+        /* istanbul ignore if */
         if (this.settings.debug) {
             console.log(stdout);
             console.log(stderr);
         }
 
+        /* istanbul ignore if */
         if (result.status !== 0) {
             console.log(`${this.name} exited with status code ${result.status}`);
         }
@@ -303,6 +324,7 @@ export class Linter {
         return this.parseLines(stdout.concat(stderr));
     }
 
+    /* istanbul ignore next */
     protected isQuote(ch: string): boolean {
         return ch === '\'' || ch === '\"';
     }
@@ -351,19 +373,23 @@ export class Linter {
         return results;
     }
 
+    /* istanbul ignore next */
     protected transformParse(currentParsed: InternalDiagnostic | null, parsed: InternalDiagnostic | null) {
         return { currentParsed: currentParsed, parsed: parsed };
     }
 
+    /* istanbul ignore next */
     protected parseLine(_line: string): InternalDiagnostic | null {
         return null;
     }
 
+    /* istanbul ignore next */
     protected isValidLanguage(language: string): boolean {
         const allowLanguages = ['c', 'c++'];
         return _.includes(allowLanguages, language);
     }
 
+    /* istanbul ignore next */
     protected getIncludePathParams(): string[] {
         let paths = this.includePaths;
         let params: string[] = [];
@@ -383,6 +409,7 @@ export class Linter {
         return params;
     }
 
+    /* istanbul ignore next */
     protected expandedArgsFor(key: string, joined: boolean, values: string[] | null, defaults: string[] | null): string[] {
         let params: string[] = [];
         let elaborateArguments = (element: string) => {

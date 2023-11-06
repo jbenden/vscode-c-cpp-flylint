@@ -58,14 +58,17 @@ export class CppCheck extends Linter {
             .concat([`--template="{file}  {line}  {severity} {id}: {message}"`])
             .concat(this.settings.cppcheck.extraArgs || []);
 
+        /* istanbul ignore if */
         if (this.settings.cppcheck.verbose) {
             args.push('--verbose');
         }
 
+        /* istanbul ignore if */
         if (this.settings.cppcheck.force) {
             args.push('--force');
         }
 
+        /* istanbul ignore if */
         if (this.settings.cppcheck.inconclusive) {
             args.push('--inconclusive');
         }

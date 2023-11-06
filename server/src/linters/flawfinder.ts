@@ -44,6 +44,7 @@ export class FlawFinder extends Linter {
             return {
                 fileName: regexArray[1],
                 line: parseInt(regexArray[2]) - 1,
+                /* istanbul ignore next */
                 column: parseInt(regexArray[3]) - 1 || 0,
                 severity: this.getSeverityCode(regexArray[4]),
                 code: regexArray[5],

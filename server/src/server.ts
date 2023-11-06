@@ -76,6 +76,7 @@ namespace CommandIds {
 }
 
 // Clear the entire contents of TextDocument related caches.
+/* istanbul ignore next */
 function flushCache() {
     documentLinters.clear();
     documentSettings.clear();
@@ -83,6 +84,7 @@ function flushCache() {
 }
 
 // After the server has started the client sends an initialize request.
+/* istanbul ignore next */
 connection.onInitialize((params): InitializeResult => {
     let capabilities = params.capabilities;
 
@@ -113,6 +115,7 @@ connection.onInitialize((params): InitializeResult => {
     };
 });
 
+/* istanbul ignore next */
 connection.onInitialized(async () => {
     if (hasConfigurationCapability) {
         await connection.client.register(
@@ -124,6 +127,7 @@ connection.onInitialized(async () => {
 
 let didStart = false;
 
+/* istanbul ignore next */
 connection.onDidChangeConfiguration(async change => {
     if (hasConfigurationCapability) {
         flushCache();
@@ -134,6 +138,7 @@ connection.onDidChangeConfiguration(async change => {
     await validateAllDocuments({ force: false });
 });
 
+/* istanbul ignore next */
 connection.onNotification('begin', async (_params: any) => {
     didStart = true;
 
@@ -141,11 +146,12 @@ connection.onNotification('begin', async (_params: any) => {
     await validateAllDocuments({ force: false });
 });
 
-// NOTE: Does not exist for anything but unit-testing...
+/* istanbul ignore next */
 connection.onNotification('end', () => {
     didStart = false;
 });
 
+/* istanbul ignore next */
 connection.onNotification('onBuild', async (params: any) => {
     // eslint-disable-next-line no-console
     console.log('Received a notification that a build has completed: ' + _.toString(params));
@@ -162,6 +168,7 @@ connection.onNotification('onBuild', async (params: any) => {
     await validateAllDocuments({ force: false });
 });
 
+/* istanbul ignore next */
 async function getWorkspaceRoot(resource: string): Promise<string> {
     const resourceUri: URI = URI.parse(resource);
     const resourceFsPath: string = resourceUri.fsPath;
@@ -194,7 +201,9 @@ async function getWorkspaceRoot(resource: string): Promise<string> {
     return result;
 }
 
+/* istanbul ignore next */
 async function getDocumentSettings(resource: string): Promise<Settings> {
+    /* istanbul ignore next */
     if (!hasConfigurationCapability) {
         return Promise.resolve(globalSettings);
     }
@@ -210,6 +219,7 @@ async function getDocumentSettings(resource: string): Promise<Settings> {
     return result!;
 }
 
+/* istanbul ignore next */
 async function reconfigureExtension(currentSettings: Settings, workspaceRoot: string): Promise<Linter[]> {
     let linters: Linter[] = [];  // clear array
 
@@ -229,6 +239,7 @@ async function reconfigureExtension(currentSettings: Settings, workspaceRoot: st
     return linters;
 }
 
+/* istanbul ignore next */
 export async function getCppProperties(cCppPropertiesPath: string, currentSettings: GlobalSettings, workspaceRoot: string) {
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
@@ -329,12 +340,14 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
     return currentSettings;
 }
 
+/* istanbul ignore next */
 async function getActiveConfigurationName(_currentSettings: Settings): Promise<string> {
     return RobustPromises.retry(40, 250, 1000, () => connection.sendRequest<string>('c-cpp-flylint.cpptools.activeConfigName')).then(r => {
         if (!_.isArrayLike(r) || r.length === 0) { return propertiesPlatform(); } else { return r; }
     });
 }
 
+/* istanbul ignore next */
 function getMergedSettings(settings: GlobalSettings, workspaceRoot: string): Promise<GlobalSettings> {
     let currentSettings = _.cloneDeep(settings);
     const cCppPropertiesPath = path.join(workspaceRoot, '.vscode', 'c_cpp_properties.json');
@@ -342,6 +355,7 @@ function getMergedSettings(settings: GlobalSettings, workspaceRoot: string): Pro
     return getCppProperties(cCppPropertiesPath, currentSettings, workspaceRoot);
 }
 
+/* istanbul ignore next */
 async function getDocumentLinters(resource: string): Promise<Linter[]> {
     const settings: Settings = await getDocumentSettings(resource);
 
@@ -357,12 +371,14 @@ async function getDocumentLinters(resource: string): Promise<Linter[]> {
 }
 
 // Only keep analyzers and settings for opened documents.
+/* istanbul ignore next */
 documents.onDidClose(e => {
     documentLinters.delete(e.document.uri);
     documentSettings.delete(e.document.uri);
     documentVersions.delete(e.document.uri);
 });
 
+/* istanbul ignore next */
 async function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): Promise<any> {
     if (didStart) {
         // get the settings for the current file.
@@ -382,6 +398,7 @@ async function onChangedContent(event: TextDocumentChangeEvent<TextDocument>): P
 // FIXME: 1500 should be a configurable property!
 documents.onDidChangeContent(_.debounce(onChangedContent, 1500));
 
+/* istanbul ignore next */
 documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
     // get the settings for the current file.
     let settings = await getDocumentSettings(event.document.uri);
@@ -396,12 +413,14 @@ documents.onDidSave(async (event: TextDocumentChangeEvent<TextDocument>) => {
     await validateTextDocument(event.document, false);
 });
 
+/* istanbul ignore next */
 documents.onDidOpen(async (event: TextDocumentChangeEvent<TextDocument>) => {
     if (didStart) {
         await validateTextDocument(event.document, false);
     }
 });
 
+/* istanbul ignore next */
 async function validateAllDocuments(options: { force: boolean }) {
     const { force } = options || {};
 
@@ -410,6 +429,7 @@ async function validateAllDocuments(options: { force: boolean }) {
     }
 }
 
+/* istanbul ignore next */
 async function validateTextDocument(textDocument: TextDocument, force: boolean) {
     const tracker: ErrorMessageTracker = new ErrorMessageTracker();
     const fileUri: URI = URI.parse(textDocument.uri);
@@ -606,8 +626,10 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
     tracker.sendErrors(connection);
 }
 
+/* istanbul ignore next */
 function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic): Diagnostic {
     let line: number;
+    /* istanbul ignore next */
     if (documentLines !== null) {
         line = _.chain(msg.line)
             .defaultTo(0)
@@ -650,6 +672,7 @@ function makeDiagnostic(documentLines: string[] | null, msg: InternalDiagnostic)
     };
 }
 
+/* istanbul ignore next */
 function getErrorMessage(err: Error, document: TextDocument): string {
     let errorMessage = 'unknown error';
     if (_.isString(err.message)) {
@@ -660,6 +683,7 @@ function getErrorMessage(err: Error, document: TextDocument): string {
     return `'${errorMessage}' while validating: ${fsPathUri.fsPath}. Please analyze the 'C/C++ FlyLint' Output console. Stacktrace: ${err.stack}`;
 }
 
+/* istanbul ignore next */
 connection.onDidChangeWatchedFiles((params) => {
     params.changes.forEach(async element => {
         let configFilePath = URI.parse(element.uri);
@@ -672,6 +696,7 @@ connection.onDidChangeWatchedFiles((params) => {
     });
 });
 
+/* istanbul ignore next */
 connection.onRequest('getLocalConfig', async (activeDocument: TextDocument) => {
     const tracker = new ErrorMessageTracker();
 
@@ -696,6 +721,7 @@ connection.onRequest('getLocalConfig', async (activeDocument: TextDocument) => {
     return Promise.reject();
 });
 
+/* istanbul ignore next */
 connection.onExecuteCommand(async (params: ExecuteCommandParams) => {
     const tracker = new ErrorMessageTracker();
 

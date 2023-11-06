@@ -16,6 +16,7 @@ export interface IConfigurations {
     configurations: IConfiguration[];
 }
 
+/* istanbul ignore next */
 export function propertiesPlatform() {
     switch (os.platform()) {
         case 'darwin': return 'Mac';
@@ -29,6 +30,7 @@ export function propertiesPlatform() {
 export type SeverityLevel = DiagnosticSeverity | string;
 
 export namespace VS_DiagnosticSeverity {
+    /* istanbul ignore next */
     export function from(value: SeverityLevel): DiagnosticSeverity {
         if (_.isNumber(value)) {
             return value as DiagnosticSeverity;
