@@ -13,6 +13,9 @@ on:
   schedule:
     - cron: "30 5 * * 1"
 
+env:
+  CC_TEST_REPORTER_ID: 841d8434027b80ebe04ecbf7823df79314cbda58af076e88bdc7c53693c7640b
+
 jobs:
   legal:
     name: REUSE Specification
@@ -66,7 +69,22 @@ jobs:
       - name: Run Unit Tests on Linux
         run: xvfb-run "--server-args=-screen 0 1024x768x24" -a npm test
         if: runner.os == 'Linux'
-      - name: Upload Coverage Report
+      - name: Update Coverage Report to Code Climate
+        run: |
+            if test `uname -s` = "Linux"; then
+              curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            else
+              curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-darwin-amd64 > ./cc-test-reporter
+            fi
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter format-coverage -t lcov -o coverage/codeclimate.${{ matrix.os }}-node${{ matrix.node }}.json coverage/lcov.info
+            cp -vp coverage/codeclimate.${{ matrix.os }}-node${{ matrix.node }}.json .
+      - name: Upload Coverage as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-${{ matrix.os }}-node${{ matrix.node }}
+          path: codeclimate.${{ matrix.os }}-node${{ matrix.node }}.json
+      - name: Upload Coverage Report to Coveralls
         uses: coverallsapp/github-action@v1.2.5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -95,6 +113,14 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v2
+      - name: Update the Coverage Report on Code Climate
+        run: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter sum-coverage coverage*/codeclimate.*.json -p 4
+            ./cc-test-reporter upload-coverage
 
   publish:
     name: Publish
