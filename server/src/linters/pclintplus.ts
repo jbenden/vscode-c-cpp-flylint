@@ -61,7 +61,7 @@ export class PclintPlus extends Linter {
         let regex = /^(([^ ]+)?\s\s([0-9]+)\s([0-9]+\s)?\s([iI]nfo|[wW]arning|[eE]rror|[nN]ote|[sS]upplemental)\s([0-9]+):\s(.*)|(.+?):([0-9]+):([0-9]+:)?\s([iI]nfo|[wW]arning|[eE]rror|[nN]ote|[sS]upplemental)\s([0-9]+):\s(.*))$/;
         let regexArray: RegExpExecArray | null;
 
-        let excludeRegex = /^(\s+file '.*'|[^ \t]+|)$/;
+        let excludeRegex = /^(\s+file '.*'|PC-lint.*|licensed.*|LICENSED.*|.*evaluation license.*|[^ \t]+|)$/;
         if (excludeRegex.exec(line) !== null) {
             // skip this line
             return null;
