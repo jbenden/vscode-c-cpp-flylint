@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.14.0] - 2024-02-07
+
+### Changed
+
+- chore(deps): Bump babel/traverse
+- chore(deps): Bump node/debug
+- chore: Preen istanbul outputs
+- chore: Add codeclimate code coverage reporting
+- fix(linters): Add support for PCLint Plus 2.0 trial license.
+  See #212.
+
+### Added
+
+- Support grouped and sorted properties. See #205.
+
 ## [1.13.1] - 2023-08-16
 
 ### Changed
