@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
-import { parse as jsonParse } from 'json5';
+const JSON5 = require('json5').default;
+
 import {
     Connection,
     createConnection,
@@ -244,7 +245,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
             const matchOn: string = await getActiveConfigurationName(currentSettings[FLYLINT_ID]);
-            const cCppProperties: IConfigurations = jsonParse((fs.readFileSync(cCppPropertiesPath, 'utf8')));
+            const cCppProperties: IConfigurations = JSON5.parse((fs.readFileSync(cCppPropertiesPath, 'utf8')));
             const platformConfig = cCppProperties.configurations.find(el => el.name === matchOn);
 
             if (platformConfig !== undefined) {
