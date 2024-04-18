@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 
-import { parse as jsonParse } from 'json5';
 import {
     Connection,
     createConnection,
@@ -38,6 +37,9 @@ import { FlawFinder } from './linters/flawfinder';
 import { Flexelint } from './linters/flexelint';
 import { PclintPlus } from './linters/pclintplus';
 import { Lizard } from './linters/lizard';
+
+const JSON5Module = require('json5');
+const JSON5 = JSON5Module.default || JSON5Module;
 
 /** Identifier that is used to associate diagnostic entries with code actions. */
 export const FLYLINT_ID = 'c-cpp-flylint';
@@ -244,7 +246,7 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
     try {
         if (fs.existsSync(cCppPropertiesPath)) {
             const matchOn: string = await getActiveConfigurationName(currentSettings[FLYLINT_ID]);
-            const cCppProperties: IConfigurations = jsonParse((fs.readFileSync(cCppPropertiesPath, 'utf8')));
+            const cCppProperties: IConfigurations = JSON5.parse(fs.readFileSync(cCppPropertiesPath, 'utf8'));
             const platformConfig = cCppProperties.configurations.find(el => el.name === matchOn);
 
             if (platformConfig !== undefined) {
