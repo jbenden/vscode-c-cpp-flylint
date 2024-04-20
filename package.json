@@ -695,7 +695,8 @@
               "Error": "Error",
               "Warning": "Warning",
               "Info": "Information",
-              "Note": "Hint"
+              "Note": "Hint",
+              "Supplimental": "Hint"
             },
             "properties": {
               "Error": {
@@ -746,6 +747,18 @@
                   "None"
                 ]
               }
+            },
+            "Supplimental": {
+              "description": "Suggestions for producing better code.",
+              "type": "string",
+              "default": "Hint",
+              "enum": [
+                "Error",
+                "Warning",
+                "Hint",
+                "Information",
+                "None"
+              ]
             }
           }
         }
@@ -786,7 +799,8 @@
               "error": "Error",
               "warning": "Warning",
               "info": "Information",
-              "note": "Hint"
+              "note": "Hint",
+              "supplimental": "Hint"
             },
             "properties": {
               "error": {
