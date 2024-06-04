@@ -25,7 +25,7 @@ export class CppCheck extends Linter {
             : ['--enable=warning,style,performance,portability,information'];
         let addonParams = this.getAddonParams();
         let includeParams = this.getIncludePathParams();
-        let suppressionParams = this.getSuppressionParams();
+        let suppressionParams = this.getSuppressionParams().map(a => this.expandVariables(a).result || a);
         let languageParam = this.getLanguageParam();
         let platformParams = this.getPlatformParams();
         let standardParams = this.expandedArgsFor(
@@ -118,20 +118,12 @@ export class CppCheck extends Linter {
         return VS_DiagnosticSeverity.from(output);
     }
 
-    private isValidPlatform(platform: string): boolean {
-        const allowedPlatforms = ['avr8', 'unix32', 'unix64', 'win32A', 'win32W', 'win64', 'native'];
-        return _.includes(allowedPlatforms, platform);
-    }
-
     private getPlatformParams(): string {
         let platform = this.settings.cppcheck.platform;
 
         if (platform) {
-            if (!this.isValidPlatform(platform)) {
-                return '--platform=native';
-            }
-
-            return `--platform=${platform}`;
+            let substituted_platform = this.expandVariables(platform).result || platform;
+            return `--platform=${substituted_platform}`;
         }
 
         return '--platform=native';
