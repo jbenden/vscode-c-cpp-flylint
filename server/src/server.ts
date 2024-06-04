@@ -58,6 +58,9 @@ let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 // Does the LS client support the configuration abilities?
 let hasConfigurationCapability = false;
 
+// Does the LS client use the Microsoft C/C++ extension?
+let hasMsCppTools = true;
+
 let defaultSettings: Settings;
 let globalSettings: Settings;
 
@@ -344,8 +347,13 @@ export async function getCppProperties(cCppPropertiesPath: string, currentSettin
 
 /* istanbul ignore next */
 async function getActiveConfigurationName(_currentSettings: Settings): Promise<string> {
+    if (!hasMsCppTools) return Promise.resolve(propertiesPlatform());
+
     return RobustPromises.retry(40, 250, 1000, () => connection.sendRequest<string>('c-cpp-flylint.cpptools.activeConfigName')).then(r => {
         if (!_.isArrayLike(r) || r.length === 0) { return propertiesPlatform(); } else { return r; }
+    }).catch(_e => {
+        hasMsCppTools = false;
+        return propertiesPlatform();
     });
 }
 
