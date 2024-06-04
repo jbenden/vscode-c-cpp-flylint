@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.15.0] - 2024-06-04
+
+### Changed
+
+- Support variable substitution across a number of configuration
+  parameters.
+
 ## [1.14.0] - 2024-02-07
 
 ### Changed
