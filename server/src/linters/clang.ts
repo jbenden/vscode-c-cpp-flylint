@@ -106,7 +106,7 @@ export class Clang extends Linter {
             .concat(undefineParams)
             .concat(includePathParams)
             .concat(languageParam)
-            .concat(this.settings.clang.extraArgs || []);
+            .concat((this.settings.clang.extraArgs || []).map(a => this.expandVariables(a).result || a));
 
         if (this.settings.run === 'onType') {
             args.push(sysPath(tmpFileName));

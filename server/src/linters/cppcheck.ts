@@ -47,7 +47,7 @@ export class CppCheck extends Linter {
         let args = [this.executable]
             .concat(['--inline-suppr'])
             .concat(enableParams)
-            .concat(addonParams)
+            .concat((addonParams || []).map(a => this.expandVariables(a).result || a))
             .concat(includeParams)
             .concat(standardParams)
             .concat(defineParams)
@@ -56,7 +56,7 @@ export class CppCheck extends Linter {
             .concat(languageParam)
             .concat([platformParams])
             .concat([`--template="{file}  {line}  {severity} {id}: {message}"`])
-            .concat(this.settings.cppcheck.extraArgs || []);
+            .concat((this.settings.cppcheck.extraArgs || []).map(a => this.expandVariables(a).result || a));
 
         /* istanbul ignore if */
         if (this.settings.cppcheck.verbose) {

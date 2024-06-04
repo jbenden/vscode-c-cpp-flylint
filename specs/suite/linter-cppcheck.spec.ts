@@ -33,6 +33,16 @@ describe('CppCheck parser', () => {
         expect(actual).toHaveLength(8);
     });
 
+    test('should substitute variables in certain configurations', () => {
+        config.cppcheck.extraArgs = ["--cppcheck-build-dir",
+            "${workspaceFolder}/opc_ua_cxxx_workspace/build"];
+        linter = new CppCheck(config, process.cwd());
+
+        const actual = linter['buildCommandLine']('main.h', 'main.h');
+        expect(actual).toHaveLength(10);
+        expect(actual[8]).not.toMatch("workspaceFolder");
+    });
+
     test('should handle parsing an invalid line', () => {
         const actual = linter['parseLine']('should not parse!')!;
         expect(actual).toHaveProperty('parseError');

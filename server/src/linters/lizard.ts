@@ -20,7 +20,7 @@ export class Lizard extends Linter {
     protected buildCommandLine(fileName: string, _tmpFileName: string): string[] {
         let args = [this.executable]
             .concat(['--warnings_only'])
-            .concat(this.settings.lizard.extraArgs || []);
+            .concat((this.settings.lizard.extraArgs || []).map(a => this.expandVariables(a).result || a));
 
         args.push(sysPath(fileName));
 
