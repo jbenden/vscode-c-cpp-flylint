@@ -114,7 +114,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
       - name: Download Build Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
       - name: Update the Coverage Report on Code Climate
         run: |
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -142,7 +142,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Download Build Artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: ubuntu-latest
       - name: GitHub Release
