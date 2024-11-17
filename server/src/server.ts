@@ -386,6 +386,7 @@ documents.onDidClose(e => {
     documentLinters.delete(e.document.uri);
     documentSettings.delete(e.document.uri);
     documentVersions.delete(e.document.uri);
+    connection.sendDiagnostics({uri: e.document.uri, diagnostics: []});
 });
 
 /* istanbul ignore next */
