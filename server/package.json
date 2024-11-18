@@ -13,7 +13,7 @@
     "node": "*"
   },
   "dependencies": {
-    "cross-spawn": "^7.0.3",
+    "cross-spawn": "^7.0.6",
     "fast-glob": "^3.2.5",
     "lodash": "^4.17.21",
     "slash": "^3.0.0",
