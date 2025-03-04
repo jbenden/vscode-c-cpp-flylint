@@ -539,7 +539,7 @@ async function validateTextDocument(textDocument: TextDocument, force: boolean) 
                 let currentFile: string = '';
                 let i = result.length;
 
-                while (i-- >= 0) {
+                while (--i >= 0) {
                     let msg: InternalDiagnostic = result[i];
 
                     if (msg === null || msg === undefined || msg.parseError || !msg.hasOwnProperty('line') || msg.source === '') {

@@ -9,3 +9,4 @@ node_modules
 *.pdf
 /.vscode-test
 /coverage
+.DS_Store
