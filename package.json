@@ -696,7 +696,7 @@
               "Warning": "Warning",
               "Info": "Information",
               "Note": "Hint",
-              "Supplimental": "Hint"
+              "Supplemental": "Hint"
             },
             "properties": {
               "Error": {
@@ -748,7 +748,7 @@
                 ]
               }
             },
-            "Supplimental": {
+            "Supplemental": {
               "description": "Suggestions for producing better code.",
               "type": "string",
               "default": "Hint",
@@ -800,7 +800,7 @@
               "warning": "Warning",
               "info": "Information",
               "note": "Hint",
-              "supplimental": "Hint"
+              "supplemental": "Hint"
             },
             "properties": {
               "error": {
